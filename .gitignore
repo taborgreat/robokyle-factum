@@ -1,0 +1,9 @@
+.venv/
+build/
+__pycache__/
+*.pyc
+.agentcad/
+firmware/*/build/
+node_modules/
+factum/frontend/dist/
+factum/backend/data/
