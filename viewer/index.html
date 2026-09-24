@@ -1,0 +1,311 @@
+<title>Robo Kyle Assembly Viewer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #eef1f4; --panel: #ffffff; --ink: #1b2128; --muted: #5b6672; --line: #d5dbe2;
+    --accent: #154733; --accent-ink: #ffffff; --duck: #c99700;
+    --printed: #9fb6c8; --elec: #2e8b57; --wire: #e0a800; --plug: #d9662b; --hover: #154733; --skin: #d9b59a;
+    --canvas: #e4e8ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #14181c; --panel: #1c2127; --ink: #e6eaee; --muted: #98a3ae; --line: #2c343c;
+      --accent: #7fd1a0; --accent-ink: #0f1a14; --duck: #f0c419;
+      --printed: #8aa3b8; --elec: #4fb57a; --wire: #f2c14e; --plug: #ef8a4f; --hover: #7fd1a0; --skin: #a67c5b;
+      --canvas: #0f1215;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #14181c; --panel: #1c2127; --ink: #e6eaee; --muted: #98a3ae; --line: #2c343c;
+    --accent: #7fd1a0; --accent-ink: #0f1a14; --duck: #f0c419;
+    --printed: #8aa3b8; --elec: #4fb57a; --wire: #f2c14e; --plug: #ef8a4f; --hover: #7fd1a0; --skin: #a67c5b;
+    --canvas: #0f1215;
+  }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 "IBM Plex Sans", system-ui, sans-serif; }
+  .app { display: grid; grid-template-columns: 300px 1fr; height: 100%; }
+  aside { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 14px; }
+  h1 { font: 600 24px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: .02em; margin: 0; text-transform: uppercase; }
+  h1 small { display: block; font: 400 12px/1.3 "IBM Plex Sans", sans-serif; color: var(--muted); text-transform: none; letter-spacing: 0; margin-top: 4px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabs button { flex: 1 1 auto; font: 600 14px "Barlow Condensed", sans-serif; letter-spacing: .04em; text-transform: uppercase; padding: 7px 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 4px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .tabs button:focus-visible, .views button:focus-visible, input:focus-visible { outline: 2px solid var(--duck); outline-offset: 2px; }
+  fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+  legend { font: 600 12px "Barlow Condensed", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  label.row { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 8px; padding: 3px 4px; border-radius: 3px; cursor: pointer; }
+  label.row:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  label.row input { margin: 0; accent-color: var(--accent); }
+  label.row .nm { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; }
+  label.row .v { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 11px; font-variant-numeric: tabular-nums; }
+  .ctl { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; }
+  .ctl label { color: var(--muted); font-size: 12.5px; }
+  .ctl output { font-family: "IBM Plex Mono", monospace; font-size: 12px; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; grid-column: 1 / -1; accent-color: var(--accent); }
+  .views { display: flex; gap: 6px; }
+  .views button { flex: 1; padding: 6px 0; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 4px; cursor: pointer; font: 500 12.5px "IBM Plex Sans", sans-serif; }
+  .views button:hover { border-color: var(--accent); }
+  .grp { display: flex; gap: 6px; }
+  .grp button { font-size: 12px; padding: 4px 8px; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 3px; cursor: pointer; }
+  main { position: relative; background: var(--canvas); min-height: 320px; }
+  canvas { display: block; width: 100%; height: 100%; }
+  .status { position: absolute; left: 12px; bottom: 10px; font: 500 12px "IBM Plex Mono", monospace; color: var(--muted); background: color-mix(in srgb, var(--panel) 85%, transparent); padding: 4px 8px; border-radius: 3px; pointer-events: none; }
+  .status b { color: var(--ink); font-weight: 500; }
+  .hint { color: var(--muted); font-size: 12px; margin: 0; }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+  .toggle input { accent-color: var(--accent); margin: 0; }
+  @media (max-width: 720px) {
+    .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    aside { border-right: 0; border-bottom: 1px solid var(--line); max-height: 46vh; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <aside>
+    <h1>Robo Kyle<small id="sub">band box · forearm module · electrode · whole arm</small></h1>
+    <div class="tabs" role="tablist" id="tabs">
+      <button id="tab-band" aria-pressed="true" data-asm="band">Band box</button>
+      <button id="tab-fa" aria-pressed="false" data-asm="fa">Forearm module</button>
+      <button id="tab-el" aria-pressed="false" data-asm="el">Electrode</button>
+      <button id="tab-arm" aria-pressed="false" data-asm="arm">Whole arm</button>
+    </div>
+    <div class="ctl">
+      <label for="lift">Lift the lid</label><output id="liftv" for="lift">0 mm</output>
+      <input type="range" id="lift" min="0" max="45" value="0" step="1">
+      <label for="xray">Printed parts see-through</label>
+      <input type="checkbox" id="xray" class="toggle-in">
+    </div>
+    <div class="views">
+      <button id="v-iso">Iso</button><button id="v-top">Top</button><button id="v-end">Elbow end</button><button id="v-under">Under</button>
+    </div>
+    <div id="groups"></div>
+    <p class="hint" id="note"></p>
+  </aside>
+  <main>
+    <canvas id="c"></canvas>
+    <div class="status" id="status">loading…</div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="glb.js"></script>
+<script>
+(() => {
+  // ---------- what to show. Versions are the agentcad build numbers behind print/*.stl (see MANIFEST.md).
+  const V = window.GLB_VERSIONS || {};
+  const ver = f => V[f] ? "v" + V[f] : "";
+  const ASM = {
+    band: {
+      sub: "cuff box on the upper arm · 80.7 × 78.1 mm · " + [ver("band_box.glb"), ver("band_lid.glb"), ver("band_plate.glb")].join(" / "),
+      note: "Yellow = solder, pin stubs, wire bends and plugs a real build needs; the layout check must clear all of it. Sizes are mm.",
+      files: [
+        { f: "band_box.glb",   cat: "printed", label: "box " + ver("band_box.glb") },
+        { f: "band_lid.glb",   cat: "printed", label: "lid " + ver("band_lid.glb"), lid: true },
+        { f: "band_plate.glb", cat: "printed", label: "sewn plate " + ver("band_plate.glb") },
+        { f: "band_parts.glb", split: true },
+      ],
+      lidParts: ["button", "led", "motor", "ws2812"],
+    },
+    fa: {
+      sub: "forearm module on the strap, thumb side · 54.2 × 54.3 mm · " + [ver("fa_module.glb"), ver("fa_lid.glb"), ver("fa_backer.glb")].join(" / "),
+      note: "Both signal boards on their facets, IMU under board B, both trunk sockets stacked in the elbow wall.",
+      files: [
+        { f: "fa_module.glb", cat: "printed", label: "module " + ver("fa_module.glb") },
+        { f: "fa_lid.glb",    cat: "printed", label: "lid " + ver("fa_lid.glb"), lid: true },
+        { f: "fa_backer.glb", cat: "printed", label: "backer " + ver("fa_backer.glb") },
+        { f: "fa_parts.glb",  split: true },
+      ],
+      lidParts: [],
+    },
+    el: {
+      sub: "electrode on its own loop band · 39.6 × 35.3 mm · " + ver("electrode_frame.glb"),
+      note: "The plate sits bars-down in the frame; a closed 22 mm elastic lies across the plate's back and the clamp bar (one of two shown) screws down over it. Lift raises the bar.",
+      files: [
+        { f: "electrode_frame.glb", cat: "printed", label: "frame " + ver("electrode_frame.glb") },
+        { f: "electrode_bar.glb",   cat: "printed", label: "clamp bar " + ver("electrode_bar.glb"), lid: true },
+        { f: "electrode_parts.glb", split: true },
+      ],
+      lidParts: [],
+    },
+    arm: {
+      sub: "everything on a stand-in arm · shoulder left, hand right",
+      note: "Straight arm: r 44 at the band, r 34 at the forearm ring (guesses). Module on the thumb side, extensor electrode on the back of the forearm, flexor inside. Lift moves every lid.",
+      compose: [ ["band", 150, 44, 0], ["fa", 395, 36.4, 0], ["el", 395, 34, 90], ["el", 395, 34, -90] ],
+      files: [ { f: "arm.glb", cat: "arm", label: "arm (stand-in) " + ver("arm.glb") } ],
+      lidParts: [],
+    },
+  };
+  const CATS = {
+    arm:     { title: "Arm", css: "--skin" },
+    printed: { title: "Printed", css: "--printed" },
+    elec:    { title: "Electronics", css: "--elec" },
+    plug:    { title: "Plugs & cables", css: "--plug" },
+    svc:     { title: "Wires, solder & keep-clear zones", css: "--wire" },
+  };
+  const catOf = n => n.startsWith("svc_") ? "svc" : (n.startsWith("plug") || n.endsWith("_plug") ? "plug" : "elec");
+  const PRETTY = {
+    sock_a0: "trunk socket A (3V3 GND EMG1 EMG2)", sock_a1: "trunk socket B (SDA SCL INT RST)", sock_b0: "hand cord socket",
+    sock_l0: "lid socket L0 (GND 3V3 DIN)", sock_l1: "lid socket L1 (LED+ BTN MOTOR)", sock_b1: "trunk socket B (upper)",
+    strip: "perf strip + Pico 2 W", qi_board: "Qi receiver board", qi_coil: "Qi coil", ws2812: "light bar (3 px)",
+    board_a: "EMG board A (flexor)", board_b: "EMG board B (extensor)", imu: "BNO08x IMU", plate: "electrode plate",
+    plate_plug: "3.5 mm plug", plug_a: "3.5 mm plug A", plug_b: "3.5 mm plug B",
+  };
+  const pretty = n => PRETTY[n] || n.replace(/^svc_/, "").replace(/_/g, " ");
+
+  // ---------- three.js
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const canvas = document.getElementById("c");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 1, 2000);
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.9));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.7); sun.position.set(80, 140, 60); scene.add(sun);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(-120, 40, -80); scene.add(fill);
+  const root = new THREE.Group(); scene.add(root);
+
+  const loader = new THREE.GLTFLoader();
+  const items = [];           // { name, cat, obj, lid, on }
+  const state = { asm: "band", lift: 0, xray: false, bbox: null };
+
+  function material(cat, xray) {
+    const c = new THREE.Color(css(CATS[cat].css));
+    const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, metalness: 0.05, side: THREE.DoubleSide });
+    if (cat === "svc") { m.transparent = true; m.opacity = 0.55; }
+    if (cat === "arm") { m.roughness = 0.9; m.transparent = true; m.opacity = 0.85; }
+    if (cat === "printed" && xray) { m.transparent = true; m.opacity = 0.3; m.depthWrite = false; }
+    return m;
+  }
+  function paint() {
+    for (const it of items) it.obj.traverse(o => { if (o.isMesh) o.material = material(it.cat, state.xray); });
+  }
+  function applyLift() {
+    for (const it of items) it.obj.position.y = it.lid ? state.lift : 0;
+  }
+  function fitCamera(dir) {
+    const box = new THREE.Box3();
+    for (const it of items) if ((it.cat === "printed" || it.cat === "arm") && !it.lid) box.expandByObject(it.obj);
+    if (box.isEmpty()) return;
+    state.bbox = box;
+    const size = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3());
+    const r = size.length() / 2;
+    const d = r / Math.tan((camera.fov * Math.PI / 180) / 2) * 1.15;
+    camera.position.copy(ctr).addScaledVector(dir.clone().normalize(), d);
+    camera.near = d / 100; camera.far = d * 10; camera.updateProjectionMatrix();
+    controls.target.copy(ctr); controls.update();
+  }
+  const VIEWS = { iso: new THREE.Vector3(0.9, 0.8, 1.1), top: new THREE.Vector3(0.001, 1, 0.001), end: new THREE.Vector3(-1, 0.25, 0.001), under: new THREE.Vector3(0.3, -1, 0.3) };
+
+  function load(f) {                       // the GLBs ship inside glb.js (base64), parsed in place
+    const b64 = window.GLB[f]; if (!b64) return Promise.reject(new Error("missing " + f));
+    const bin = atob(b64), buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return new Promise((res, rej) => loader.parse(buf.buffer, "", g => res(g.scene), rej));
+  }
+  // place one assembly on the arm: shift its arm axis to the origin (+r), turn it around the arm (rot about X),
+  // slide it along the arm (x). Lids still lift along their own local Y inside this group.
+  function placement(x, r, rot) {
+    const g = new THREE.Group();
+    g.position.set(x, 0, 0);
+    g.rotation.x = rot * Math.PI / 180;
+    const inner = new THREE.Group(); inner.position.set(0, r, 0); g.add(inner);
+    root.add(g);
+    return inner;
+  }
+  async function loadAssembly(asm, into, tag) {
+    for (const spec of ASM[asm].files) {
+      let sc;
+      try { sc = await load(spec.f); } catch (e) { document.getElementById("status").textContent = "could not load " + spec.f; continue; }
+      if (!spec.split) {
+        items.push({ name: tag + spec.label, cat: spec.cat, obj: sc, lid: !!spec.lid, on: true });
+        into.add(sc);
+      } else {
+        // one GLB holding every placed part; each named top-level node is one part
+        for (const node of [...sc.children]) {
+          const n = (node.name || "").toLowerCase();
+          if (!n || n.startsWith("=>")) continue;
+          const g = new THREE.Group(); g.name = n; g.add(node);
+          items.push({ name: tag + pretty(n), raw: n, cat: catOf(n), obj: g, lid: ASM[asm].lidParts.includes(n), on: true });
+          into.add(g);
+        }
+      }
+    }
+  }
+  async function show(asm) {
+    state.asm = asm;
+    for (const b of document.querySelectorAll("#tabs button")) b.setAttribute("aria-pressed", String(b.dataset.asm === asm));
+    document.getElementById("sub").textContent = ASM[asm].sub;
+    document.getElementById("note").textContent = ASM[asm].note;
+    document.getElementById("status").textContent = "loading…";
+    while (root.children.length) root.remove(root.children[0]);
+    items.length = 0;
+    await loadAssembly(asm, root, "");
+    for (const [sub, x, r, rot] of ASM[asm].compose || [])
+      await loadAssembly(sub, placement(x, r, rot), rot > 0 ? "ext. " : rot < 0 ? "flex. " : "");
+    paint(); applyLift(); buildList(); fitCamera(VIEWS.iso);
+    document.getElementById("status").innerHTML = `<b>${items.length}</b> objects · drag to orbit, wheel to zoom, right-drag to pan`;
+  }
+  function buildList() {
+    const host = document.getElementById("groups"); host.innerHTML = "";
+    for (const [cat, meta] of Object.entries(CATS)) {
+      const list = items.filter(i => i.cat === cat);
+      if (!list.length) continue;
+      const fs = document.createElement("fieldset");
+      const lg = document.createElement("legend");
+      lg.innerHTML = `<i style="background:var(${meta.css})"></i>${meta.title} <span class="grp"><button type="button" data-all="1">all</button><button type="button" data-all="0">none</button></span>`;
+      lg.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { list.forEach(i => { i.on = b.dataset.all === "1"; i.obj.visible = i.on; }); buildList(); }));
+      fs.appendChild(lg);
+      for (const it of list) {
+        const id = "p_" + (it.raw || it.name).replace(/\W+/g, "_");
+        const l = document.createElement("label"); l.className = "row"; l.htmlFor = id;
+        l.innerHTML = `<input type="checkbox" id="${id}" ${it.on ? "checked" : ""}><span class="nm">${it.name}</span><span class="v">${it.lid ? "on lid" : ""}</span>`;
+        l.querySelector("input").addEventListener("change", e => { it.on = e.target.checked; it.obj.visible = it.on; });
+        l.addEventListener("pointerenter", () => highlight(it, true));
+        l.addEventListener("pointerleave", () => highlight(it, false));
+        fs.appendChild(l);
+      }
+      host.appendChild(fs);
+    }
+  }
+  function highlight(it, on) {
+    it.obj.traverse(o => { if (o.isMesh) o.material.emissive = new THREE.Color(on ? css("--hover") : "#000000"), o.material.emissiveIntensity = on ? 0.35 : 0; });
+  }
+
+  // hover names on the canvas
+  const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+  canvas.addEventListener("pointermove", e => {
+    const r = canvas.getBoundingClientRect();
+    ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ptr, camera);
+    const hit = ray.intersectObjects(items.filter(i => i.on).map(i => i.obj), true)[0];
+    const s = document.getElementById("status");
+    if (hit) { let o = hit.object, it = null; while (o && !(it = items.find(i => i.obj === o))) o = o.parent; s.innerHTML = it ? `<b>${it.name}</b>` : ""; }
+    else s.innerHTML = `<b>${items.length}</b> objects · drag to orbit, wheel to zoom, right-drag to pan`;
+  });
+
+  // controls
+  document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.asm)));
+  const lift = document.getElementById("lift");
+  lift.addEventListener("input", () => { state.lift = +lift.value; document.getElementById("liftv").textContent = lift.value + " mm"; applyLift(); });
+  document.getElementById("xray").addEventListener("change", e => { state.xray = e.target.checked; paint(); });
+  for (const [k, v] of Object.entries(VIEWS)) document.getElementById("v-" + k).addEventListener("click", () => fitCamera(v));
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paint);
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (canvas.width !== w * renderer.getPixelRatio() || canvas.height !== h * renderer.getPixelRatio()) {
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+  }
+  (function tick() { resize(); controls.update(); renderer.render(scene, camera); requestAnimationFrame(tick); })();
+  show("band");
+})();
+</script>

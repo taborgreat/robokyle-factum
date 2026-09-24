@@ -57,3 +57,6 @@ def main(ref: str, name: str):
 
 if __name__ == "__main__":
     main(*sys.argv[1:3])
+    # keep viewer/index.html current with print/
+    import runpy
+    runpy.run_path(str(ROOT / "viewer" / "build_viewer.py"), run_name="__main__")

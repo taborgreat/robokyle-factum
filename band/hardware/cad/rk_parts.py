@@ -60,8 +60,10 @@ DIM = {
     # DFRobot SEN0240: electrode plate AND signal board are both 22x35 (wiki). Thickness/jack unknown.
     # caliper 2026-09-23: plate 36 x 23.3, board 1.11, 2.6 at the dots (dots ~1.5 proud, skin side), jack 14.14 long
     # from 23.82 in (overhangs the plug end ~2 mm), 6.68 tall at the jack; cable plug ~6.2 across, ~22 mm past the board.
-    "emg_electrode": dict(l=36.0, w=23.3, t=1.11, dot_h=1.5, jack_x0=23.82, jack_l=14.14, jack_w=6.5, jack_h=5.57,
-                          plug_d=6.2, plug_l=22.0, dot_d=8.0, dot_pitch=9.7, SRC="M (dot layout TBD from photo)"),
+    # photo 2026-09-23 (scaled from the 23.3 width): three metal BARS 14.5 x 5.8 at 11.3 pitch, centred on the plate,
+    # long axis across the plate (so the electrode pair runs along the plate's length = along the muscle).
+    "emg_electrode": dict(l=36.0, w=23.3, t=1.11, bar_h=1.5, jack_x0=23.82, jack_l=14.14, jack_w=6.5, jack_h=5.57,
+                          plug_d=6.2, plug_l=22.0, bar_l=14.5, bar_w=5.8, bar_pitch=11.3, SRC="M/photo"),
     # caliper 2026-09-23: ~40 x 22; Gravity 3-pin socket on one short end, 3.5 mm jack on the other (cables both ends);
     # two mount holes at the jack end, 2.7 in from the side, 5.3 down from the jack edge (hole d assumed 3.0).
     "emg_signal": dict(l=40.0, w=22.0, t=1.2, comp_h=6.0, hole_d=3.0, hole_in=2.7, hole_down=5.3,
@@ -80,8 +82,13 @@ DIM = {
     "motor": dict(d=10.0, h=3.4, lead_l=15.0, cradle_id=10.8, tab_w=4.0, tab_l=3.4, SRC="M"),
     # JST-PH 2.0 mm housings (PHR-n): width = (n-1)*2 + 4, mating length 6, height ~4.9
     # plug housings measured 2026-09-23: 2p 6.11 x 5.96, 3p 7.95 x 6, 4p 9.93 x 6, 6p 14 x 6 (W x H). Trunk = two 4-pin.
+    # 2026-09-23: the 6.11/7.95/9.93/14 widths are the SOCKETS (straight top-entry B_B-PH-K-S from the kit; 2p plug passed
+    # the 4.4 gauge slot so it cannot be 6.11). Plug housing width = (n-1)*2 + 4.0; socket = (n-1)*2 + 4.1, 4.5 thick, 6.0
+    # tall (mating axis), pins 3.4 straight out the back. Wall pockets: sock_w = measured + 0.3, plug window from the gauge.
     "jst_ph": dict(pitch=2.0, base_w=4.0, l=6.0, h=6.0, wire_bend=10.0, plug_w={2: 6.11, 3: 7.95, 4: 9.93, 6: 14.0},
-               plug_hole_w2=4.4, plug_hole_w3=6.4, plug_hole_h=5.2, socket_w2=6.2, socket_w3=8.2, socket_h=6.0, SRC="M/gauge"),
+               plug_hole_w2=4.4, plug_hole_w3=6.4, plug_hole_h=5.2, socket_w2=6.2, socket_w3=8.2, socket_h=6.0,
+               sock_w={2: 6.4, 3: 8.25, 4: 10.25, 6: 14.3}, sock_t=4.5, sock_d=6.0, pin_l=3.4,
+               plug_hole_w={2: 4.4, 3: 6.4, 4: 8.4, 6: 12.4}, SRC="M/gauge/D"),
     # Zerone Qi receiver (photo vs tape 2026-09-22): oval coil ~48x35 with a ~20x10 window, black board ~25x15
     # with 2 corner holes, coil leads on one long edge, output wires at a corner; separate ferrite sheet.
     "qi": dict(coil_l=43.75, coil_w=25.3, coil_t=1.0, ferrite_t=0.6, board_l=25.2, board_w=14.6, board_t=2.0,
@@ -188,9 +195,12 @@ def imu():
 
 
 def emg_electrode():
-    """Dry electrode plate: board bottom on Z=0 is the SKIN side (dots hang below), 3.5 mm jack on top at the +X end."""
+    """Dry electrode plate: board bottom on Z=0 is the SKIN side (bars hang below), 3.5 mm jack on the BACK (+Z) at
+    the +X end, overhanging the board end ~2 mm."""
     d = DIM["emg_electrode"]
-    p = _box(d["l"], d["w"], d["t"]) + _box(d["l"] - 8, d["w"] - 6, d["dot_h"], -2, 0, -d["dot_h"])   # dot zone, refined from photo
+    p = _box(d["l"], d["w"], d["t"])
+    for i in (-1, 0, 1):
+        p += _box(d["bar_w"], d["bar_l"], d["bar_h"], i * d["bar_pitch"], 0, -d["bar_h"])
     jack_x = -d["l"] / 2 + d["jack_x0"] + d["jack_l"] / 2
     return p + _box(d["jack_l"], d["jack_w"], d["jack_h"], jack_x, 0, d["t"])
 
@@ -233,13 +243,15 @@ def slide_switch_keepout():
     return slide_switch() + _box(d["nub_l"] + d["travel"], d["nub_w"], d["nub_h"], 0, 0, d["h"])
 
 
-def tactile_button():
-    """12x12 tactile switch, body bottom on Z=0, square cap on top, 4 legs hanging below (soldered to the strip)."""
+def tactile_button(leg_below=None):
+    """12x12 tactile switch, body bottom on Z=0, square cap on top, 4 legs hanging below. In the band's lid the
+    legs are CLIPPED (leg_below=1.5) and wires soldered sideways onto them; the stock 3.5 mm legs would hit the floor."""
     d = DIM["button"]
+    lb = d["leg_below"] if leg_below is None else leg_below
     b = _box(d["l"], d["w"], d["h"]) + _box(d["cap_l"], d["cap_w"], d["cap_h"], 0, 0, d["h"])
     for sx in (-1, 1):
         for sy in (-1, 1):
-            b += _box(0.7, 0.7, d["leg_below"], sx * d["leg_dx"] / 2, sy * d["leg_dy"] / 2, -d["leg_below"])
+            b += _box(0.7, 0.7, lb, sx * d["leg_dx"] / 2, sy * d["leg_dy"] / 2, -lb)
     return b
 
 
@@ -269,6 +281,15 @@ def coin_motor():
     d = DIM["motor"]
     return (_cyl(d["d"], d["h"]) + _box(d["tab_l"], d["tab_w"], 1.0, d["d"] / 2 + d["tab_l"] / 2, 0, 0)
             + _box(d["lead_l"], 3, 1.2, d["d"] / 2 + d["tab_l"] + d["lead_l"] / 2, 0, 0))
+
+
+def jst_socket(n):
+    """Straight JST-PH socket lying on its back: opening faces +X on the X=0 plane, body runs -X, pins beyond it.
+    Base (one 4.5 mm face) on Z=0, centred in Y."""
+    d = DIM["jst_ph"]
+    body = _box(d["sock_d"], d["sock_w"][n] - 0.3, d["sock_t"], -d["sock_d"] / 2, 0, 0)
+    pins = _box(d["pin_l"], (n - 1) * d["pitch"] + 0.64, 0.64, -d["sock_d"] - d["pin_l"] / 2, 0, d["sock_t"] / 2 - 0.32)
+    return body + pins
 
 
 def jst_ph_plug(n):

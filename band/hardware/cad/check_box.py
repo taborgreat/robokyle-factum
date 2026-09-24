@@ -41,6 +41,22 @@ def main():
             if outside > TOL: flag += " OUTSIDE"
             if flag: fails.append(name)
         print(f"{name:18s} {v:8.1f} {ib:8.2f} {il:8.2f} {outside:8.2f} {flag}")
+    # service volumes (wires, solder, plugs) must also clear the real parts
+    parts = {k: v for k, v in P.items() if not k.startswith("svc_") and not k.endswith("keepout")}
+    for name, sv in P.items():
+        if not name.startswith("svc_"):
+            continue
+        for pn, part in parts.items():
+            if name.startswith("svc_lid_plug_") and pn.startswith("sock_L"):
+                continue
+            if name == "svc_switch_wires" and pn == "switch":       # the blobs sit on the switch's own pin tips
+                continue
+            if name.startswith("svc_button") and pn in ("button", "button_keepout"):
+                continue
+            v = vol(sv & part)
+            if v > TOL:
+                print(f"{name:22s} hits {pn:12s} {v:8.2f}")
+                fails.append(f"{name}/{pn}")
     # box/lid must not overlap each other
     bl = vol(box & lid)
     print(f"box & lid overlap: {bl:.2f}")

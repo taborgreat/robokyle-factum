@@ -1,6 +1,6 @@
 # Band hardware
 
-`cad/` is the build123d/agentcad source, `print/` the exported STLs (with sizes in `MANIFEST.md`), `BENCH.md` the
+`cad/` is the build123d/agentcad source, `print/` the exported STLs (with sizes in `MANIFEST.md`), `../BENCH.md` the
 electronics build guide. Pins: [../PINOUT.md](../PINOUT.md). Box, lid and plate print in PLA Tough (the same
 filament the fit gauge was printed with - clearances were measured on it); PETG is reserved for the claw.
 

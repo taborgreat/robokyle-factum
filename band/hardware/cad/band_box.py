@@ -12,7 +12,8 @@ The lid's skirt wraps over a thinned wall top; two M2 screws on the ridge line g
 import math
 from build123d import (Box, Cylinder, Location, Align, Axis, Rectangle, RectangleRounded, extrude, fillet, Compound)
 from rk_parts import (DIM, pico_on_strip, pico_usb_plug, usb_wall_cut, battery, charger, charger_keepout, slide_switch,
-                      tactile_button, tactile_button_keepout, led_5mm, ws2812_segment, coin_motor, qi_coil, qi_board)
+                      tactile_button, tactile_button_keepout, led_5mm, ws2812_segment, coin_motor, qi_coil, qi_board,
+                      jst_socket, _box)
 
 # ---------------------------------------------------------------- parameters (mm)
 R = 44.0            # upper-arm radius at the cuff (GUESS: measure Kyle's arm circumference / 2pi)
@@ -48,13 +49,29 @@ SW_INSET = 1.0                 # nub base this far inside the wall's inner face
 CHG_U = -4.0                   # charger shifted toward the triceps wall: battery plug clears the rib and the -X plate post
 MOTOR_U = -7.5
 COIL_U = 2.0                   # coil shifted toward the rib (it is wider than the battery bay)
+CUP_WALL = 1.2                 # button cup wall (was 1.5; the cup now shares the end wall with the cord socket)
+CUP_LEG_CLR = 0.8              # the button's legs stand ~0.3 proud of its +-X faces
+BTN_LEG = 1.5                  # clip the button's legs to this (stock 3.5 would hit the floor); wires soldered sideways
+BTN_RECESS_D, BTN_RECESS = 18.0, 0.8   # shallow round pocket in the floor under the button: leg + blob room
+# wall sockets (straight JST-PH headers lying on their backs in pockets behind the +X end wall; plug window = the
+# gauge's plug slot, so the wall is the flange; a dab of hot glue keeps them from lifting)
+JST = DIM["jst_ph"]
+SOCK_D, SOCK_POST, SOCK_SHELF = JST["sock_d"] + 0.2, 1.2, 1.0    # pocket depth, back-post thickness, shelf above the floor
+SOCK_PIN = 2.0                 # socket pins clipped to 2 mm (the trunk pins would otherwise reach the battery ring)
+SOCK_ZONE = 3.0                # extra bay length at the +X end so the socket pins clear the battery ring
+TRUNK = [(4, -6.875), (4, 4.575)]        # row A end wall: trunk plug A (3V3 GND EMG1 EMG2), trunk plug B (SDA SCL INT RST)
+CORD = [(3, -11.125)]                    # row B end wall, rib side: hand cord (TX RX GND)
+NOTCH_W = 17.0                 # middle-wall notches: wider than the wall's leaning faces at the top (13.3), no fins left
+LID_SOCK_X, LID_SOCK_U = 25.6, (-6.5, 3.0)   # two upright PH3 sockets on the strip, pins in row 21 bent 1.2 toward +X
+                                              # (body clear of the Pico's end and of the button cup), strip coords
 
 # ---------------------------------------------------------------- row geometry
 ROW_W = {"A": b["w"] + 2 * BATT_CLR, "B": s["w"] + 2 * CLR}
 IN_W = ROW_W["A"] + RIB + ROW_W["B"]
 Y_ROW = {"A": -IN_W / 2 + ROW_W["A"] / 2, "B": IN_W / 2 - ROW_W["B"] / 2}
 LEAD_GAP = 4.0
-BTN_ZONE = DIM["button"]["l"] + 2 * CLR + 3.0 + 1.0          # button cup beyond the strip's +X end
+BATT_LIP = 2.0                 # the cell's tape lip (3.7, soft) at the lead end: the ring pocket is this much longer there (2.0 = all the room before the charger)
+BTN_ZONE = DIM["button"]["l"] + 2 * CLR + 2 * CUP_WALL + 1.0 + SOCK_ZONE   # button cup + socket room beyond the strip's +X end
 USB_NOSE = DIM["usb_plug"]["nose_in"]                        # the Pico's USB socket pokes this far into the wall hole
 USB_FACE_REL = (s["pico_row_offset"] - DIM["pico"]["l"] / 2 - DIM["pico"]["usb_overhang"]) + s["l"] / 2   # USB face vs strip end (- = past it)
 STRIP_X0 = -USB_NOSE - USB_FACE_REL                            # strip's -X end relative to the wall's inner face
@@ -70,14 +87,16 @@ TOP_A = W_BATT + b["h"] + q["ferrite_t"] + q["coil_t"]
 USB_TOP = W_STRIP + s["t"] + DIM["pico"]["hdr_base"] + DIM["pico"]["t"] + DIM["pico"]["usb_h"] / 2 + DIM["usb_plug"]["h"] / 2
 R_IN = {"A": TOP_A + SERVICE_A, "B": USB_TOP + 0.3}         # lid underside per row: the USB plug sets row B
 BTN_D = DIM["button"]
-BTN_X, BTN_U = s["l"] / 2 + CLR + BTN_ZONE / 2 - 0.5, 0.0    # button (in the lid) beyond the strip's +X end, strip coords
+BTN_X = s["l"] / 2 + CLR + (BTN_ZONE - SOCK_ZONE) / 2 - 0.5  # button (in the lid) beyond the strip's +X end, strip coords
+BTN_U = 2.35                                                   # shifted to the chest side: the cord socket sits on the rib side
 BTN_W = R_IN["B"] + LID_T - BTN_D["cap_h"] - BTN_D["h"]      # body bottom height: cap flush with the lid surface
 R_OUT = {k: v + LID_T for k, v in R_IN.items()}
 PARTING = {k: v - SKIRT for k, v in R_IN.items()}
 SW_U = ROW_W["B"] / 2 - SW_INSET
 NOTCH_D = SW_D["nub_h"] - SW_INSET - WALL + 0.6      # finger recess depth (nub tip 0.6 below the surface)
 Y_RIB = (Y_ROW["A"] + ROW_W["A"] / 2 + Y_ROW["B"] - ROW_W["B"] / 2) / 2      # global y of the rib centre at floor
-Y_BOSS = Y_RIB + 4.5      # lid bosses, strip side of the middle wall (snip the strip's -X rib-side corner ~8 mm)
+Y_BOSS = Y_RIB + 4.5      # -X lid boss, strip side of the middle wall (snip the strip's -X rib-side corner ~8 mm)
+CHEST_BOSS_U = ROW_W["B"] / 2 - 1.85   # +X lid boss: row B's chest corner (the rib corner holds the cord socket)
 Y_POST = Y_RIB - 3.5      # plate posts, battery side of the middle wall (driver path clear of the charger wires)
 
 
@@ -254,13 +273,14 @@ def placements():
     P["charger"] = on_row(charger(), "A", x_chg, CHG_U, R_FLOOR, rz=-90)          # crosswise; socket toward the rib (+u)
     P["charger_keepout"] = on_row(charger_keepout(), "A", x_chg, CHG_U, R_FLOOR, rz=-90)
     P["battery"] = on_row(battery(), "A", x_batt, 0, W_BATT)
-    P["qi_board"] = on_row(qi_board(), "A", xa + q["board_w"] / 2, 2.0, R_IN["A"] - q["board_t"], rz=90)
+    # Qi board lies flat on top of the charger (Kapton between): nothing on the lid needs the coil's wires any more
+    P["qi_board"] = on_row(qi_board(), "A", xa + 7.4, -1.5, R_FLOOR + c["h"] + 2.3, rz=90)   # above the charger's wires
     P["qi_coil"] = on_row(qi_coil(), "A", x_batt, COIL_U, R_IN["A"] - q["coil_t"] - q["ferrite_t"])
     x_strip = X0 + STRIP_X0 + s["l"] / 2
     P["strip"] = on_row(pico_on_strip(), "B", x_strip, 0, W_STRIP)
     x_pico = x_strip + s["pico_row_offset"]
     P["usb_plug"] = on_row(pico_usb_plug(), "B", x_pico, 0, W_STRIP + s["t"] + DIM["pico"]["hdr_base"])
-    P["button"] = on_row(tactile_button(), "B", x_strip + BTN_X, BTN_U, BTN_W)
+    P["button"] = on_row(tactile_button(leg_below=BTN_LEG), "B", x_strip + BTN_X, BTN_U, BTN_W)   # legs clipped
     P["button_keepout"] = on_row(tactile_button_keepout(), "B", x_strip + BTN_X, BTN_U, BTN_W)
     P["led"] = on_row(led_5mm(), "B", x_strip + LED_X, LED_Y, R_OUT["B"] + LED_PROUD - LED_D["body_h"])
     y_r, _, z_b = bar_pose()
@@ -270,7 +290,89 @@ def placements():
     # nub tip is flush with the outer surface (and 0.6 recessed inside the finger notch)
     sw = slide_switch().rotate(Axis.X, -90).moved(Location((0, -SW_D["h"], 0)))
     P["switch"] = on_row(sw, "B", x_strip + SW_X, SW_U, SW_W + SW_D["w"] / 2)
+    for k, bank in (("A", TRUNK), ("B", CORD)):
+        for i, (n, u) in enumerate(bank):
+            sk = jst_socket(n) - _box(10, 20, 10, -JST["sock_d"] - SOCK_PIN - 5, 0, -1)       # pins clipped
+            P[f"sock_{k}{i}"] = on_row(sk, k, X0 + IN_L, u, R_FLOOR + SOCK_SHELF)
+    # lid pigtail: two PH3 sockets soldered upright on the strip's free row 21 (pins bent to the 2.54 grid);
+    # the lid's six wires (GND, 3V3, LED+, BTN, MOTOR, DIN) end in two PH3 housings so the lid comes right off
+    up = (jst_socket(3) - _box(10, 20, 10, -JST["sock_d"] - SOCK_PIN - 5, 0, -1)).rotate(Axis.Y, -90).moved(Location((0, 0, JST["sock_d"])))   # opening up
+    for i, u in enumerate(LID_SOCK_U):
+        P[f"sock_L{i}"] = on_row(up, "B", x_strip + LID_SOCK_X, u, W_STRIP + s["t"])
+    P.update(service_volumes(P))
     return P
+
+
+def service_volumes(P):
+    """Wire bends, solder blobs and pin stubs: volumes a real build needs around the parts. Checked like parts
+    (check_box.py) so 'it fits on screen' includes the soldering. Sizes are what a careful hand build needs, not
+    generous - if one of these clashes, the layout is wrong, not the zone."""
+    S = {}
+    xa = X0 + CLR
+    x_chg = xa + c["w"] / 2 + 2.5
+    x_batt = xa + c["w"] + CLR + LEAD_GAP + b["l"] / 2 + 2.5
+    x_strip = X0 + STRIP_X0 + s["l"] / 2
+    # charger: wires soldered flat onto its pads (blob + wire = 2 mm); the Qi board sits on Kapton above that
+    S["svc_charger_solder"] = on_row(_box(c["l"], c["w"], 2.0, 0, 0, c["h"]), "A", x_chg, CHG_U, R_FLOOR, rz=-90)
+    # battery tape lip + leads folding out of the cell's -X end through the ring's lead notch (3 mm, then they turn
+    # toward the charger's socket on the rib side)
+    S["svc_batt_leads"] = on_row(_box(3.0, 7.0, 6.0, -(b["l"] / 2 + 1.5), 0, 0), "A", x_batt, 0, R_FLOOR)
+    # wall sockets: solder blob + wire turning up, 2.2 mm beyond the clipped pin tips
+    for k, bank in (("A", TRUNK), ("B", CORD)):
+        for i, (n, u) in enumerate(bank):
+            z = _box(2.2, (n - 1) * JST["pitch"] + 2.6, 4.0, -(JST["sock_d"] + SOCK_PIN) - 1.1, 0, SOCK_SHELF + JST["sock_t"] / 2 - 2.0)
+            S[f"svc_sock_{k}{i}"] = on_row(z, k, X0 + IN_L, u, R_FLOOR)
+    # strip: tall parts (transistor, diodes, resistors on end) up to 4.5 mm on the two outer rows beside the Pico.
+    # Rib side: from 20 mm before the strip centre (the -X corner is snipped for the lid boss) to the free rows.
+    # Chest side: same, minus the switch's and the LED's shadows - keep those spots for low parts.
+    S["svc_strip_margin_rib"] = on_row(_box(43.0, 4.0, 4.5, 1.5, -12.7, s["t"]), "B", x_strip, 0, W_STRIP)
+    chest = _box(43.0, 4.0, 4.5, 1.5, 12.7, s["t"])
+    chest -= _box(SW_D["l"] + 3.0, 6.0, 6.0, SW_X, 12.7, s["t"] - 0.5)
+    chest -= _box(LED_D["flange_d"] + 3.2 + 1.0, 6.0, 6.0, LED_X, 12.7, s["t"] - 0.5)
+    S["svc_strip_margin_chest"] = on_row(chest, "B", x_strip, 0, W_STRIP)
+    # lid pigtail: the two PH3 housings' wires bending over right above each socket (2 mm)
+    for i, u in enumerate(LID_SOCK_U):
+        S[f"svc_lid_plug_{i}"] = on_row(_box(5.0, 8.5, 2.0, LID_SOCK_X, u, s["t"] + JST["sock_d"]), "B", x_strip, 0, W_STRIP)
+    # lid wires: a flat ribbon under the lid down the Pico's centre line (the only lane past the motor ring), from
+    # the plugs to the motor; plus a short chest-side run to the LED boss
+    S["svc_lid_wires_mid"] = on_row(_box(LID_SOCK_X - 2.0 + 6.0, 4.0, 1.5, (LID_SOCK_X - 2.0 - 6.0) / 2, 1.5, 0), "B", x_strip, 0, R_IN["B"] - 1.6)   # u +1.5: just clear of the motor ring
+    S["svc_lid_wires_chest"] = on_row(_box(LID_SOCK_X - 2.0 - (LED_X + 4.5), 3.0, 1.5, (LID_SOCK_X - 2.0 + LED_X + 4.5) / 2, LED_Y, 0), "B", x_strip, 0, R_IN["B"] - 1.6)
+    # button: clipped legs + solder blobs under the body, two wires leaving sideways (-X, toward the lid sockets)
+    S["svc_button_solder"] = on_row(_box(BTN_D["leg_dx"] + 2.0, BTN_D["leg_dy"] + 2.0, BTN_LEG + 0.5, BTN_X, BTN_U, BTN_W - BTN_LEG - 1.0), "B", x_strip, 0, 0)   # blobs at the leg tips, below the cup
+    S["svc_button_wires"] = on_row(_box(10.0, 4.0, 1.4, BTN_X - BTN_D["leg_dx"] / 2 - 5.0, BTN_U, BTN_W - BTN_LEG - 1.2), "B", x_strip, 0, 0)
+    # switch: solder blobs + three wires on its pin tips (the pins point into the bay, just past the Pico's can)
+    S["svc_switch_wires"] = on_row(_box(SW_D["l"], 2.5, 2.5, SW_X, SW_U - SW_D["h"] - SW_D["pin_below"] + 0.5, SW_W + SW_D["w"] / 2 - 0.2), "B", x_strip, 0, 0)
+    # WS2812 bar leads: three wires off the bar's -X end dropping into the -X rib notch
+    y_r, _, z_b = bar_pose()
+    S["svc_bar_leads"] = Box(5.0, 5.0, z_b + 2.0 - (R_FLOOR + 5.0 + 0.2), align=(Align.MAX, Align.CENTER, Align.MAX)).moved(
+        Location((-N_PIX * WS_D["pitch"] / 2 - 1.0, y_r, z_b + 2.0)))
+    # Qi board: coil leads + output wires BESIDE its rib-side edge (no room above it: the lid is 0.3 over the board)
+    S["svc_qi_wires"] = on_row(_box(q["board_w"], 4.0, 4.0, 0, 0, 0), "A", xa + 7.4, -1.5 + q["board_l"] / 2 + 2.0, R_FLOOR + c["h"] + 0.2)
+    return S
+
+
+def socket_bank(k, bank):
+    """(block, cuts) for a row of wall sockets in row k's +X end wall. Each socket: a block against the wall with an
+    open-top pocket (socket drops in from above), two back posts it bears on when the plug is pushed in, a slot
+    between them for the pins, and the plug window through the wall."""
+    xw = X0 + IN_L                                   # wall inner face
+    block, cuts = None, None
+    for n, u in bank:
+        w_ = JST["sock_w"][n]
+        top = SOCK_SHELF + JST["sock_t"] + 0.5
+        b = on_row(_box(SOCK_D + SOCK_POST, w_ + 2 * SOCK_POST, top, xw - (SOCK_D + SOCK_POST) / 2, u, 0), k, 0, 0, R_FLOOR)
+        c = on_row(_box(SOCK_D + 0.5, w_, 30, xw - SOCK_D / 2 + 0.25, u, SOCK_SHELF), k, 0, 0, R_FLOOR)          # pocket
+        c += on_row(_box(SOCK_POST + 0.4, (n - 1) * JST["pitch"] + 2.4, 30, xw - SOCK_D - SOCK_POST / 2, u, SOCK_SHELF), k, 0, 0, R_FLOOR)   # pin slot
+        c += on_row(_box(WALL + 4, JST["plug_hole_w"][n], JST["plug_hole_h"], xw + WALL / 2, u,
+                         SOCK_SHELF + JST["sock_t"] / 2 - JST["plug_hole_h"] / 2), k, 0, 0, R_FLOOR)              # plug window
+        block = b if block is None else block + b
+        cuts = c if cuts is None else cuts + c
+    if len(bank) == 2:   # two sockets side by side: one window, so the two housings can be glued into one plug
+        (n0, u0), (n1, u1) = bank
+        w_win = abs(u1 - u0) + (JST["plug_hole_w"][n0] + JST["plug_hole_w"][n1]) / 2
+        cuts += on_row(_box(WALL + 4, w_win, JST["plug_hole_h"], xw + WALL / 2, (u0 + u1) / 2,
+                            SOCK_SHELF + JST["sock_t"] / 2 - JST["plug_hole_h"] / 2), k, 0, 0, R_FLOOR)
+    return block, cuts
 
 
 # ---------------------------------------------------------------- box
@@ -284,9 +386,13 @@ def box():
     x_strip = X0 + STRIP_X0 + s["l"] / 2
     # battery bay walls
     wall_h = FOAM_T + 4.0
-    outer = extrude(RectangleRounded(b["l"] + 2 * BATT_CLR + 3.2, b["w"] + 2 * BATT_CLR + 3.2, 3.0), amount=wall_h)
-    inner = extrude(RectangleRounded(b["l"] + 2 * BATT_CLR, b["w"] + 2 * BATT_CLR, 1.5), amount=wall_h + 1).moved(Location((0, 0, -0.5)))
-    body += on_row(outer - inner, "A", x_batt, 0, R_FLOOR) & cavity("A")
+    # (print 2026-09-24: the ring pressed on the tape lip -> pocket BATT_LIP longer at the lead end, plus a lead notch)
+    outer = extrude(RectangleRounded(b["l"] + 2 * BATT_CLR + BATT_LIP + 3.2, b["w"] + 2 * BATT_CLR + 3.2, 3.0), amount=wall_h)
+    inner = extrude(RectangleRounded(b["l"] + 2 * BATT_CLR + BATT_LIP, b["w"] + 2 * BATT_CLR, 1.5), amount=wall_h + 1).moved(Location((0, 0, -0.5)))
+    ring = (outer - inner).moved(Location((-BATT_LIP / 2, 0, 0)))
+    ring -= Box(6.0, 10.0, wall_h + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+        Location((-(b["l"] / 2 + BATT_CLR + BATT_LIP + 0.8), 0, -0.5)))                      # lead notch in the -X segment
+    body += on_row(ring, "A", x_batt, 0, R_FLOOR) & cavity("A")
     # charger cradle: two corner brackets (pins clipped; wires soldered)
     ck = c["l"] + 2 * CLR
     cr = extrude(RectangleRounded(c["w"] + 2 * CLR + 2.4, ck + 2.4, 1.0), amount=5.0)
@@ -301,12 +407,18 @@ def box():
                            x_strip + sx * s["standoff_x"], sy * s["standoff_u"], R_FLOOR)
             body -= on_row(Cylinder(M2_FORM_D / 2, STANDOFF + 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
                            x_strip + sx * s["standoff_x"], sy * s["standoff_u"], R_FLOOR - 1.0)   # blind: 1 mm into the floor
-    # lid bosses in the end walls (strip side): M2x8 from the lid threads into a 2.0 hole, 8 deep
-    for sx in (-1, 1):
-        x = sx * (IN_L / 2 - 3.5)
-        body += Cylinder(LID_BOSS_D / 2, 200).moved(Location((x, Y_BOSS, 0))) & outer_form() & tent(R_IN["A"] - 0.2, R_IN["B"] - 0.2)
-        body -= Cylinder(LID_BOSS_HOLE / 2, 4.6, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(
-            Location((x, Y_BOSS, tent_z(Y_BOSS, R_IN["A"] - 0.2, R_IN["B"] - 0.2) + 0.01)))
+    # lid bosses with M2 heat-set inserts: -X on the ridge line (strip side), +X in row B's chest corner (the rib
+    # corner there holds the cord socket). The +X boss is built in the row frame, so its screw is normal to that facet.
+    x = -(IN_L / 2 - 3.5)
+    body += Cylinder(LID_BOSS_D / 2, 200).moved(Location((x, Y_BOSS, 0))) & outer_form() & tent(R_IN["A"] - 0.2, R_IN["B"] - 0.2)
+    body -= Cylinder(LID_BOSS_HOLE / 2, 4.6, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(
+        Location((x, Y_BOSS, tent_z(Y_BOSS, R_IN["A"] - 0.2, R_IN["B"] - 0.2) + 0.01)))
+    x = IN_L / 2 - 3.5
+    boss_h = R_IN["B"] - 0.2 - R_FLOOR
+    body += on_row(Cylinder(LID_BOSS_D / 2, boss_h, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
+                   x, CHEST_BOSS_U, R_FLOOR) & outer_form()
+    body -= on_row(Cylinder(LID_BOSS_HOLE / 2, 4.6 + 0.01, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
+                   x, CHEST_BOSS_U, R_IN["B"] - 0.2 - 4.6)
     body -= skirt_band_cut()                                           # bosses must not fill the skirt lap
     # holes in the floor for the plate's posts (battery side): M2x6 from inside into the insert on each post
     for sx in (-1, 1):
@@ -321,16 +433,35 @@ def box():
     # wire notch through the middle wall at the USB end: VBUS->VI, VO->switch, JST+ ->divider, GND cross here
     # it starts right at the lid boss (no thin fin between them) and runs 9 mm along the wall
     nx0 = -(IN_L / 2 - 3.5) + LID_BOSS_D / 2 - 0.2
-    body -= Box(9.0, 14.0, 30, align=(Align.MIN, Align.CENTER, Align.MIN)).moved(Location((nx0, Y_RIB, R_FLOOR + 5.0)))
+    body -= Box(9.0, NOTCH_W, 30, align=(Align.MIN, Align.CENTER, Align.MIN)).moved(Location((nx0, Y_RIB, R_FLOOR + 5.0)))
     body += Cylinder(LID_BOSS_D / 2, 200).moved(Location((-(IN_L / 2 - 3.5), Y_BOSS, 0))) & outer_form() & tent(R_IN["A"] - 0.2, R_IN["B"] - 0.2)             - Cylinder(LID_BOSS_HOLE / 2, 4.6, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(
                 Location((-(IN_L / 2 - 3.5), Y_BOSS, tent_z(Y_BOSS, R_IN["A"] - 0.2, R_IN["B"] - 0.2) + 0.01)))             - skirt_band_cut()
+    # floor recess under the button's clipped legs + solder (the plate is right below: 0.8 mm of floor left there)
+    body -= on_row(Cylinder(BTN_RECESS_D / 2, BTN_RECESS + 10, align=(Align.CENTER, Align.CENTER, Align.MAX)), "B",
+                   x_strip + BTN_X, BTN_U, R_FLOOR + 10.0) & cavity("B")
     # openings
     P = placements()
     body -= usb_cuts()
     body -= nub_slot()
-    body += on_row(Box(SW_D["l"] + 2, 3.0, 1.5), "B", x_strip + SW_X, ROW_W["B"] / 2 - 1.5, SW_W - 0.75)  # switch ledge (pocket 9.2 x 4.3 per gauge)
+    # switch mount (print 2026-09-24: the 3 mm ledge drooped and hung over the perf's outer hole column). Now two
+    # fins on the chest wall, 1 mm into the bay - clear of every perf hole - each with a 1 mm foot the switch's ends
+    # rest on. Body glued between the fins, nub through the slot.
+    u_fin = ROW_W["B"] / 2 - 0.7 + 0.8                          # fins stand 0.7 into the bay (the strip still drops past them), 0.9 into the wall
+    for sx in (-1, 1):
+        xf = x_strip + SW_X + sx * (SW_D["l"] / 2 + 0.5 + 0.6)
+        body += on_row(Box(1.2, 1.6, R_IN["B"] - 0.2 - (W_STRIP + s["t"] + 0.5), align=(Align.CENTER, Align.CENTER, Align.MIN)),
+                       "B", xf, u_fin, W_STRIP + s["t"] + 0.5) & cavity("B")
+        body += on_row(Box(1.5, 1.6, 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN)),
+                       "B", xf - sx * 1.35, u_fin, SW_W - 1.0) & cavity("B")                   # foot under the switch end
     body -= nub_notch()
-    body -= on_row(Cylinder(3.0, 10).rotate(Axis.Y, 90), "B", IN_L / 2, -4.0, R_FLOOR + 6.0)   # trunk exit, +X wall
+    # +X notch through the middle wall: the trunk wires cross from the row A sockets to the strip; also the
+    # screwdriver path to the +X plate post
+    body -= Box(9.0, NOTCH_W, 30, align=(Align.MAX, Align.CENTER, Align.MIN)).moved(Location((IN_L / 2 - 2.0, Y_RIB, R_FLOOR + 5.0)))
+    # wall sockets
+    for k, bank in (("A", TRUNK), ("B", CORD)):
+        blk, cut = socket_bank(k, bank)
+        body += blk & cavity(k)
+        body -= cut
     return body
 
 
@@ -371,14 +502,20 @@ def lid():
     x_strip = X0 + STRIP_X0 + s["l"] / 2
     # button pocket: a square cup on the underside holds the body (press fit), the cap passes the lid hole
     cup_h = R_IN["B"] - (BTN_W - 0.5) + 0.05                    # from 0.5 below the button body up to the lid underside
-    cup = Box(BTN_D["l"] + 2 * CLR + 3.0, BTN_D["w"] + 2 * CLR + 3.0, cup_h, align=(Align.CENTER, Align.CENTER, Align.MIN))
-    cup -= Box(BTN_D["l"] + 2 * CLR, BTN_D["w"] + 2 * CLR, cup_h + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((0, 0, -1)))
-    cup -= Box(BTN_D["l"] + 2 * CLR + 4, 4.0, BTN_D["h"] - 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((0, 0, -1)))  # wire exits, low
+    # (print 2026-09-24: the four solder legs sit on the body's +-X faces and hang out of the cup's open bottom,
+    #  so the cup is CUP_LEG_CLR wider along X and the old wire slots are gone)
+    cup = Box(BTN_D["l"] + 2 * CUP_LEG_CLR + 2 * CUP_WALL, BTN_D["w"] + 2 * CLR + 2 * CUP_WALL, cup_h, align=(Align.CENTER, Align.CENTER, Align.MIN))
+    cup -= Box(BTN_D["l"] + 2 * CUP_LEG_CLR, BTN_D["w"] + 2 * CLR, cup_h + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((0, 0, -1)))
     cap = Compound([cap]) + (on_row(cup, "B", x_strip + BTN_X, BTN_U, BTN_W - 0.5) & cavity_inset("B", 0.3))
     cap -= P["button_keepout"]
     cap -= usb_cuts()
     cap -= nub_slot()
     cap -= nub_notch()
+    # coin motor: a locating ring on the underside (the motor's own adhesive pad holds it); gap for the tab + leads (-X)
+    mr = Cylinder(DIM["motor"]["cradle_id"] / 2 + 1.2, 1.0, align=(Align.CENTER, Align.CENTER, Align.MAX))
+    mr -= Cylinder(DIM["motor"]["cradle_id"] / 2, 3.0, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(Location((0, 0, 1)))
+    mr -= Box(6.0, DIM["motor"]["tab_w"] + 1.0, 3.0, align=(Align.MAX, Align.CENTER, Align.MAX)).moved(Location((-DIM["motor"]["d"] / 2 + 1.0, 0, 1)))
+    cap = Compound([cap]) + (on_row(mr, "B", x_strip + 2, MOTOR_U, R_IN["B"] + 0.01) & cavity_inset("B", 0.3))
     # LED boss on the underside: flange seats on its bottom, dome passes a dome-sized hole, tip LED_PROUD outside
     boss_h = LED_D["body_h"] - LED_PROUD - LED_D["flange_t"]
     cap = Compound([cap]) + (on_row(Cylinder(LED_D["dome_d"] / 2 + 1.6, boss_h, align=(Align.CENTER, Align.CENTER, Align.MAX)), "B",
@@ -390,8 +527,8 @@ def lid():
     for i in range(N_PIX):
         px = (i - (N_PIX - 1) / 2) * WS_D["pitch"]
         cap -= Box(SLIT_L, SLIT_W, 20, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((px, y_r, z_in + SLIT_T)))
-    for sx in (-1, 1):
-        cap -= Cylinder(SCREW_D / 2, 200).moved(Location((sx * (IN_L / 2 - 3.5), Y_BOSS, 0)))
+    cap -= Cylinder(SCREW_D / 2, 200).moved(Location((-(IN_L / 2 - 3.5), Y_BOSS, 0)))
+    cap -= on_row(Cylinder(SCREW_D / 2, 40), "B", IN_L / 2 - 3.5, CHEST_BOSS_U, R_IN["B"])
     return cap
 
 

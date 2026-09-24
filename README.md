@@ -9,6 +9,7 @@ Modes: HAND-FACTUM, HAND-DIRECT (band hotspot), MOUSE (BLE HID), HAND-WIRED (3-w
 | `band/` | the EMG band: `hardware/` (CAD, prints, bench guide), `software/` (Pico 2 W firmware, bench scripts), `PINOUT.md` |
 | `claw/` | the DIY hand: `software/` (Pico W firmware); `hardware/` to be rebuilt |
 | `factum/` | Node backend + React frontend: listens to the band, edits both devices' settings |
+| `viewer/` | 3D viewer of the current prints (open `index.html` from disk): band box, forearm module, electrode frame, whole arm; every part and wire zone toggleable, lids liftable. `publish.py` rebuilds `glb.js` from `band/hardware/print/`; `python viewer/build_viewer.py --parts` also re-exports the placed parts. Hosted: https://claude.ai/artifact/8ErRYJjEn2KXbewgbUocWk |
 
 Tooling: `.venv` (agentcad/build123d, cmake, ninja), `~/.pico-sdk` (SDK 2.2.0 + ARM GCC), Node 22. Generated CAD
 versions land in `build/` (ignored); exported STLs in `band/hardware/print/`.
