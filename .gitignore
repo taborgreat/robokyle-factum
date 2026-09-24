@@ -3,7 +3,7 @@ build/
 __pycache__/
 *.pyc
 .agentcad/
-firmware/*/build/
+*/software/firmware/build/
 node_modules/
 factum/frontend/dist/
 factum/backend/data/

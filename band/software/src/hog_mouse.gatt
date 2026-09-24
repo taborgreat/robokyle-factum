@@ -1,9 +1,0 @@
-// GATT database for the HID mouse (BTstack .gatt format; compiled by pico_btstack_make_gatt_header)
-PRIMARY_SERVICE, GAP_SERVICE
-CHARACTERISTIC, GAP_DEVICE_NAME, READ, "RoboKyle Band"
-CHARACTERISTIC, GAP_APPEARANCE, READ, 03 c2
-PRIMARY_SERVICE, GATT_SERVICE
-CHARACTERISTIC, GATT_SERVICE_CHANGED, READ,
-#import <battery_service.gatt>
-#import <device_information_service.gatt>
-#import <hids.gatt>
