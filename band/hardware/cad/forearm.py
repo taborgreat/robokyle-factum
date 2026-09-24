@@ -57,7 +57,7 @@ SOCK_STACK = 2                                 # the two PH4 trunk sockets stack
                                                # (the two housings get glued into one 2x4 plug: one hole in the wall)
 SKIRT, SKIRT_T, SKIRT_CLR = 3.0, 1.0, 0.25
 BOSS_D, BOSS_HOLE = 5.5, 2.0
-BOSS_X = 14.0
+STRAP_W = 38.1                                 # the 1.5" strap; the clamp screws sit OUTSIDE it (no holes in the elastic)
 CORNER_R, EDGE_R = 4.0, 1.5
 
 R = R_FA + BACKER_T                            # the module's "arm": the backer's outer face
@@ -71,6 +71,7 @@ Y_ROW = {"A": -(RIB / 2 + ROW_W / 2), "B": RIB / 2 + ROW_W / 2}    # A = -Y (fle
 IN_L = SOCK_ZONE + g["l"] + 2 * CLR
 OUT_L, OUT_W = IN_L + 2 * WALL, IN_W + 2 * WALL
 X0 = -IN_L / 2
+BOSS_X = STRAP_W / 2 + 0.5 + BOSS_D / 2 + 0.3   # clamp bosses just outside the strap, merged into the end walls
 X_BOARD = X0 + SOCK_ZONE + CLR + g["l"] / 2      # board centre; Gravity end toward the sockets, jack at +X
 
 
@@ -228,7 +229,7 @@ def service_volumes(P):
     for k in ("A", "B"):
         S[f"svc_grav_wires_{k}"] = on_row(_box(5.0, 11.0, 2.3, -g["l"] / 2 + 4.0, 0, -2.3), k, X_BOARD, 0, W_BOARD[k])
     # board A's three wires crossing the rib to the sockets, through the rib notch at the elbow end
-    S["svc_rib_wires"] = Box(5.0, RIB + 4.0, 3.0).moved(Location((X0 + 4.0, 0, R + R_FLOOR + 4.5)))
+    S["svc_rib_wires"] = Box(5.0, RIB + 4.0, 3.0).moved(Location((X0 + 8.3, 0, R + R_FLOOR + 4.5)))
     return S
 
 
@@ -272,7 +273,7 @@ def module():
     body += on_row(blk.rotate(Axis.Z, 180), "B", X0, 0, R_FLOOR) & cavity("B")
     body -= on_row(cut.rotate(Axis.Z, 180), "B", X0, 0, R_FLOOR)
     # rib notch at the elbow end: board A's wires cross to the sockets
-    body -= Box(6.0, RIB + 6.0, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((X0 + 4.0, 0, R + R_FLOOR + 4.0)))
+    body -= Box(6.0, RIB + 6.0, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((X0 + 8.3, 0, R + R_FLOOR + 4.0)))   # clear of the -X boss
     bl, bw = g["l"], g["w"]
     for k in ("A", "B"):
         so = STANDOFF[k]
@@ -309,7 +310,11 @@ def module_lid():
 
 
 def module_backer():
+    """Curved plate under the strap. Two rails on its top face box the strap in sideways (they stand 0.2 mm lower
+    than the strap, so the module's floor clamps the strap, not the rails)."""
     b = shell(0, BACKER_T, OUT_L, OUT_W)
+    for sx in (-1, 1):
+        b += shell(BACKER_T, BACKER_T + STRAP_T - 0.2, 2.0, OUT_W - 2.0, corner=0.8).moved(Location((sx * (STRAP_W / 2 + 0.5 + 1.0), 0, 0)))
     for sx in (-1, 1):
         b -= Cylinder(M2["clear_d"] / 2, 200).moved(Location((sx * BOSS_X, 0, 0)))
         b -= Cylinder(HEAD_D / 2, 200, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(Location((sx * BOSS_X, 0, -BACKER_T + HEAD_H)))   # from the skin face

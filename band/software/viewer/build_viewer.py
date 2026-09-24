@@ -1,15 +1,15 @@
 """Rebuild viewer/glb.js from the CURRENT prints.
 
-    .venv/Scripts/python viewer/build_viewer.py            # embed the GLBs behind print/*.stl (per MANIFEST.md) + latest parts/arm
-    .venv/Scripts/python viewer/build_viewer.py --parts    # first re-export the placed-parts and arm GLBs with agentcad
+    .venv/Scripts/python band/software/viewer/build_viewer.py            # embed the GLBs behind print/*.stl (per MANIFEST.md) + latest parts/arm
+    .venv/Scripts/python band/software/viewer/build_viewer.py --parts    # first re-export the placed-parts and arm GLBs with agentcad
 
-publish.py calls this after every publish, so viewer/index.html always shows what is in print/. Open the HTML
+publish.py calls this after every publish, so this folder's index.html always shows what is in print/. Open the HTML
 straight from disk; the models are embedded in glb.js (no server needed). The claude.ai copy is republished by hand.
 """
 import base64, json, re, subprocess, sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[3]          # band/software/viewer -> repo root
 BUILD, PRINT, OUT = ROOT / "build", ROOT / "band" / "hardware" / "print", Path(__file__).with_name("glb.js")
 PY = ROOT / ".venv" / "Scripts" / "python.exe"
 CAD = "band/hardware/cad"

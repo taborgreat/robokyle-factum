@@ -30,7 +30,8 @@ lies on its own facet and nothing wastes height.
 ## Strap prep (hot nail: sealed holes)
 
 - electrodes: nothing to cut - the closed loop band lies across the frame and the bars clamp it
-- module: two 2.5 mm holes 28 mm apart along the arm, on the strap's centre line
+- module: nothing to cut - the strap runs between the backer's two rails, under the module, and the two clamp
+  screws sit just outside the strap's edges (45 mm apart)
 
 ## Assembly
 
@@ -44,8 +45,10 @@ lies on its own facet and nothing wastes height.
    bay B (header edge toward the rib). (2) Sockets - solder 60 mm leads to two PH4 sockets, clip the pins to 2 mm,
    drop both into the elbow-wall pocket (lower = trunk A, upper = trunk B), hot glue on top. (3) Board A into bay A
    on its posts (jack end to the wrist wall), wire its Gravity pins, pass the three wires through the rib notch.
-   (4) Board B over the IMU on its tall posts, wire it. (5) Backer under the strap, module on top, 2 x **M2x12 from
-   the skin side** into the module's bosses; lid on, 2 x M2x4.
+   (4) Board B over the IMU on its tall posts, wire it. (5) Backer under the strap with the strap between its rails,
+   module on top, 2 x **M2x12 from the skin side** into the module's bosses (they pass beside the strap, not through
+   it; the floor squeezes the strap 0.2 mm against the backer); lid on, 2 x M2x4. To wash: two screws out, slide
+   the module off the strap.
 
 ## Assumed - check against the parts
 
