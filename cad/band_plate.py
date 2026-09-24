@@ -7,12 +7,13 @@ sewing eyelets around the margin. The box floor gets matching holes for the boss
 import math
 from build123d import Box, Cylinder, Location, Align, Axis
 import band_box as bb
-from band_box import R, PLATE_T, IN_L, Y_BOSS as Y_RIB, arm_cyl, outer_form, on_row
+from band_box import R, PLATE_T, IN_L, R_FLOOR, Y_POST, arm_cyl, outer_form, on_row
 
 RIM_H, RIM_T, RIM_CLR = 1.5, 1.2, 0.3      # rim around the box footprint
 MARGIN = 4.5                                # sewing margin outside the rim
 EYELET_D, EYELET_PITCH = 2.0, 8.0
-BOSS_D, BOSS_H = bb.PLATE_BOSS_D, bb.PLATE_BOSS_H   # heat-set insert bosses (M2x4 insert; hole from the gauge INS ladder)
+BOSS_D = bb.PLATE_POST_D                    # posts up through the box floor; insert on top; M2x6 from inside the box
+BOSS_H = R_FLOOR + bb.PLATE_POST_UP          # post top just above the box floor
 INSERT_HOLE_D, INSERT_DEPTH = 3.2, 4.2
 BOSS_X = IN_L / 2 - 1.0                     # same as the box's ridge screws
 
@@ -29,9 +30,9 @@ def plate():
     p += rim
     for sx in (-1, 1):
         p += Cylinder(BOSS_D / 2, BOSS_H + 5, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
-            Location((sx * BOSS_X, Y_RIB, -5))) & band(-0.01, BOSS_H)
+            Location((sx * BOSS_X, Y_POST, -5))) & band(-0.01, BOSS_H)
         p -= Cylinder(INSERT_HOLE_D / 2, INSERT_DEPTH, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(
-            Location((sx * BOSS_X, Y_RIB, BOSS_H + 0.01)))
+            Location((sx * BOSS_X, Y_POST, BOSS_H + 0.01)))
     # eyelets: radial holes in the margin, along both long sides and both ends
     bbx = foot.bounding_box()
     half_l = bbx.size.X / 2

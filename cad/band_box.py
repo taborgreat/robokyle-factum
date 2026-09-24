@@ -30,9 +30,10 @@ CORNER_R = 7.0
 RIDGE_R = 6.0
 EDGE_R = 2.5
 SKIRT, SKIRT_T, SKIRT_CLR = 4.0, 1.0, 0.15    # lid skirt height / thickness / clearance over the thinned wall
-SCREW_D, BOSS_D = 2.3, 5.0
+SCREW_D = 2.3                                 # M2 clearance (lid)
+LID_BOSS_D, LID_BOSS_HOLE = 5.0, 2.0          # lid screws thread into these (M2x8 from the lid)
 M2_FORM_D = DIM["m2"]["thread_form_d"]
-PLATE_BOSS_D, PLATE_BOSS_H = 6.2, 4.5         # the plate's heat-set bosses (band_plate.py) poke through the floor
+PLATE_POST_D, PLATE_POST_UP = 6.2, 0.7        # the plate's posts poke this far above the floor; M2x6 from inside
 SERVICE_A = 0.4     # air above the coil
 LED_PROUD = 1.2     # LED dome tip above the lid (Tabor: ~1 mm is fine); keeps the lid boss above the Pico edge
 
@@ -44,7 +45,7 @@ BAR_GAP = 2.2                  # air between the bar's top (the LEDs) and the li
 SLIT_L, SLIT_W, SLIT_T = 8.0, 3.0, 0.8   # one thinned slit-window per pixel; SLIT_T = plastic left over the LED
 SW_X, SW_W = 8.0, 11.0         # switch along the chest wall; body bottom height above the arm
 SW_INSET = 1.0                 # nub base this far inside the wall's inner face
-CHG_U = -3.0                   # charger shifted toward the triceps wall so the battery plug clears the rib side
+CHG_U = -4.0                   # charger shifted toward the triceps wall: battery plug clears the rib and the -X plate post
 MOTOR_U = -7.5
 COIL_U = 2.0                   # coil shifted toward the rib (it is wider than the battery bay)
 
@@ -76,7 +77,8 @@ PARTING = {k: v - SKIRT for k, v in R_IN.items()}
 SW_U = ROW_W["B"] / 2 - SW_INSET
 NOTCH_D = SW_D["nub_h"] - SW_INSET - WALL + 0.6      # finger recess depth (nub tip 0.6 below the surface)
 Y_RIB = (Y_ROW["A"] + ROW_W["A"] / 2 + Y_ROW["B"] - ROW_W["B"] / 2) / 2      # global y of the rib centre at floor
-Y_BOSS = Y_RIB + 4.5      # ridge screws sit toward the strip side: snip the strip's two rib-side corners ~4 mm
+Y_BOSS = Y_RIB + 4.5      # lid bosses, strip side of the middle wall (snip the strip's -X rib-side corner ~5 mm)
+Y_POST = Y_RIB - 4.5      # plate posts, battery side of the middle wall
 
 
 # ---------------------------------------------------------------- frames
@@ -202,6 +204,21 @@ def ridge(wa, wb, n=2000):
     return best[1], best[2]
 
 
+def tent_z(y, wa, wb, n=2000):
+    """Height (global z) of the tent surface (min of the two facet planes) at global y."""
+    import math as _m
+    def z_of(k, w):
+        a = _m.radians(row_angle(k))
+        for i in range(n):
+            u0 = -60 + 120 * i / n; u1 = u0 + 120 / n
+            y0 = u0 * _m.cos(a) - (R + w) * _m.sin(a); y1 = u1 * _m.cos(a) - (R + w) * _m.sin(a)
+            if min(y0, y1) <= y <= max(y0, y1):
+                z0 = u0 * _m.sin(a) + (R + w) * _m.cos(a) - R; z1 = u1 * _m.sin(a) + (R + w) * _m.cos(a) - R
+                return z0 + (z1 - z0) * (y - y0) / (y1 - y0)
+        return None
+    return min(z_of("A", wa), z_of("B", wb))
+
+
 def bar_pose():
     """Global position of the WS2812 bar: centred on the crest, top BAR_GAP below the inner ridge apex."""
     y_r, z_in = ridge(R_IN["A"], R_IN["B"])
@@ -213,8 +230,8 @@ def bar_pose():
 def placements():
     P = {}
     xa = X0 + CLR
-    x_chg = xa + c["w"] / 2
-    x_batt = xa + c["w"] + CLR + LEAD_GAP + b["l"] / 2
+    x_chg = xa + c["w"] / 2 + 2.5          # off the end wall, out of the bay's corner round
+    x_batt = xa + c["w"] + CLR + LEAD_GAP + b["l"] / 2 + 2.5
     P["charger"] = on_row(charger(), "A", x_chg, CHG_U, R_FLOOR, rz=-90)          # crosswise; socket toward the rib (+u)
     P["charger_keepout"] = on_row(charger_keepout(), "A", x_chg, CHG_U, R_FLOOR, rz=-90)
     P["battery"] = on_row(battery(), "A", x_batt, 0, W_BATT)
@@ -243,8 +260,8 @@ def box():
     body -= (outer_form() - outer_form(inset=SKIRT_T + SKIRT_CLR)) - parting_solid()   # thinned wall top
     body -= cavities()
     xa = X0 + CLR
-    x_chg = xa + c["w"] / 2
-    x_batt = xa + c["w"] + CLR + LEAD_GAP + b["l"] / 2
+    x_chg = xa + c["w"] / 2 + 2.5          # off the end wall, out of the bay's corner round
+    x_batt = xa + c["w"] + CLR + LEAD_GAP + b["l"] / 2 + 2.5
     x_strip = X0 + STRIP_X0 + s["l"] / 2
     # battery bay walls
     wall_h = FOAM_T + 4.0
@@ -265,13 +282,16 @@ def box():
                            x_strip + sx * s["standoff_x"], sy * s["standoff_u"], R_FLOOR)
             body -= on_row(Cylinder(M2_FORM_D / 2, STANDOFF + 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
                            x_strip + sx * s["standoff_x"], sy * s["standoff_u"], R_FLOOR - 1.0)   # blind: 1 mm into the floor
-    # ridge screw bosses in the end walls; the plate's insert bosses come up through the floor into them
+    # lid bosses in the end walls (strip side): M2x8 from the lid threads into a 2.0 hole, 8 deep
     for sx in (-1, 1):
         x = sx * (IN_L / 2 - 1.0)
-        body += Cylinder(BOSS_D / 2, 200).moved(Location((x, Y_BOSS, 0))) & cavities() & tent(R_IN["A"] - 0.2, R_IN["B"] - 0.2)
-        body -= Cylinder(SCREW_D / 2, 200).moved(Location((x, Y_BOSS, 0)))
-        body -= Cylinder(PLATE_BOSS_D / 2 + 0.3, PLATE_BOSS_H + 0.2 + 5, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
-            Location((x, Y_RIB, -5))) & arm_cyl(PLATE_BOSS_H + 0.2)
+        body += Cylinder(LID_BOSS_D / 2, 200).moved(Location((x, Y_BOSS, 0))) & cavities() & tent(R_IN["A"] - 0.2, R_IN["B"] - 0.2)
+        body -= Cylinder(LID_BOSS_HOLE / 2, 9.0, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(
+            Location((x, Y_BOSS, tent_z(Y_BOSS, R_IN["A"] - 0.2, R_IN["B"] - 0.2) + 0.01)))
+    # holes in the floor for the plate's posts (battery side): M2x6 from inside into the insert on each post
+    for sx in (-1, 1):
+        x = sx * (IN_L / 2 - 1.0)
+        body -= Cylinder(PLATE_POST_D / 2 + 0.3, 200).moved(Location((x, Y_POST, 0)))
     # coil pocket: the coil is wider than the battery bay, so notch the rib top where it overhangs
     body -= on_row(qi_coil_pocket(), "A", x_batt, COIL_U, R_IN["A"] - q["coil_t"] - q["ferrite_t"] - 0.4)
     # light-line channel: the bar hangs from the lid into the rib between the bays; pocket the rib for it
