@@ -11,7 +11,7 @@ The lid's skirt wraps over a thinned wall top; two M2 screws on the ridge line g
 """
 import math
 from build123d import (Box, Cylinder, Location, Align, Axis, Rectangle, RectangleRounded, extrude, fillet)
-from rk_parts import (DIM, pico_on_strip, pico_usb_plug, battery, charger, charger_keepout, slide_switch,
+from rk_parts import (DIM, pico_on_strip, pico_usb_plug, usb_wall_cut, battery, charger, charger_keepout, slide_switch,
                       tactile_button, tactile_button_keepout, led_5mm, ws2812_segment, coin_motor, qi_coil, qi_board)
 
 # ---------------------------------------------------------------- parameters (mm)
@@ -39,7 +39,9 @@ LED_PROUD = 1.2     # LED dome tip above the lid (Tabor: ~1 mm is fine); keeps t
 b, s, c, q = DIM["batt"], DIM["strip"], DIM["charger"], DIM["qi"]
 SW_D, LED_D, WS_D = DIM["switch"], DIM["led"], DIM["ws2812"]
 LED_X, LED_Y = 18.0, 11.6      # LED on the strip's chest margin row (strip coords)
-WS_X, WS_Y = -8.0, 2.0         # WS2812 bar on the lid underside over the Pico's middle
+N_PIX = 3                      # WS2812 pixels on the crest (4 would run into the ridge screws)
+BAR_GAP = 2.2                  # air between the bar's top (the LEDs) and the lid's inner ridge apex
+SLIT_L, SLIT_W, SLIT_T = 8.0, 3.0, 0.8   # one thinned slit-window per pixel; SLIT_T = plastic left over the LED
 SW_X, SW_W = 8.0, 11.0         # switch along the chest wall; body bottom height above the arm
 SW_INSET = 1.0                 # nub base this far inside the wall's inner face
 CHG_U = -3.0                   # charger shifted toward the triceps wall so the battery plug clears the rib side
@@ -52,7 +54,10 @@ IN_W = ROW_W["A"] + RIB + ROW_W["B"]
 Y_ROW = {"A": -IN_W / 2 + ROW_W["A"] / 2, "B": IN_W / 2 - ROW_W["B"] / 2}
 LEAD_GAP = 4.0
 BTN_ZONE = DIM["button"]["l"] + 2 * CLR + 3.0 + 1.0          # button cup beyond the strip's +X end
-ROW_L = {"A": CLR + c["w"] + CLR + LEAD_GAP + b["l"] + CLR, "B": CLR + s["l"] + CLR + BTN_ZONE}
+USB_NOSE = DIM["usb_plug"]["nose_in"]                        # the Pico's USB socket pokes this far into the wall hole
+USB_FACE_REL = (s["pico_row_offset"] - DIM["pico"]["l"] / 2 - DIM["pico"]["usb_overhang"]) + s["l"] / 2   # USB face vs strip end (- = past it)
+STRIP_X0 = -USB_NOSE - USB_FACE_REL                            # strip's -X end relative to the wall's inner face
+ROW_L = {"A": CLR + c["w"] + CLR + LEAD_GAP + b["l"] + CLR, "B": STRIP_X0 + s["l"] + CLR + BTN_ZONE}
 IN_L = max(ROW_L.values())
 OUT_L, OUT_W = IN_L + 2 * WALL, IN_W + 2 * WALL
 X0 = -IN_L / 2
@@ -171,6 +176,39 @@ def parting_solid():
     return tent(PARTING["A"], PARTING["B"])
 
 
+def ridge(wa, wb, n=2000):
+    """Global (y, z) where the two facet planes (heights wa, wb in their row frames) meet."""
+    import math as _m
+    def plane_pts(k, w):
+        a = _m.radians(row_angle(k)); pts = []
+        for i in range(n + 1):
+            u = -60 + 120 * i / n
+            y = u * _m.cos(a) - (R + w) * _m.sin(a); z = u * _m.sin(a) + (R + w) * _m.cos(a) - R
+            pts.append((y, z))
+        return pts
+    A, B = plane_pts("A", wa), plane_pts("B", wb)
+    def z_at(pts, y):
+        for (y0, z0), (y1, z1) in zip(pts, pts[1:]):
+            if y0 <= y <= y1 or y1 <= y <= y0:
+                return z0 + (z1 - z0) * (y - y0) / (y1 - y0)
+        return None
+    best = None
+    for i in range(n + 1):
+        y = -30 + 60 * i / n
+        za, zb = z_at(A, y), z_at(B, y)
+        if za is None or zb is None: continue
+        d = abs(za - zb)
+        if best is None or d < best[0]: best = (d, y, min(za, zb))
+    return best[1], best[2]
+
+
+def bar_pose():
+    """Global position of the WS2812 bar: centred on the crest, top BAR_GAP below the inner ridge apex."""
+    y_r, z_in = ridge(R_IN["A"], R_IN["B"])
+    z_bottom = z_in - BAR_GAP - WS_D["t"] - WS_D["led_h"]
+    return y_r, z_in, z_bottom
+
+
 # ---------------------------------------------------------------- part placement
 def placements():
     P = {}
@@ -182,14 +220,15 @@ def placements():
     P["battery"] = on_row(battery(), "A", x_batt, 0, W_BATT)
     P["qi_board"] = on_row(qi_board(), "A", xa + q["board_w"] / 2, 2.0, R_IN["A"] - q["board_t"], rz=90)
     P["qi_coil"] = on_row(qi_coil(), "A", x_batt, COIL_U, R_IN["A"] - q["coil_t"] - q["ferrite_t"])
-    x_strip = X0 + CLR + s["l"] / 2
+    x_strip = X0 + STRIP_X0 + s["l"] / 2
     P["strip"] = on_row(pico_on_strip(), "B", x_strip, 0, W_STRIP)
-    x_pico = x_strip - s["l"] / 2 + DIM["pico"]["l"] / 2 + DIM["pico"]["usb_overhang"]
+    x_pico = x_strip + s["pico_row_offset"]
     P["usb_plug"] = on_row(pico_usb_plug(), "B", x_pico, 0, W_STRIP + s["t"] + DIM["pico"]["hdr_base"])
     P["button"] = on_row(tactile_button(), "B", x_strip + BTN_X, BTN_U, BTN_W)
     P["button_keepout"] = on_row(tactile_button_keepout(), "B", x_strip + BTN_X, BTN_U, BTN_W)
     P["led"] = on_row(led_5mm(), "B", x_strip + LED_X, LED_Y, R_OUT["B"] + LED_PROUD - LED_D["body_h"])
-    P["ws2812"] = on_row(ws2812_segment(2), "B", x_strip + WS_X, WS_Y, R_IN["B"] - WS_D["t"] - WS_D["led_h"])
+    y_r, _, z_b = bar_pose()
+    P["ws2812"] = ws2812_segment(N_PIX).moved(Location((0, y_r, z_b)))          # along the crest, global frame
     P["motor"] = on_row(coin_motor(), "B", x_strip + 2, MOTOR_U, R_IN["B"] - DIM["motor"]["h"], rz=180)   # tab + leads toward the USB end
     # switch: nub toward +u through the chest wall; origin at the nub base; body 1 mm inside the wall so the
     # nub tip is flush with the outer surface (and 0.6 recessed inside the finger notch)
@@ -206,7 +245,7 @@ def box():
     xa = X0 + CLR
     x_chg = xa + c["w"] / 2
     x_batt = xa + c["w"] + CLR + LEAD_GAP + b["l"] / 2
-    x_strip = X0 + CLR + s["l"] / 2
+    x_strip = X0 + STRIP_X0 + s["l"] / 2
     # battery bay walls
     wall_h = FOAM_T + 4.0
     outer = extrude(RectangleRounded(b["l"] + 2 * BATT_CLR + 3.2, b["w"] + 2 * BATT_CLR + 3.2, 3.0), amount=wall_h)
@@ -235,14 +274,28 @@ def box():
             Location((x, Y_RIB, -5))) & arm_cyl(PLATE_BOSS_H + 0.2)
     # coil pocket: the coil is wider than the battery bay, so notch the rib top where it overhangs
     body -= on_row(qi_coil_pocket(), "A", x_batt, COIL_U, R_IN["A"] - q["coil_t"] - q["ferrite_t"] - 0.4)
+    # light-line channel: the bar hangs from the lid into the rib between the bays; pocket the rib for it
+    y_r, z_in, z_b = bar_pose()
+    body -= Box(N_PIX * WS_D["pitch"] + 2.0, WS_D["w"] + 1.2, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+        Location((0, y_r, z_b - 0.6)))
+    # wire notch through the middle wall at the USB end: VBUS->VI, VO->switch, JST+ ->divider, GND cross here
+    body -= Box(9.0, 14.0, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((X0 + 12.0, Y_RIB, R_FLOOR + 5.0)))
     # openings
     P = placements()
-    body -= P["usb_plug"]
+    body -= usb_cuts()
     body -= nub_slot()
     body += on_row(Box(SW_D["l"] + 2, 3.0, 1.5), "B", x_strip + SW_X, ROW_W["B"] / 2 - 1.5, SW_W - 0.75)  # switch ledge (pocket 9.2 x 4.3 per gauge)
     body -= nub_notch()
     body -= on_row(Cylinder(3.0, 10).rotate(Axis.Y, 90), "B", IN_L / 2, -4.0, R_FLOOR + 6.0)   # trunk exit, +X wall
     return body
+
+
+def usb_cuts():
+    """Shell-sized hole through the -X wall plus the overmold recess limited to the outer recess_d of the wall."""
+    x_strip = X0 + STRIP_X0 + s["l"] / 2
+    x_pico = x_strip + s["pico_row_offset"]
+    w_usb = W_STRIP + s["t"] + DIM["pico"]["hdr_base"]
+    return on_row(usb_wall_cut(), "B", x_pico, 0, w_usb)
 
 
 def qi_coil_pocket():
@@ -253,14 +306,14 @@ def qi_coil_pocket():
 
 
 def nub_slot():
-    x_strip = X0 + CLR + s["l"] / 2
+    x_strip = X0 + STRIP_X0 + s["l"] / 2
     return on_row(Box(SW_D["slot_l"], 2 * WALL + 4, SW_D["slot_w"]), "B",
                   x_strip + SW_X, ROW_W["B"] / 2 + WALL / 2, SW_W + SW_D["w"] / 2)      # Box is centre-aligned
 
 
 def nub_notch():
     """Finger recess in the outer chest wall so the nub sits below the surface (nothing protrudes)."""
-    x_strip = X0 + CLR + s["l"] / 2
+    x_strip = X0 + STRIP_X0 + s["l"] / 2
     depth = max(NOTCH_D, 0.4)
     return on_row(Box(SW_D["slot_l"] + 8, depth, 7.0), "B",
                   x_strip + SW_X, ROW_W["B"] / 2 + WALL - depth / 2, SW_W + SW_D["w"] / 2)
@@ -271,14 +324,14 @@ def lid():
     cap -= outer_form(inset=SKIRT_T) & tent(R_IN["A"], R_IN["B"]) - parting_solid()   # hollow skirt
     cap -= cavities() & tent(R_IN["A"], R_IN["B"])
     P = placements()
-    x_strip = X0 + CLR + s["l"] / 2
+    x_strip = X0 + STRIP_X0 + s["l"] / 2
     # button pocket: a square cup on the underside holds the body (press fit), the cap passes the lid hole
     cup = Box(BTN_D["l"] + 2 * CLR + 3.0, BTN_D["w"] + 2 * CLR + 3.0, BTN_D["h"] + 0.5, align=(Align.CENTER, Align.CENTER, Align.MIN))
     cup -= Box(BTN_D["l"] + 2 * CLR, BTN_D["w"] + 2 * CLR, BTN_D["h"] + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((0, 0, -1)))
     cup -= Box(BTN_D["l"] + 2 * CLR + 4, 4.0, BTN_D["h"] + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((0, 0, -1)))  # wire exits
     cap += on_row(cup, "B", x_strip + BTN_X, BTN_U, BTN_W - 0.5) & cavity("B")
     cap -= P["button_keepout"]
-    cap -= P["usb_plug"]
+    cap -= usb_cuts()
     cap -= nub_slot()
     cap -= nub_notch()
     # LED boss on the underside: flange seats on its bottom, dome passes a dome-sized hole, tip LED_PROUD outside
@@ -287,9 +340,11 @@ def lid():
                   x_strip + LED_X, LED_Y, R_OUT["B"]) & cavity("B")
     cap -= on_row(Cylinder(LED_D["hole"] / 2, boss_h + 2, align=(Align.CENTER, Align.CENTER, Align.MAX)), "B",
                   x_strip + LED_X, LED_Y, R_OUT["B"] + 1)
-    # WS2812 window: lid thinned to 0.8 mm over the bar
-    cap -= on_row(Box(2 * WS_D["pitch"] + 1, WS_D["w"] + 1, 10, align=(Align.CENTER, Align.CENTER, Align.MAX)), "B",
-                  x_strip + WS_X, WS_Y, R_OUT["B"] - 0.8)
+    # light line: one slit-window per pixel, thinned from the outside down to SLIT_T above the inner ridge apex
+    y_r, z_in, _ = bar_pose()
+    for i in range(N_PIX):
+        px = (i - (N_PIX - 1) / 2) * WS_D["pitch"]
+        cap -= Box(SLIT_L, SLIT_W, 20, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((px, y_r, z_in + SLIT_T)))
     for sx in (-1, 1):
         cap -= Cylinder(SCREW_D / 2, 200).moved(Location((sx * (IN_L / 2 - 1.0), Y_BOSS, 0)))
     return cap

@@ -5,8 +5,8 @@ of truth). Wiring page: https://claude.ai/artifact/D63qQQRTtqdpi1PEdaQg2D
 
 | dir | target | what |
 |---|---|---|
-| `band/` | Pico W | EMG band: HAND-FACTUM / HAND-DIRECT / MOUSE / HAND-WIRED, config server, BLE HID mouse |
-| `hand/` | Pico 2 W | claw: hand API on :80, Feetech STS3215 bus, keepalive watchdog, cord |
+| `band/` | Pico 2 W | EMG band: HAND-FACTUM / HAND-DIRECT / MOUSE / HAND-WIRED, config server, BLE HID mouse |
+| `hand/` | Pico W | claw: hand API on :80, Feetech STS3215 bus, keepalive watchdog, cord |
 | `bench/` | MicroPython | `band_bench.py` proves every wire; `listener.py` shows UDP frames on the laptop |
 
 ## Build (Windows, Git Bash)

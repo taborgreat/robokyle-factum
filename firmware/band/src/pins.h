@@ -18,7 +18,7 @@
 #define ADC_EMG2        1
 #define ADC_VBAT        2
 
-#define N_PIXELS        2
+#define N_PIXELS        3
 #define CORD_UART       uart0
 #define CORD_BAUD       115200
 #define IMU_I2C         i2c0

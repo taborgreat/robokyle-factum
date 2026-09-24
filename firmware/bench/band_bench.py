@@ -1,4 +1,4 @@
-"""Band bench test - MicroPython on the Pico W. Flash MicroPython (Pico W build), copy this file as main.py
+"""Band bench test - MicroPython on the Pico 2 W. Flash MicroPython (Pico 2 W build), copy this file as main.py
 (or run it from MicroPico), open the serial console.
 
 Pins follow firmware/PINOUT.md exactly. It prints one status line per 200 ms and runs an actuator self-test on
@@ -20,7 +20,7 @@ import neopixel
 PIN_EMG1, PIN_EMG2, PIN_VBAT = 26, 27, 28
 PIN_SDA, PIN_SCL, PIN_IMU_INT, PIN_IMU_RST = 4, 5, 6, 7
 PIN_BTN, PIN_MOTOR, PIN_WS2812 = 14, 15, 16
-N_PIXELS = 2
+N_PIXELS = 3
 
 # optional Wi-Fi UDP stream (fill in to test level 1 of the build order)
 WIFI_SSID = ""
