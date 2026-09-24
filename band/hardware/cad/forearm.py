@@ -30,9 +30,13 @@ HEAD_D, HEAD_H = 4.2, 1.4                      # M2 pan head counterbore (head 3
 e, g, JST = DIM["emg_electrode"], DIM["emg_signal"], DIM["jst_ph"]
 
 # electrode frame + cap
-LIP = 0.6                                      # under the plate's margins; the bars (1.5) stand 0.9 proud of it
-POCKET_D = e["t"] + 0.05                       # plate back flush with the frame back, so the band bears on it
-FRAME_T = LIP + POCKET_D
+# The frame's skin face is curved to the arm; the plate is flat. If the plate sat IN the frame, the frame's edges
+# would reach the skin first and the bars would hover (viewer, 2026-09-24). So the plate is sunk 1 mm BELOW the
+# frame's face at the centre line: its long edges rest on the curved lip (which is 0.8-2 mm thick out at |y| > 8),
+# the middle of the plate stands 1 mm proud of the frame, the bars 2.5 mm - proud of the local skin everywhere.
+LIP = -1.0                                     # plate underside vs the frame face at y = 0 (negative = proud)
+FRAME_T = 1.6                                  # frame back (the band's plane); the plate back is 1.5 below it -
+POCKET_D = FRAME_T - LIP                       #   the stretched band bows down onto it
 BAND_W = 22.0                                  # the loop band (GUESS: buy 20-22 mm elastic); 1.5 thick
 LOOP_X = -5.5                                  # band centred here: its wrist edge stays clear of the plate's jack lump
 POCKET_WALL = 1.2

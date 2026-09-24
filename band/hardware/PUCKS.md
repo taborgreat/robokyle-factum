@@ -5,7 +5,7 @@ check with `python band/hardware/cad/forearm.py`). Prints in `print/`, all PLA T
 
 | print | qty | where on the arm | holds |
 |---|---|---|---|
-| `electrode_frame` 39.6 x 38.3 | 2 (more later) | on the skin, on its OWN thin loop band: one on top of the forearm (extensors), one inside (flexors) | one dry electrode plate, bars down, 0.9 mm proud of the lip; the band lies across its back |
+| `electrode_frame` 39.6 x 38.3 | 2 (more later) | on the skin, on its OWN thin loop band: one on top of the forearm (extensors), one inside (flexors) | one dry electrode plate, bars down; the plate's middle stands 1 mm proud of the frame's face and the bars 2.5 mm, so they reach the skin before the frame's curved edges do; the band lies across its back |
 | `electrode_bar` 34 x 5 x 2 | 2 per frame | screwed over the band at each edge of the frame | clamps the band (squeezed 0.2 mm) so the frame cannot creep; 2 x M2x6 each, unscrew to lift the frame off for washing |
 | `fa_module` 54 x 54 at the sleeve | 1 | on the strap, thumb side | both SEN0240 signal boards (one per facet), the BNO08x on the floor under the extensor board, both PH4 trunk sockets stacked in one pocket in the elbow wall |
 | `fa_lid` | 1 | | nothing (no wires cross the lid) |
@@ -53,6 +53,7 @@ lies on its own facet and nothing wastes height.
 ## Assumed - check against the parts
 
 - electrode plate 36 x 23.3 x 1.11, bars 14.5 x 5.8 at 11.3 pitch and 1.5 proud, jack on the BACK overhanging ~2 mm
+  (the plate rests on the frame's lip along its two long edges only; its middle is open to the skin)
 - signal board 40 x 22, holes 3.0 at 2.7 in / 5.3 from the jack end, parts in its middle <= 2.5 tall
 - BNO08x breakout 25.5 x 15.8 with a header on one long edge (clipped); **mount holes assumed** 2.5 mm in from the
   two corners on the edge opposite the header - if the board has none, snip the posts and glue it

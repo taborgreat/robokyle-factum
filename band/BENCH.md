@@ -122,7 +122,8 @@ the box. Then conformal coat, then box. Box assembly order (fit-checked in the C
 → charger in its cradle, socket toward the middle wall → Kapton, Qi board on top → battery (lip toward the charger,
 leads through the ring's notch) → ferrite + coil on the battery → strip onto its four standoffs (M2 thread-forming)
 → lid parts in the lid, pigtail plugged into the strip sockets → lid on, two M2x6 into the inserts. Box to plate:
-two M2x6 from inside into the plate posts' inserts, before the strip goes in.
+two M2x6 from inside, down through the small bosses on the battery-side floor into the plate posts' inserts
+(the post sits inside the boss; the screw head pulls the boss's web onto the brass), before the strip goes in.
 
 Tape, in order: Kapton over the strip's solder side (leave the standoff holes clear) → Kapton around the cell's four
 edges and the tape lip → charger module wrapped once → coil: ferrite on the inner face, Kapton over both, then Kapton

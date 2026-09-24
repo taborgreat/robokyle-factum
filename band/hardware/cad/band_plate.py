@@ -14,7 +14,7 @@ MARGIN = 4.5                                # sewing margin outside the rim
 EYELET_D, EYELET_PITCH = 2.0, 8.0
 BOSS_D = bb.PLATE_POST_D                    # posts up through the box floor; insert on top; M2x6 from inside the box
 BOSS_H = R_FLOOR + bb.PLATE_POST_UP          # post top just above the box floor
-INSERT_HOLE_D, INSERT_DEPTH = 3.2, 4.2
+INSERT_HOLE_D, INSERT_DEPTH = 3.2, 4.6     # M2 heat-set insert (4.0 long) + 0.6 for the melt to go
 BOSS_X = IN_L / 2 - 3.5                     # same as the box's ridge screws
 
 

@@ -34,7 +34,10 @@ SKIRT, SKIRT_T, SKIRT_CLR = 4.0, 1.0, 0.25    # lid skirt height / thickness / c
 SCREW_D = 2.3                                 # M2 clearance (lid)
 LID_BOSS_D, LID_BOSS_HOLE = 6.4, 3.2          # full-round bosses with M2 heat-set inserts; M2x6 from the lid
 M2_FORM_D = DIM["m2"]["thread_form_d"]
-PLATE_POST_D, PLATE_POST_UP = 6.2, 0.7        # the plate's posts poke this far above the floor; M2x6 from inside
+M2 = DIM["m2"]
+PLATE_POST_D, PLATE_POST_UP = 6.2, 2.9        # the plate's posts rise this far above the floor, INTO a floor boss
+POST_FLANGE_T, POST_GAP = 1.5, 0.2            # the boss's top web the M2x6 pulls down onto the post's insert
+POST_BOSS_D, POST_BORE_D = 9.0, 4.5           # boss around the post; driver/head bore above the flange
 SERVICE_A = 0.4     # air above the coil
 LED_PROUD = 1.2     # LED dome tip above the lid (Tabor: ~1 mm is fine); keeps the lid boss above the Pico edge
 
@@ -299,6 +302,10 @@ def placements():
     up = (jst_socket(3) - _box(10, 20, 10, -JST["sock_d"] - SOCK_PIN - 5, 0, -1)).rotate(Axis.Y, -90).moved(Location((0, 0, JST["sock_d"])))   # opening up
     for i, u in enumerate(LID_SOCK_U):
         P[f"sock_L{i}"] = on_row(up, "B", x_strip + LID_SOCK_X, u, W_STRIP + s["t"])
+    for sx in (-1, 1):                                                      # the plate's posts, as the box sees them
+        x = sx * (IN_L / 2 - 3.5)
+        P[f"plate_post_{'L' if sx < 0 else 'R'}"] = Cylinder(PLATE_POST_D / 2, R_FLOOR + PLATE_POST_UP - (PLATE_T + 0.2),
+            align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((x, Y_POST, PLATE_T + 0.2)))   # the part inside the box
     P.update(service_volumes(P))
     return P
 
@@ -337,6 +344,12 @@ def service_volumes(P):
     # the plugs to the motor; plus a short chest-side run to the LED boss
     S["svc_lid_wires_mid"] = on_row(_box(LID_SOCK_X - 2.0 + 6.0, 4.0, 1.5, (LID_SOCK_X - 2.0 - 6.0) / 2, 1.5, 0), "B", x_strip, 0, R_IN["B"] - 1.6)   # u +1.5: just clear of the motor ring
     S["svc_lid_wires_chest"] = on_row(_box(LID_SOCK_X - 2.0 - (LED_X + 4.5), 3.0, 1.5, (LID_SOCK_X - 2.0 + LED_X + 4.5) / 2, LED_Y, 0), "B", x_strip, 0, R_IN["B"] - 1.6)
+    # plate screws: head + driver above each post boss (M2 head 3.8, driver shaft 4)
+    for sx in (-1, 1):
+        x = sx * (IN_L / 2 - 3.5)
+        z0 = R_FLOOR + PLATE_POST_UP + POST_GAP + POST_FLANGE_T + 0.05                         # (lid off for this step)
+        S[f"svc_plate_screw_{'L' if sx < 0 else 'R'}"] = Cylinder(2.0, R_IN["A"] - 0.3 - z0, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+            Location((x, Y_POST, z0)))
     # button: clipped legs + solder blobs under the body, two wires leaving sideways (-X, toward the lid sockets)
     S["svc_button_solder"] = on_row(_box(BTN_D["leg_dx"] + 2.0, BTN_D["leg_dy"] + 2.0, BTN_LEG + 0.5, BTN_X, BTN_U, BTN_W - BTN_LEG - 1.0), "B", x_strip, 0, 0)   # blobs at the leg tips, below the cup
     S["svc_button_wires"] = on_row(_box(10.0, 4.0, 1.4, BTN_X - BTN_D["leg_dx"] / 2 - 5.0, BTN_U, BTN_W - BTN_LEG - 1.2), "B", x_strip, 0, 0)
@@ -420,10 +433,19 @@ def box():
     body -= on_row(Cylinder(LID_BOSS_HOLE / 2, 4.6 + 0.01, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
                    x, CHEST_BOSS_U, R_IN["B"] - 0.2 - 4.6)
     body -= skirt_band_cut()                                           # bosses must not fill the skirt lap
-    # holes in the floor for the plate's posts (battery side): M2x6 from inside into the insert on each post
+    # plate posts (battery side): each comes up through the floor into a boss whose 1.5 mm top web the M2x6
+    # clamps onto the post's heat-set insert (print 2026-09-24: the old post stood proud of the floor, so the
+    # head landed on the brass and nothing clamped the box). Above the web a 4.5 bore takes the head + driver.
     for sx in (-1, 1):
         x = sx * (IN_L / 2 - 3.5)
-        body -= Cylinder(PLATE_POST_D / 2 + 0.3, 200).moved(Location((x, Y_POST, 0)))
+        top = R_FLOOR + PLATE_POST_UP + POST_GAP + POST_FLANGE_T
+        body += Cylinder(POST_BOSS_D / 2, top - R_FLOOR + 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+            Location((x, Y_POST, R_FLOOR - 1.0))) & outer_form() & tent(R_IN["A"] - 0.2, R_IN["B"] - 0.2)
+        body -= Cylinder(PLATE_POST_D / 2 + 0.3, 200, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(
+            Location((x, Y_POST, R_FLOOR + PLATE_POST_UP + POST_GAP)))                      # post pocket, from below
+        body -= Cylinder(POST_BORE_D / 2, 200, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
+            Location((x, Y_POST, top - 0.01)))                                                # head + driver bore
+        body -= Cylinder(M2["clear_d"] / 2, 200).moved(Location((x, Y_POST, 0)))               # screw through the web
     # coil pocket: the coil is wider than the battery bay, so notch the rib top where it overhangs
     body -= on_row(qi_coil_pocket(), "A", x_batt, COIL_U, R_IN["A"] - q["coil_t"] - q["ferrite_t"] - 0.4)
     # light-line channel: the bar hangs from the lid into the rib between the bays; pocket the rib for it
