@@ -12,9 +12,9 @@ Every firmware file and the wiring page derive from this table. Change it here f
 | GP5        | 7                            | I2C0 SCL           | BNO08x SCL                                                                 | 400 kHz                                                                                 |
 | GP6        | 9                            | input, pull-up     | BNO08x INT (H_INTN)                                                        | **required**: the firmware reads the IMU only when INT is low (data ready)              |
 | GP7        | 10                           | output             | BNO08x RST                                                                 | lets the firmware recover a hung IMU without a power cycle                              |
-| GP14       | 19                           | input, pull-up     | yellow button → GND                                                        | tap / double / 1 s / 2 s / 3 s                                                          |
-| GP15       | 20                           | output             | 1k → 2N2222 base                                                           | coin motor: 3V3 → motor → collector, emitter → GND, 1N4148 across motor (stripe to 3V3) |
-| GP16       | 21                           | PIO WS2812 DIN     | 3-pixel WS2812B bar (in the lid, via the lid pigtail)                      | 800 kHz; bar powered from 3V3 so 3.3 V data is always valid                             |
+| GP14       | 19                           | input, pull-up     | trunk A pin 5 → yellow button (in the forearm module) → GND                | tap / double / 1 s / 2 s / 3 s                                                          |
+| GP15       | 20                           | output             | 1k → S8050 base                                                            | coin motor (in the forearm module, via trunk A pin 6): 3V3 → motor → collector, emitter → GND, 1N4007 across the motor (stripe to 3V3) |
+| GP16       | 21                           | PIO WS2812 DIN     | 3-pixel WS2812B bar, lying in the middle wall's pocket                     | 800 kHz; bar powered from 3V3 so 3.3 V data is always valid                             |
 | GP17, GP18 | 22, 24                       | free               | —                                                                          | were the old RGB LED                                                                    |
 | GP26       | 31                           | ADC0               | SEN0240 #1 signal (flexor)                                                 | 0–3 V, 1.5 V centred                                                                    |
 | GP27       | 32                           | ADC1               | SEN0240 #2 signal (extensor)                                               |                                                                                         |
@@ -27,28 +27,28 @@ Every firmware file and the wiring page derive from this table. Change it here f
 Power path: cell → charger module B+/B− (protection + TP4056) → OUT+ → switch → 1N5817 → VSYS. VBUS feeds the
 charger IN+. The Pico's own VBUS→VSYS diode and the 1N5817 OR the two sources; USB wins when plugged in.
 Green 5 mm LED: 3V3 OUT (pin 36) → 470 Ω → LED long leg → short leg → GND (lit whenever the band is on or USB is in; no GPIO).
+It is soldered INTO the strip (rows 21-22, chest-side outer column) and shows through a plain hole in the lid.
 
 Every cable is plug-to-plug: female JST-PH sockets sit in the box wall (and in the hub and the hand), the cables
 carry a male housing at each end. All three box sockets are in the +X end wall (the end opposite the USB):
 
 | socket | wall | pin 1 → n | cable to |
 |---|---|---|---|
-| trunk A, PH4 | battery side, outer | 3V3, GND, EMG1, EMG2 | hub |
-| trunk B, PH4 | battery side, rib side | SDA, SCL, INT, RST | hub |
-| cord, PH3 | strip side, rib corner | TX, RX, GND | hand (crossed at the hand: band TX → hand RX) |
+| trunk A, PH6 | battery side | 3V3, GND, EMG1, EMG2, BTN (GP14), MOTOR (collector) | forearm module |
+| trunk B, PH4 | strip side, rib side | SDA, SCL, INT, RST | forearm module |
+| cord, PH3 | strip side, next to trunk B | TX, RX, GND | hand (crossed at the hand: band TX → hand RX) |
+
+The button and the coin motor live in the forearm module (2026-09-24 print review: reachable, and the motor sits
+on the strap); their driver parts (1k, S8050, 1N4007) stay on the strip and the two lines ride trunk A.
 
 Trunk colours: green, black, yellow, yellow, white, white, white (INT), white (RST) - mark INT/RST with tape.
 The sockets drop into open-top pockets behind the wall (pins pointing into the box, **clipped to 2 mm**), wires
 soldered to the pins before they go in; a dab of hot glue on top keeps them seated. Trunk wires cross to the strip
 through the notch in the middle wall at that end.
 
-Lid pigtail (so the lid comes off): two PH3 sockets soldered upright on the strip's free row 21 (pins bent to the
-2.54 grid), six wires to the lid parts, ~80 mm long, ending in two PH3 housings:
-
-| lid plug | pins 1 -> 3 | lid side |
-|---|---|---|
-| L0 (rib side) | GND, 3V3, DIN | WS2812 bar (+ the motor's + and the button's / LED's GND join here) |
-| L1 (chest side) | LED+, BTN, MOTOR | LED anode (470 R is on the strip), button (other leg to GND), motor - (collector side) |
+Nothing is mounted on the lid. The light bar lies in the middle wall's pocket (the lid closes over it, its three
+leads drop through the USB-end notch to the strip: GND, 3V3, GP16), the LED stands on the strip, the button and
+motor are in the forearm module. The lid lifts straight off.
 
 The Qi board is NOT on the lid: it lies on Kapton above the charger's wires, captive under the lid.
 

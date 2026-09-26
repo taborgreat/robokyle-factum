@@ -103,14 +103,14 @@
   const ASM = {
     band: {
       sub: "cuff box on the upper arm · 80.7 × 78.1 mm · " + [ver("band_box.glb"), ver("band_lid.glb"), ver("band_plate.glb")].join(" / "),
-      note: "Yellow = solder, pin stubs, wire bends and plugs a real build needs; the layout check must clear all of it. Sizes are mm.",
+      note: "Yellow = solder, pin stubs, wire bends and plugs a real build needs; the layout check must clear all of it. Nothing is on the lid: the LED stands on the strip, the light bar lies in the middle wall. Sizes are mm.",
       files: [
         { f: "band_box.glb",   cat: "printed", label: "box " + ver("band_box.glb") },
         { f: "band_lid.glb",   cat: "printed", label: "lid " + ver("band_lid.glb"), lid: true },
         { f: "band_plate.glb", cat: "printed", label: "sewn plate " + ver("band_plate.glb") },
         { f: "band_parts.glb", split: true },
       ],
-      lidParts: ["button", "led", "motor", "ws2812"],
+      lidParts: [],   // nothing rides on the band lid any more (LED on the strip, bar in the middle wall)
     },
     fa: {
       sub: "forearm module on the strap, thumb side · 54.2 × 54.3 mm · " + [ver("fa_module.glb"), ver("fa_lid.glb"), ver("fa_backer.glb")].join(" / "),
@@ -125,10 +125,10 @@
     },
     el: {
       sub: "electrode on its own loop band · 39.6 × 35.3 mm · " + ver("electrode_frame.glb"),
-      note: "The plate sits bars-down in the frame; a closed 22 mm elastic lies across the plate's back and the clamp bar (one of two shown) screws down over it. Lift raises the bar.",
+      note: "The plate sits bars-down in the frame; the cover screws down over it, and the closed 22 mm loop band threads down through one slot, across the plate's back under the cover's pad, and up through the other. Lift raises the cover.",
       files: [
         { f: "electrode_frame.glb", cat: "printed", label: "frame " + ver("electrode_frame.glb") },
-        { f: "electrode_bar.glb",   cat: "printed", label: "clamp bar " + ver("electrode_bar.glb"), lid: true },
+        { f: "electrode_cover.glb", cat: "printed", label: "cover " + ver("electrode_cover.glb"), lid: true },
         { f: "electrode_parts.glb", split: true },
       ],
       lidParts: [],
@@ -150,13 +150,14 @@
   };
   const catOf = n => n.startsWith("svc_") ? "svc" : (n.startsWith("plug") || n.endsWith("_plug") ? "plug" : "elec");
   const PRETTY = {
-    sock_a0: "trunk socket A (3V3 GND EMG1 EMG2)", sock_a1: "trunk socket B (SDA SCL INT RST)", sock_b0: "hand cord socket",
-    sock_l0: "lid socket L0 (GND 3V3 DIN)", sock_l1: "lid socket L1 (LED+ BTN MOTOR)", sock_b1: "trunk socket B (upper)",
+    // sockets are named per assembly below; these are the shared parts
+    "band:sock_a0": "trunk socket A, PH6 (3V3 GND EMG1 EMG2 BTN MOTOR)", "band:sock_b0": "trunk socket B, PH4 (SDA SCL INT RST) - inner",
+    "band:sock_b1": "hand cord socket, PH3 - outer", "fa:sock_b0": "trunk socket A, PH6 (lower)", "fa:sock_b1": "trunk socket B, PH4 (upper)",
     strip: "perf strip + Pico 2 W", qi_board: "Qi receiver board", qi_coil: "Qi coil", ws2812: "light bar (3 px)",
     board_a: "EMG board A (flexor)", board_b: "EMG board B (extensor)", imu: "BNO08x IMU", plate: "electrode plate",
     plate_plug: "3.5 mm plug", plug_a: "3.5 mm plug A", plug_b: "3.5 mm plug B",
   };
-  const pretty = n => PRETTY[n] || n.replace(/^svc_/, "").replace(/_/g, " ");
+  const pretty = (n, asm) => PRETTY[asm + ":" + n] || PRETTY[n] || n.replace(/^svc_/, "").replace(/_/g, " ");
 
   // ---------- three.js
   const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
@@ -233,7 +234,7 @@
           const n = (node.name || "").toLowerCase();
           if (!n || n.startsWith("=>")) continue;
           const g = new THREE.Group(); g.name = n; g.add(node);
-          items.push({ name: tag + pretty(n), raw: n, cat: catOf(n), obj: g, lid: ASM[asm].lidParts.includes(n), on: true });
+          items.push({ name: tag + pretty(n, asm), raw: n, cat: catOf(n), obj: g, lid: ASM[asm].lidParts.includes(n), on: true });
           into.add(g);
         }
       }

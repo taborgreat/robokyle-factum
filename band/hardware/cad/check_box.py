@@ -12,12 +12,18 @@ sys.path.insert(0, __file__.rsplit("\\", 1)[0] if "\\" in __file__ else ".")
 import band_box as bb
 
 TOL = 0.05
-ALLOW_THROUGH = {"usb_plug", "switch", "led", "button", "button_keepout", "charger_keepout"}   # designed to cross a wall
+ALLOW_THROUGH = {"usb_plug", "switch", "led", "charger_keepout"}   # designed to cross a wall
 
 
 def vol(shape):
+    """Volume of a boolean result. Summed over solids: a multi-solid Compound's .volume can read 0 and hide a clash."""
+    if shape is None:
+        return 0.0
     try:
-        return abs(shape.volume) if shape is not None else 0.0
+        sols = shape.solids()
+        if sols:
+            return sum(abs(x.volume) for x in sols)
+        return abs(shape.volume)
     except Exception:
         return 0.0
 
@@ -50,8 +56,6 @@ def main():
             if name.startswith("svc_lid_plug_") and pn.startswith("sock_L"):
                 continue
             if name == "svc_switch_wires" and pn == "switch":       # the blobs sit on the switch's own pin tips
-                continue
-            if name.startswith("svc_button") and pn in ("button", "button_keepout"):
                 continue
             v = vol(sv & part)
             if v > TOL:

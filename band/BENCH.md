@@ -17,14 +17,14 @@ proved yet. Battery out of the circuit until stage 2 says so.
 | 1N4007 (SunFounder kit; 1N4148 also fine) | motor kick-back | stripe toward 3V3 |
 | S8050 NPN (SunFounder kit; 2N2222 also fine) | motor switch | flat face toward you, legs down: **E B C** on both; verify on the datasheet for your brand |
 | 1 kΩ, 470 Ω, 100 kΩ × 2 | base resistor, LED resistor, divider | colour bands: brown-black-red, yellow-violet-brown, brown-black-yellow |
-| coin motor, 5 mm green LED, 12 mm yellow button, WS2812 strip (cut 3 pixels) | UI | all four live in the lid, on the lid pigtail |
+| coin motor, 5 mm green LED, 12 mm yellow button, WS2812 strip (cut 3 pixels) | UI | LED soldered into the strip (shows through the lid); bar lies in the middle-wall pocket; button + motor in the forearm module (trunk A) |
 | GY-BNO08X | orientation | I²C address 0x4B with AD0 low; **lives in the forearm module, not the box** |
 | SEN0240 × 2 (plate + signal board + 3.5 mm cable) | EMG | boards in the forearm module, plates on their loop band; the Gravity cables are not used |
-| JST-PH kit: 4-pin sockets × 4, 3-pin sockets × 3, housings + crimp pins | every connector | box: 2 × PH4 + PH3 in the wall, 2 × PH3 on the strip; module: 2 × PH4 stacked |
+| JST-PH kit: 6-pin sockets × 2, 4-pin sockets × 2, 3-pin socket × 1, housings + crimp pins | every connector | box: PH6 + PH4 + PH3 in the walls; module: PH6 + PH4 stacked |
 | 1.5" elastic strap, ≤ 22 mm elastic (loop band), M2 × 4/6/8/12 screws, M2 heat-set inserts | mounting | see PUCKS.md |
 | Qi receiver + coil + ferrite | wireless charging | last thing you add |
 | Kapton tape (amber) | insulation, heat-proof | around the cell's edges, over solder stubs, holds ferrite to coil and coil to lid |
-| copper foil tape | conductive | shield wrap on the EMG wires in the trunk (one end to GND); **never near the Qi coil** |
+| (optional, later) foil shield | conductive | only if the EMG trace is noisy: kitchen foil around the twisted EMG1/EMG2/GND trio with a bare wire under it to GND at the box end; **never near the Qi coil** |
 | multimeter | your eyes | DC volts; also continuity (beep) for checking joints |
 
 ## 1. Power, without the Pico
@@ -105,23 +105,28 @@ before the strip centre to the free rows, and the chest-side outer row except un
 strip centre) and under the LED (18 +- 5 mm) - keep those two spots for flat parts. Nothing over 4.5 mm.
 
 
-What is on the strip: the Pico, the LED resistor, the divider pair, the motor driver (1k / S8050 / 1N4007), diode 1,
-the two lid sockets, and wires to the charger corner and the wall sockets. Nothing else - the IMU and the EMG boards
-are in the forearm module.
+Standoffs: the board's four drilled holes are at rows 2 and 21, columns 1 and 10 (±24.13 × ±11.43 from the board
+centre) and the box's posts match them - three posts; the USB-end rib-side corner of the board is snipped ~8 mm
+because the lid's boss stands there, so that hole is unused, and the USB-end chest-side corner is nipped ~2 mm at
+45° to clear the bay's rounded corner. What is on the strip: the Pico, the green LED standing
+in rows 21-22, third column in on the chest side (columns 1/10 of those rows are beside the standoff screws), its
+470 Ω lying flat beside it toward the centre (clip the LED's legs 1.5 mm under the board like every other part),
+the divider pair, the motor driver (1k / S8050 / 1N4007), diode 1, and wires to the
+charger corner, the wall sockets and the light bar. Nothing else - the IMU, the EMG boards, the
+button and the motor are in the forearm module.
 
 Order on the strip: Pico headers → star ground blob (row 22, outer columns - the lid sockets sit over the middle of
 rows 21-22) → 470 Ω + LED wires → 100k pair → 1k / S8050 / 1N4007
-→ diode 1 → wires to the charger corner (VI, VO, GND, JST+) → wall sockets (2 x PH4 trunk, PH3 cord: 60 mm leads
-soldered to the socket pins clipped to 2 mm, sockets dropped into their wall pockets **before the battery goes in** -
-their wires run behind the battery ring; glue the two PH4 housings side by side into one plug for the wide window) → two PH3 sockets upright
-on row 21 (pins bent to the grid) → lid pigtail: 80 mm wires from the lid parts into two PH3 housings
-(motor 2, WS2812 3, LED 2, button 2). **Button: clip two legs flush and the other two (one per pair) to 1.5 mm,
-solder the wires sideways onto those stubs, then push the button up into the lid's cup, cap first.** Stock legs
-would hit the floor; the floor has a shallow recess under the button for the stubs and blobs. Test with the bench script again after the strip is done and before it goes in
-the box. Then conformal coat, then box. Box assembly order (fit-checked in the CAD): wall sockets with their leads
+→ diode 1 → wires to the charger corner (VI, VO, GND, JST+) → wall sockets (PH6 trunk A in the battery-side end
+wall, PH4 trunk B + PH3 cord in the strip-side end wall: 60 mm leads soldered to the socket pins clipped to 2 mm,
+sockets dropped into their wall pockets **before the battery goes in** - the PH6's wires run behind the battery
+ring) → three 60 mm leads on the light bar's -X pads (GND, +5V, DIN) down to the strip (GND, 3V3, GP16); the bar
+lies in the middle wall's pocket, LEDs up, leads through the USB-end notch. The LED is a strip part: solder it
+standing 1 mm off the board, long leg toward the 470 Ω; the lid's hole lands over its dome. Nothing is on the lid. Test with the bench script again after the strip is done and before
+it goes in the box. Then conformal coat, then box. Box assembly order (fit-checked in the CAD): wall sockets with their leads
 → charger in its cradle, socket toward the middle wall → Kapton, Qi board on top → battery (lip toward the charger,
 leads through the ring's notch) → ferrite + coil on the battery → strip onto its four standoffs (M2 thread-forming)
-→ lid parts in the lid, pigtail plugged into the strip sockets → lid on, two M2x6 into the inserts. Box to plate:
+→ light bar into its pocket → lid on, two M2x6 into the inserts. Box to plate:
 two M2x6 from inside, down through the small bosses on the battery-side floor into the plate posts' inserts
 (the post sits inside the boss; the screw head pulls the boss's web onto the brass), before the strip goes in.
 
@@ -129,8 +134,7 @@ Tape, in order: Kapton over the strip's solder side (leave the standoff holes cl
 edges and the tape lip → charger module wrapped once → coil: ferrite on the inner face, Kapton over both, then Kapton
 tabs to the lid underside over the battery bay → Kapton over the charger's soldered wires → Qi board flat on it,
 parts up, coil/output wires down its rib-side edge (the lid holds it). Trunk: twist
-EMG1/EMG2 with a GND wire, wrap the three in copper foil, solder a short lead from the foil to the star ground at the
-box end only, then the braided sleeving over everything. All tapes are under 0.1 mm; the pockets already allow for it.
+EMG1/EMG2 with a GND wire, then the braided sleeving over everything (foil shield only if the bench shows noise). All tapes are under 0.1 mm; the pockets already allow for it.
 
 ## 8. Forearm ring and the cables
 
@@ -139,14 +143,14 @@ Cables to crimp (PH housings on both ends, 26-28 AWG silicone):
 
 | cable | ends | length | notes |
 |---|---|---|---|
-| trunk A | PH4 ↔ PH4 | 25 cm | 3V3, GND, EMG1, EMG2 - twist EMG1/EMG2 with GND, copper foil over the three, foil to GND at the box end only |
+| trunk A | PH6 ↔ PH6 | 25 cm | 3V3, GND, EMG1, EMG2, BTN, MOTOR - twist EMG1/EMG2 together with GND (that is the shielding for v1) |
 | trunk B | PH4 ↔ PH4 | 25 cm | SDA, SCL, INT, RST |
 | hand cord | PH3 ↔ PH3 | as needed | TX, RX, GND, **crossed** (band TX → hand RX); HAND-WIRED mode |
 | plate cables | 3.5 mm ↔ 3.5 mm | the kit's | one per electrode, plate jack → module wrist wall |
 
-At the box the two trunk housings are glued side by side flat (wide window); at the module they are glued
-face-to-face into a 2 × 4 block (tall window). Glue them **after** a first plug-in on each end so the pair sits
-square. Braided sleeving over both trunk cables together.
+At the module the two trunk housings are glued face-to-face into one block (PH6 below, PH4 above, one tall
+window); at the box they go into two different walls, so they stay separate there. Glue the module end **after**
+a first plug-in so the pair sits square. Braided sleeving over both trunk cables together.
 
 Bench test of the ring: plug the trunk into the box, run the stage-4 bench script; `IMU ok 0x4b` and both EMG
 columns must behave exactly as they did on the breadboard. If `IMU` fails, it is INT/RST swapped in trunk B.

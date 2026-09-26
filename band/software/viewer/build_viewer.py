@@ -17,7 +17,7 @@ CAD = "band/hardware/cad"
 # viewer file -> the print it mirrors (version from MANIFEST.md)
 PRINTS = {"band_box.glb": "band_box.stl", "band_lid.glb": "band_lid.stl", "band_plate.glb": "band_plate.stl",
           "fa_module.glb": "fa_module.stl", "fa_lid.glb": "fa_lid.stl", "fa_backer.glb": "fa_backer.stl",
-          "electrode_frame.glb": "electrode_frame.stl", "electrode_bar.glb": "electrode_bar.stl"}
+          "electrode_frame.glb": "electrode_frame.stl", "electrode_cover.glb": "electrode_cover.stl"}
 # viewer file -> (agentcad label, run script, PART) for the placed parts and the arm (latest version wins)
 PARTS = {"band_parts.glb": ("band_parts", f"{CAD}/band_box_run.py", "parts"),
          "fa_parts.glb": ("fa_parts", f"{CAD}/forearm_run.py", "parts"),

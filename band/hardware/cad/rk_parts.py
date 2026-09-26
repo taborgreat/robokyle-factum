@@ -37,8 +37,8 @@ DIM = {
     # micro-USB plug, overmold envelope (typical cable)
     # Tabor's cable (caliper 2026-09-23): overmold 19.9 x 10.7 wide x ~7.5 tall; metal shell 7.5 long x 6.85 wide x 1.9 tall
     # Wall hole = the Pico's receptacle outline + clearance; the receptacle nose sits `nose_in` INSIDE the wall hole.
-    "usb_plug": dict(w=10.7, h=7.5, l=19.9, shell_l=7.5, shell_w=6.85, shell_h=1.9, insert=5.0, hole_w=8.6, hole_h=3.4,
-                     nose_in=1.0, SRC="M"),
+    "usb_plug": dict(w=10.7, h=7.5, l=19.9, shell_l=7.5, shell_w=6.85, shell_h=1.9, insert=5.0, hole_w=9.0, hole_h=3.6,
+                     nose_in=0.8, SRC="M"),   # 0.8: keeps the strip's edge just clear of the wall's inner face
     # Perfboard strip the Pico is soldered onto (Tabor: 25x60 snapped from ELEGOO 4x6 cm board)
     # 64 = Pico 51 + 13 mm zone at the +X end for the 12 mm button; small parts go on the outer rows beside the Pico.
     # 10 x 25 holes of 2.54 mm perf, snapped: 25.4 x 63.5. Pico centred, USB face flush with the -X end.
@@ -46,7 +46,10 @@ DIM = {
     # row-1 end, socket nose ~0.8 past the edge), rows 21-22 free. Standoffs = grid holes drilled to 2.2 at
     # columns 1 & 10, rows 3 & 18 (the Pico's GND pins sit at rows 3/8/13/18 on both sides, so a screw head touching
     # the neighbouring solder joint touches ground) -> +-19.05 x +-11.43 from the board centre.
-    "strip": dict(l=57.0, w=29.9, t=1.6, solder_below=1.5, standoff_x=19.05, standoff_u=11.43, pico_row_offset=-2.54,
+    # Standoff holes AS DRILLED by Tabor 2026-09-24: rows 2 and 21 (one row in from each end), columns 1 and 10
+    # -> +-24.13 x +-11.43 from the board centre. (The earlier 19.05 was rows 3/18 counted from the Pico's end - wrong
+    # relative to the board's centre, and the reason the USB sat back from its hole on the first build.)
+    "strip": dict(l=57.0, w=29.9, t=1.6, solder_below=1.5, standoff_x=24.13, standoff_u=11.43, pico_row_offset=-2.54,
                   SRC="M/grid"),
     # EEMB 803048 LiPo (measured; datasheet nominal 8.0x30x48)
     "batt": dict(l=48.1, w=29.65, h=8.3, lip_t=3.7, lead_l=8.0, lead_w=8.0, lead_h=5.0,   # caliper 2026-09-23; tape lip is 3.7 thick
@@ -94,7 +97,7 @@ DIM = {
     "qi": dict(coil_l=43.75, coil_w=25.3, coil_t=1.0, ferrite_t=0.6, board_l=25.2, board_w=14.6, board_t=2.0,
                SRC="M"),   # caliper 2026-09-23 (board thickness 0.2 bare; 2.0 with parts assumed)
     # M2 hardware
-    "m2": dict(clear_d=2.3, thread_form_d=2.0, insert_hole_d=3.2, insert_l=4.0, head_d=3.8, SRC="gauge"),   # 2.0 bites by hand; 3.2 holds the insert
+    "m2": dict(clear_d=2.3, thread_form_d=2.0, insert_hole_d=3.4, insert_l=4.0, head_d=3.8, SRC="gauge+print"),   # 2.0 bites by hand; 3.2 held but only started at an angle -> 3.4
 }
 
 
@@ -138,7 +141,7 @@ def usb_wall_cut():
     d, u = DIM["pico"], DIM["usb_plug"]
     x0 = -d["l"] / 2 - d["usb_overhang"]; zc = d["t"] + d["usb_h"] / 2
     # Rectangle X becomes Z after the rotation about Y: give it (height, width) so the oval is WIDE, not tall.
-    hole = extrude(fillet(Rectangle(u["hole_h"], u["hole_w"]).vertices(), u["hole_h"] / 2 - 0.01), amount=30)
+    hole = extrude(fillet(Rectangle(u["hole_h"], u["hole_w"]).vertices(), 1.0), amount=30)   # rounded rect: the receptacle's corners are square
     return hole.rotate(Axis.Y, -90).moved(Location((x0 + u["insert"], 0, zc)))
 
 
@@ -146,8 +149,8 @@ def perf_strip():
     d = DIM["strip"]
     # solder stubs only where the Pico headers are (rows at +-8.9) and the outer part rows
     out = _box(d["l"], d["w"], d["t"])
-    for u in (-8.89, 8.89):
-        out += _box(d["l"] - 4, 2.6, d["solder_below"], 0, u, -d["solder_below"])
+    for u in (-8.89, 8.89):                                        # header solder joints: only where the Pico's rows are
+        out += _box(20 * 2.54 - 1.0, 2.0, d["solder_below"], d["pico_row_offset"], u, -d["solder_below"])   # joints are round: 0.5 short at the end rows
     return out
 
 
@@ -261,11 +264,12 @@ def tactile_button_keepout(travel=0.5):
     return tactile_button() + _box(d["cap_hole"], d["cap_hole"], d["cap_h"] + travel + 3, 0, 0, d["h"])
 
 
-def led_5mm():
-    """Flange on Z=0, dome up, legs down."""
+def led_5mm(leg_l=None):
+    """Flange on Z=0, dome up, legs down (leg_l: stock 6.0; on the strip they are clipped 1.5 below the board)."""
     d = DIM["led"]
+    ll = d["leg_l"] if leg_l is None else leg_l
     return (_cyl(d["flange_d"], d["flange_t"]) + _cyl(d["dome_d"], d["body_h"] - d["flange_t"], 0, 0, d["flange_t"])
-            + _box(2.5, 2.5, d["leg_l"], 0, 0, -d["leg_l"]))
+            + _box(2.5, 2.5, ll, 0, 0, -ll))
 
 
 def ws2812_segment(n=2):

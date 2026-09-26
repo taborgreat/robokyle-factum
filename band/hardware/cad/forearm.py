@@ -8,8 +8,10 @@ The skin is a cylinder of radius R_FA about the line y = 0, z = -R_FA.
                     edges: the band is clamped (no creeping), two screws out and the frame lifts off for washing.
                     The electrodes live on their own light band, separate from the module (x2, more later)
   module            on top of the strap, thumb side: both SEN0240 signal boards side by side (each on its own
-                    facet of a two-facet tent, like the band box), 2 x PH4 trunk sockets in the elbow wall, the
-                    boards' own 3.5 mm jacks through the wrist wall, the BNO08x on the lid underside
+                    facet of a tent, like the band box) with a 16 mm solid rib between them that holds the yellow
+                    BUTTON (sunk in a pocket, cap through the lid's flat crest) and the COIN MOTOR (in a well down
+                    onto the strap). Trunk = PH6 over PH4 stacked in bay B's elbow wall; the boards' own 3.5 mm
+                    jacks through the wrist wall; the BNO08x under board B
   module_lid        tent-shaped cap; press-fit end skirts + 2 x M2x4
   module_backer     curved plate under the strap; 2 x M2x12 from the skin side clamp backer+strap+module
 
@@ -19,7 +21,7 @@ Strap prep: 2.5 mm holes at the screw positions (hot nail), one 8.5 x 14 notch f
 """
 import math
 from build123d import (Box, Cylinder, Location, Align, Axis, Rectangle, RectangleRounded, extrude, fillet, Compound)
-from rk_parts import DIM, emg_electrode, emg_signal, imu, jst_socket, _box, _cyl
+from rk_parts import DIM, emg_electrode, emg_signal, imu, jst_socket, tactile_button, coin_motor, _box, _cyl
 
 # ---------------------------------------------------------------- parameters (mm)
 R_FA = 34.0          # Kyle's upper-forearm radius (GUESS from the photo: skinny arm, ~21 cm around)
@@ -40,11 +42,15 @@ POCKET_D = FRAME_T - LIP                       #   the stretched band bows down 
 BAND_W = 22.0                                  # the loop band (GUESS: buy 20-22 mm elastic); 1.5 thick
 LOOP_X = -5.5                                  # band centred here: its wrist edge stays clear of the plate's jack lump
 POCKET_WALL = 1.2
-BAR_L, BAR_W, BAR_T = BAND_W + 12.0, 5.0, 2.0  # clamp bar over the band at each edge; screws 6 mm outside the band
-BAR_BOSS_D, BAR_BOSS_H = 5.0, 1.3              # the bar sits on two bosses 1.3 tall: the 1.5 band gets squeezed 0.2
+# cover (2026-09-24 print review: two bars did not hold the plate; one cover does, and the band threads through it)
+COVER_T = 1.6
+BAR_BOSS_D, BAR_BOSS_H = 5.0, 1.3              # the cover sits on four bosses 1.3 tall
+BAR_W = 5.0                                    # width of the rim the bosses stand on
 BAR_Y = e["w"] / 2 + CLR + POCKET_WALL + BAR_W / 2
-BAR_SX = BAND_W / 2 + 3.0                      # screw x offset from the band centre
-FR_L, FR_W = 46.0, 2 * (BAR_Y + BAR_W / 2 + 1.0)   # long enough for the clamp bosses (band sits off-centre, toward the elbow)
+BAR_SX = BAND_W / 2 + 4.0                      # screw x offset from the band centre: 1 mm clear of the slots
+SLOT_L, SLOT_W = BAND_W + 2.0, 3.0             # band slots in the cover, over the rims (x = band, y = rim)
+PAD_T = 1.4                                    # rib under the cover: presses the band onto the plate's back
+FR_L, FR_W = 48.0, 2 * (BAR_Y + BAR_W / 2 + 1.0)
 
 # module (two-facet tent)
 BACKER_T = 2.4
@@ -52,13 +58,16 @@ FLOOR_T, WALL, LID_T = 1.6, 1.2, 1.6
 IMU_POST = 2.5                                 # IMU on the floor of bay B (header clipped to 2 mm), under board B
 IMU_X = -0.5                                   # IMU centre relative to the board centre (between the Gravity pins and the board posts)
 STANDOFF = {"A": 2.8, "B": IMU_POST + DIM["imu"]["t"] + DIM["imu"]["comp_h"] + 0.5}   # board B rides over the IMU
-RIB = 6.7                                      # between the two board bays: carries the two clamp bosses
+RIB = 16.0                                     # solid middle: clamp bosses at its ends, button + motor in it (2026-09-24)
+BTN_D, BTN_LEG, BTN_CLR = DIM["button"], 1.5, 0.8    # button legs clipped to 1.5; pocket clearance per side
+MOTOR_X = 13.3                                 # motor well centre along the arm (between the button and the +X boss)
+MOTOR_D = DIM["motor"]["cradle_id"]            # 10.8 well
 ROW_W = g["w"] + 2 * CLR                       # 22.6 per bay
 SOCK_D, SOCK_POST, SOCK_SHELF, SOCK_PIN = JST["sock_d"] + 0.2, 1.2, 1.0, 2.0    # pins clipped to 2 mm
 SOCK_ZONE = SOCK_D + SOCK_PIN + 3.0            # elbow end of each bay: sockets + pin stubs + wires turning up, before the board
 IN_H = STANDOFF["B"] + g["t"] + g["grav_h"] + 0.5                              # lid underside above the floor
-SOCK_STACK = 2                                 # the two PH4 trunk sockets stacked in ONE pocket in bay B's elbow wall
-                                               # (the two housings get glued into one 2x4 plug: one hole in the wall)
+SOCK_STACK = (6, 4)                            # trunk sockets stacked in ONE pocket in bay B's elbow wall: PH6 below
+                                               # (3V3 GND EMG1 EMG2 BTN MOTOR), PH4 above (SDA SCL INT RST); housings glued
 SKIRT, SKIRT_T, SKIRT_CLR = 3.0, 1.0, 0.25
 BOSS_D, BOSS_HOLE = 5.5, 2.0
 STRAP_W = 38.1                                 # the 1.5" strap; the clamp screws sit OUTSIDE it (no holes in the elastic)
@@ -133,8 +142,22 @@ def below_plane(k, w, size=400):
     return on_row(Box(size, size, size, align=(Align.CENTER, Align.CENTER, Align.MAX)), k, 0, 0, w)
 
 
+def facet_z(k, w, y):
+    """Global z of row k's facet plane (height w in its frame) at global y."""
+    a = math.radians(row_angle(k))
+    u = (y + (R + w) * math.sin(a)) / math.cos(a)
+    return u * math.sin(a) + (R + w) * math.cos(a) - R
+
+
+def crest_z(w):
+    """Height of the flat crest over the rib: where the facets pass the rib's edges (y = +-RIB/2)."""
+    return facet_z("A", w, -RIB / 2)
+
+
 def tent(wa, wb):
-    return below_plane("A", wa) & below_plane("B", wb)
+    """Two facets + a flat crest between them (horizontal plane at crest_z)."""
+    flat = Box(400, 400, 400, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(Location((0, 0, crest_z(wa))))
+    return below_plane("A", wa) & below_plane("B", wb) & flat
 
 
 _cache = {}
@@ -161,7 +184,7 @@ def rounded_outer():
         try:
             top_z = max(ed.center().Z for ed in o.edges())
             ridge = [ed for ed in o.edges() if abs(ed.center().Z - top_z) < 0.5 and ed.length > OUT_L * 0.8]
-            o = fillet(ridge, 3.0)
+            o = fillet(ridge, 2.0)
             tops = [f for f in o.faces() if f.normal_at().Z > 0.3 and f.center().Z > 5]
             sides = [f for f in o.faces() if abs(f.normal_at().Z) < 0.5 and f.center().Z > -30]
             side_edges = [ed for f in sides for ed in f.edges()]
@@ -208,9 +231,14 @@ def placements():
         P[f"board_{k}"] = on_row(emg_signal(), k, X_BOARD, 0, W_BOARD[k])
         P[f"plug_{k}"] = on_row(_box(g["plug_l"], g["plug_d"], g["plug_d"], g["l"] / 2 + g["plug_l"] / 2 - 6.0, 0,
                                      g["t"] + 5.5 / 2 - g["plug_d"] / 2), k, X_BOARD, 0, W_BOARD[k])
-    sk = (jst_socket(4) - _box(10, 20, 10, -JST["sock_d"] - SOCK_PIN - 5, 0, -1)).rotate(Axis.Z, 180)   # pins clipped, opening -X
-    for i in range(SOCK_STACK):
+    for i, n in enumerate(SOCK_STACK):
+        sk = (jst_socket(n) - _box(10, 20, 10, -JST["sock_d"] - SOCK_PIN - 5, 0, -1)).rotate(Axis.Z, 180)   # pins clipped, opening -X
         P[f"sock_B{i}"] = on_row(sk, "B", X0, 0, R_FLOOR + SOCK_SHELF + i * JST["sock_t"])
+    # button in the rib: cap flush with the lid's flat crest, body captured in a pocket in the solid rib
+    P["button"] = tactile_button(leg_below=BTN_LEG).moved(Location((0, 0, btn_body_z())))
+    # coin motor in its well, standing on the strap (z = STRAP_T at the crest), tab + leads toward bay B (+Y)
+    dm = DIM["motor"]
+    P["motor"] = (coin_motor() - _box(20, 8, 5, dm["d"] / 2 + dm["tab_l"] + 10.0, 0, -1)).rotate(Axis.Z, 180).moved(Location((MOTOR_X, 0, R_FLOOR)))   # on the rib's floor, tab toward the button; leads are svc_motor_leads
     d = DIM["imu"]
     b = imu() - _box(40, 40, 10, 0, 0, -SOCK_PIN - 10)                                       # header clipped to 2 mm
     P["imu"] = on_row(b, "B", X_BOARD + IMU_X, 0, R_FLOOR + IMU_POST)
@@ -218,14 +246,28 @@ def placements():
     return P
 
 
+def btn_body_z():
+    """Global z of the button body's bottom: cap top flush with the lid's outer crest."""
+    return crest_z(R_OUT) - BTN_D["cap_h"] - BTN_D["h"]
+
+
 def service_volumes(P):
     """Solder, pin stubs and wire bends a real build needs; checked like parts."""
     S = {}
+    n_st = len(SOCK_STACK)
     # behind the stacked trunk sockets: blobs on the 2 mm pin stubs + wires turning up (2.2 mm)
-    S["svc_sock_wires"] = on_row(_box(2.2, 8.6, SOCK_STACK * JST["sock_t"], -(JST["sock_d"] + SOCK_PIN) - 1.1, 0, SOCK_SHELF).rotate(Axis.Z, 180),
+    S["svc_sock_wires"] = on_row(_box(2.2, 12.6, n_st * JST["sock_t"], -(JST["sock_d"] + SOCK_PIN) - 1.1, 0, SOCK_SHELF).rotate(Axis.Z, 180),
                                  "B", X0, 0, R_FLOOR)
-    # the glued 2x4 trunk plug outside the elbow wall + its cable bend (must clear backer and lid)
-    S["svc_trunk_plug"] = on_row(_box(12.0, 9.0, SOCK_STACK * 4.9 + 4.0, WALL + 6.0, 0, SOCK_SHELF - 2.0).rotate(Axis.Z, 180), "B", X0, 0, R_FLOOR)
+    # the glued PH6+PH4 trunk plug outside the elbow wall + its cable bend (must clear backer and lid)
+    S["svc_trunk_plug"] = on_row(_box(12.0, 13.0, n_st * 4.9 + 4.0, WALL + 6.0, 0, SOCK_SHELF - 2.0).rotate(Axis.Z, 180), "B", X0, 0, R_FLOOR)
+    # button: blobs on the clipped legs + two wires leaving through the slot toward bay B
+    zb = btn_body_z()
+    S["svc_button_solder"] = _box(BTN_D["leg_dx"] + 2.0, BTN_D["leg_dy"] + 2.0, BTN_LEG + 0.8, 0, 0, zb - BTN_LEG - 0.8)
+    S["svc_button_wires"] = _box(6.0, 3.0, 4.0, 0, 0, zb - BTN_LEG - 1.2 - 3.5)             # down from the pocket floor into the tunnel
+    # motor leads: out of the well's tab slot into bay B
+    x_n = X0 + 8.3
+    S["svc_motor_leads"] = _box(MOTOR_X - x_n, 3.0, 3.0, (MOTOR_X + x_n) / 2, 0, zb - BTN_LEG - 1.2 - 3.5)   # the whole tunnel, pocket to notch
+    S["svc_wall_hole_wires"] = _box(3.5, 14.0, 3.5, X0 + 9.9, 7.0, zb - BTN_LEG - 1.2 - 3.75)               # out through the rib wall to the pins
     # IMU: six wires on its clipped header (-Y edge), under board B
     d = DIM["imu"]
     S["svc_imu_wires"] = on_row(_box(d["l"] - 4, 3.0, 3.5, IMU_X, -d["w"] / 2 - 0.5, IMU_POST - 1.0), "B", X_BOARD, 0, R_FLOOR)
@@ -233,7 +275,7 @@ def service_volumes(P):
     for k in ("A", "B"):
         S[f"svc_grav_wires_{k}"] = on_row(_box(5.0, 11.0, 2.3, -g["l"] / 2 + 4.0, 0, -2.3), k, X_BOARD, 0, W_BOARD[k])
     # board A's three wires crossing the rib to the sockets, through the rib notch at the elbow end
-    S["svc_rib_wires"] = Box(5.0, RIB + 4.0, 3.0).moved(Location((X0 + 8.3, 0, R + R_FLOOR + 4.5)))
+    S["svc_rib_wires"] = Box(5.0, RIB + 4.0, 3.0).moved(Location((X0 + 8.3, 0, R_FLOOR + 4.0 + 1.6)))   # centred box: sits just above the notch floor
     return S
 
 
@@ -251,15 +293,20 @@ def sock_pocket_local(n):
     return block, cut
 
 
-def sock_pocket_stack(n, count):
-    """Like sock_pocket_local but `count` sockets stacked in one open-top pocket, one tall window."""
-    w_ = JST["sock_w"][n]
-    top = SOCK_SHELF + count * JST["sock_t"] + 0.5
-    block = _box(SOCK_D + SOCK_POST, w_ + 2 * SOCK_POST, top, -(SOCK_D + SOCK_POST) / 2, 0, 0)
-    cut = _box(SOCK_D + 0.5, w_, 30, -SOCK_D / 2 + 0.25, 0, SOCK_SHELF)
-    cut += _box(SOCK_POST + 0.4, (n - 1) * JST["pitch"] + 2.4, 30, -SOCK_D - SOCK_POST / 2, 0, SOCK_SHELF)
-    h_win = (count - 1) * JST["sock_t"] + JST["plug_hole_h"]
-    cut += _box(WALL + 4, JST["plug_hole_w"][n], h_win, WALL / 2, 0, SOCK_SHELF + JST["sock_t"] / 2 - JST["plug_hole_h"] / 2)
+def sock_pocket_stack(sizes):
+    """Sockets of the given pin counts stacked bottom-up in one pocket: each level is as wide as its own socket,
+    each has its own pin slot; the windows overlap into one. Local frame as sock_pocket_local."""
+    w_max = max(JST["sock_w"][n] for n in sizes)
+    top = SOCK_SHELF + len(sizes) * JST["sock_t"] + 0.5
+    block = _box(SOCK_D + SOCK_POST, w_max + 2 * SOCK_POST, top, -(SOCK_D + SOCK_POST) / 2, 0, 0)
+    cut = None
+    for i, n in enumerate(sizes):
+        z0 = SOCK_SHELF + i * JST["sock_t"]
+        h = 30 if i == len(sizes) - 1 else JST["sock_t"]
+        c = _box(SOCK_D + 0.5, JST["sock_w"][n], h, -SOCK_D / 2 + 0.25, 0, z0)
+        c += _box(SOCK_POST + 0.4, (n - 1) * JST["pitch"] + 2.4, h, -SOCK_D - SOCK_POST / 2, 0, z0)
+        c += _box(WALL + 4, JST["plug_hole_w"][n], JST["plug_hole_h"], WALL / 2, 0, z0 + JST["sock_t"] / 2 - JST["plug_hole_h"] / 2)
+        cut = c if cut is None else cut + c
     return block, cut
 
 
@@ -272,12 +319,12 @@ def module():
         body += Cylinder(BOSS_D / 2, 200).moved(Location((sx * BOSS_X, 0, 0))) & outer_form() & tent(R_IN - 0.2, R_IN - 0.2)
         body -= Cylinder(BOSS_HOLE / 2, 200).moved(Location((sx * BOSS_X, 0, 0)))
     body -= skirt_band_cut()
-    # the trunk: both PH4 sockets stacked in ONE pocket in bay B's elbow wall (opening faces -X)
-    blk, cut = sock_pocket_stack(4, SOCK_STACK)
+    # the trunk: PH6 + PH4 stacked in ONE pocket in bay B's elbow wall (opening faces -X)
+    blk, cut = sock_pocket_stack(SOCK_STACK)
     body += on_row(blk.rotate(Axis.Z, 180), "B", X0, 0, R_FLOOR) & cavity("B")
     body -= on_row(cut.rotate(Axis.Z, 180), "B", X0, 0, R_FLOOR)
     # rib notch at the elbow end: board A's wires cross to the sockets
-    body -= Box(6.0, RIB + 6.0, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((X0 + 8.3, 0, R + R_FLOOR + 4.0)))   # clear of the -X boss
+    body -= Box(6.0, RIB + 6.0, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((X0 + 8.3, 0, R_FLOOR + 4.0)))   # clear of the -X boss
     bl, bw = g["l"], g["w"]
     for k in ("A", "B"):
         so = STANDOFF[k]
@@ -298,6 +345,22 @@ def module():
         body += on_row(_cyl(4.0, IMU_POST, px, py, 0), "B", 0, 0, R_FLOOR)
         body -= on_row(_cyl(BOSS_HOLE, IMU_POST + 1.2, px, py, -1.2), "B", 0, 0, R_FLOOR)
     body += on_row(_box(3.0, 3.0, IMU_POST, X_BOARD + IMU_X, -3.5, 0), "B", 0, 0, R_FLOOR)
+    # button pocket in the rib: body + clipped legs + blobs, open to the top; wire slot out to bay B
+    zb = btn_body_z()
+    z_floor = zb - BTN_LEG - 1.2
+    body -= Box(BTN_D["l"] + 2 * BTN_CLR, BTN_D["w"] + 2 * CLR, 60, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((0, 0, z_floor)))
+    body -= Box(BTN_D["leg_dx"] + 3.0, BTN_D["leg_dy"] + 3.0, BTN_LEG + 1.4, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((0, 0, z_floor)))   # blob relief around the legs
+    # wire way (2026-09-24 review): a 4 x 4 tunnel down the rib's core from the button pocket to the elbow-end
+    # notch (which opens into the socket zone), and a passage from the motor well into the button pocket
+    # the tunnel runs UNDER the button pocket (its floor is the tunnel's ceiling, open where they meet)
+    body -= Box(MOTOR_X - (X0 + 8.3), 4.0, 4.0, align=(Align.MIN, Align.CENTER, Align.MIN)).moved(Location((X0 + 8.3, 0, z_floor - 4.0)))
+    # motor well: down through the floor onto the strap; its tab points at the button pocket through a slot up to the tunnel
+    # motor pocket: blind, its floor at bay-floor height (1.6 mm of plastic over the strap - Tabor: no hole); the
+    # tab points at the button pocket through a slot that rises into the tunnel
+    body -= Cylinder(MOTOR_D / 2, 200, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((MOTOR_X, 0, R_FLOOR)))
+    body -= Box(MOTOR_D / 2 + 4.0, DIM["motor"]["tab_w"] + 1.0, z_floor - R_FLOOR + 0.5, align=(Align.MAX, Align.CENTER, Align.MIN)).moved(Location((MOTOR_X, 0, R_FLOOR)))
+    # wire hole from the rib into bay B, right behind the socket block: the tunnel's exit to the JST pins
+    body -= Box(5.0, 16.0, 5.0, align=(Align.CENTER, Align.MIN, Align.MIN)).moved(Location((X0 + 9.9, 0, z_floor - 4.0)))
     return body
 
 
@@ -310,6 +373,7 @@ def module_lid():
         cap -= on_row(win, k, X0 + IN_L + WALL / 2 - (WALL + 4) / 2, 0, W_BOARD[k] + g["t"] + 5.5 / 2)
     for sx in (-1, 1):
         cap -= Cylinder(M2["clear_d"] / 2, 200).moved(Location((sx * BOSS_X, 0, 0)))
+    cap -= Box(BTN_D["cap_hole"], BTN_D["cap_hole"], 200).moved(Location((0, 0, 0)))       # button cap through the flat crest
     return cap
 
 
@@ -322,6 +386,18 @@ def module_backer():
     for sx in (-1, 1):
         b -= Cylinder(M2["clear_d"] / 2, 200).moved(Location((sx * BOSS_X, 0, 0)))
         b -= Cylinder(HEAD_D / 2, 200, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(Location((sx * BOSS_X, 0, -BACKER_T + HEAD_H)))   # from the skin face
+    # sewing eyelets (2026-09-25: Tabor may sew the module to the sleeve and keep the electrodes on their own loop):
+    # 2 mm radial holes 3 mm in from every edge, every 8 mm, clear of the rails and the clamp-screw counterbores
+    def eyelet(x, y):
+        rod = Cylinder(1.0, 40).moved(Location((x, 0, R_FA + BACKER_T / 2)))
+        return rod.rotate(Axis.X, -math.degrees(math.asin(max(-0.99, min(0.99, y / R))))).moved(Location((0, 0, -R)))
+    ex, ey = OUT_L / 2 - 3.0, OUT_W / 2 - 3.0
+    for x in (-ex, -16.0, -8.0, 0.0, 8.0, 16.0, ex):
+        for sy in (-1, 1):
+            b -= eyelet(x, sy * ey)
+    for y in (-24.0, -16.0, -8.0, 8.0, 16.0, 24.0):
+        for sx in (-1, 1):
+            b -= eyelet(sx * ex, y)
     return b
 
 
@@ -336,7 +412,7 @@ def electrode_placements():
 
 def electrode_frame():
     f = slab(0, FRAME_T, FR_L, FR_W)                                                          # skin face curved, band face flat
-    f -= _box(e["l"] + 2 * CLR, e["w"] + 2 * CLR, 30, 0, 0, LIP)                               # plate pocket, open to the band
+    f -= _box(e["l"] + 2 * 0.1, e["w"] + 2 * CLR, 30, 0, 0, LIP)                               # plate pocket: 0.1 per END (print: 0.3 let it slide)
     span = 2 * e["bar_pitch"] + e["bar_w"]
     f -= _box(span + 1.6, e["bar_l"] + 1.6, 40, 0, 0, -20)                                    # bar window
     f -= _box(9.0, e["jack_w"] + 1.0, 30, e["l"] / 2 + CLR + 3.5, 0, LIP + e["t"] - 0.6)      # jack + plug relief, out to the frame end
@@ -348,17 +424,33 @@ def electrode_frame():
     return f
 
 
-def electrode_bar():
-    """One clamp bar (two per frame): sits on the bosses, M2x6 at each end, the band runs under it."""
-    b = extrude(RectangleRounded(BAR_L, BAR_W, 2.0), amount=BAR_T).moved(Location((LOOP_X, BAR_Y, FRAME_T + BAR_BOSS_H)))
+def electrode_cover():
+    """Screw-down cover over the frame: holds the plate in, two slots for the closed loop band (down through one,
+    across the plate's back under the pad, up through the other), a notch for the plate's jack lump. 4 x M2x6."""
+    z0 = FRAME_T + BAR_BOSS_H
+    c = extrude(RectangleRounded(FR_L, FR_W, CORNER_R), amount=COVER_T).moved(Location((0, 0, z0)))
+    # pad under the cover over the band's path: band (1.5) between pad and plate back, squeezed 0.1
+    pad_h = z0 - (LIP + e["t"]) - STRAP_T + 0.1
+    c += _box(BAND_W, e["w"] + 2 * CLR - 0.9, pad_h, LOOP_X, 0, z0 - pad_h)                   # inside the pocket walls
+    for sy in (-1, 1):
+        c -= _box(SLOT_L, SLOT_W, 20, LOOP_X, sy * BAR_Y, z0 - 10)                             # band slots over the rims
     for sx in (-1, 1):
-        b -= _cyl(M2["clear_d"], 10, LOOP_X + sx * BAR_SX, BAR_Y, FRAME_T)
-    return b
+        for sy in (-1, 1):
+            c -= _cyl(M2["clear_d"], 20, LOOP_X + sx * BAR_SX, sy * BAR_Y, z0 - 10)
+    jx0 = -e["l"] / 2 + e["jack_x0"] - 0.5
+    c -= _box(FR_L / 2 - jx0 + 2, e["jack_w"] + 2.0, 40, (jx0 + FR_L / 2 + 2) / 2, 0, z0 - 20)   # jack lump notch, to the wrist edge
+    return c
 
 
 def electrode_band():
-    """The loop band across the frame's back, under both bars (1.5 thick, squeezed to 1.3 under the bars)."""
-    return _box(BAND_W, FR_W + 10.0, STRAP_T, LOOP_X, 0, FRAME_T)
+    """The loop band: down through one slot, across the plate's back under the cover's pad, up through the other."""
+    half_in = e["w"] / 2 + CLR - 0.5
+    over = _box(BAND_W, 2 * half_in, STRAP_T - 0.1, LOOP_X, 0, LIP + e["t"])                # pressed onto the plate's back
+    parts = over
+    for sy in (-1, 1):
+        parts += _box(BAND_W, BAR_Y - half_in + STRAP_T, STRAP_T, LOOP_X, sy * (half_in + (BAR_Y - half_in + STRAP_T) / 2), FRAME_T)   # over the rim
+        parts += _box(BAND_W, STRAP_T, 12.0, LOOP_X, sy * BAR_Y, FRAME_T)                  # up through the slot
+    return parts
 
 
 # ---------------------------------------------------------------- checks
@@ -370,16 +462,16 @@ def _vol(s):
 
 
 def summary():
-    return (f"module {OUT_L:.1f} x {OUT_W:.1f} (tented, R_FA {R_FA}), ridge {BACKER_T + STRAP_T + R_OUT:.1f} above skin, "
+    return (f"module {OUT_L:.1f} x {OUT_W:.1f} (tented, flat crest {RIB} wide at {BACKER_T + crest_z(R_OUT):.1f} above skin, R_FA {R_FA}), "
             f"inner {IN_H:.1f}, boards at {STANDOFF['A']}/{STANDOFF['B']}; frame {FR_L:.1f} x {FR_W:.1f} x {FRAME_T:.2f}, "
-            f"two clamp bars {BAR_L} x {BAR_W} for a <= {BAND_W:.0f} mm band")
+            f"cover {FR_L} x {FR_W:.1f} with {SLOT_L} x {SLOT_W} slots for a <= {BAND_W:.0f} mm band")
 
 
 def check():
     bad = 0
     P = placements()
     mod, lid, bk = module(), module_lid(), module_backer()
-    THROUGH = {"plug_A", "plug_B", "svc_trunk_plug"}                       # designed to cross a wall
+    THROUGH = {"plug_A", "plug_B", "svc_trunk_plug", "button"}             # designed to cross a wall / the lid
     for pn, piece in (("module", mod), ("lid", lid), ("backer", bk)):
         for k, v in P.items():
             vol = _vol(piece & v)
@@ -388,7 +480,8 @@ def check():
             if vol >= 0.05: bad += 1
             print(f"{pn:7s} x {k:16s} {vol:8.2f} mm3{'' if vol < 0.05 else '   <-- CLASH'}")
     SKIP = {("svc_sock_wires", "sock_B0"), ("svc_sock_wires", "sock_B1"), ("svc_imu_wires", "imu"),
-            ("svc_grav_wires_A", "board_A"), ("svc_grav_wires_B", "board_B"), ("svc_trunk_plug", "sock_B0"), ("svc_trunk_plug", "sock_B1")}
+            ("svc_grav_wires_A", "board_A"), ("svc_grav_wires_B", "board_B"), ("svc_trunk_plug", "sock_B0"), ("svc_trunk_plug", "sock_B1"),
+            ("svc_button_solder", "button"), ("svc_button_wires", "button"), ("svc_motor_leads", "motor")}
     parts = {k: v for k, v in P.items() if not k.startswith("svc_")}
     for sn, sv in P.items():
         if not sn.startswith("svc_"):
@@ -401,13 +494,14 @@ def check():
                 bad += 1
                 print(f"{sn:18s} hits {pn:10s} {vol:8.2f}   <-- CLASH")
     print(f"module & lid overlap: {_vol(mod & lid):.2f}")
-    pw = (4 - 1) * 2 + 2.0
-    plug = _box(12.0, pw, SOCK_STACK * JST["sock_t"] - 0.1, 0.0, 0, SOCK_SHELF + 0.05).rotate(Axis.Z, 180)   # the glued 2x4 block
-    v = _vol(mod & on_row(plug, "B", X0, 0, R_FLOOR))
-    if v >= 0.05: bad += 1
-    print(f"trunk 2x4 plug through wall: {v:.2f}")
+    for i, n in enumerate(SOCK_STACK):
+        pw = (n - 1) * 2 + 2.0
+        plug = _box(12.0, pw, 4.4, 0.0, 0, SOCK_SHELF + i * JST["sock_t"] + (JST["sock_t"] - 4.4) / 2).rotate(Axis.Z, 180)
+        v = _vol(mod & on_row(plug, "B", X0, 0, R_FLOOR))
+        if v >= 0.05: bad += 1
+        print(f"trunk PH{n} plug through wall: {v:.2f}")
     E = electrode_placements(); E["band"] = electrode_band()
-    fr, bar = electrode_frame(), electrode_bar()
+    fr, bar = electrode_frame(), electrode_cover()
     for k, v in E.items():
         vol = _vol(fr & v)
         if vol >= 0.05: bad += 1
@@ -416,14 +510,14 @@ def check():
         vol = _vol(E[a] & E[b_])
         if vol >= 0.05: bad += 1
         print(f"{a:7s} x {b_:10s} {vol:8.2f} mm3{'' if vol < 0.05 else '   <-- CLASH'}")
-    print(f"bar     x band       {_vol(bar & E['band']):8.2f} mm3   (the clamp squeeze: 0.2 x band x bar, by design)")
+    print(f"cover   x band       {_vol(bar & E['band']):8.2f} mm3   (the 0.2 mm squeeze where the band passes under the cover rims, by design)")
     for k in ("plate", "plate_plug"):
         vol = _vol(bar & E[k])
         if vol >= 0.05: bad += 1
         print(f"bar     x {k:10s} {vol:8.2f} mm3{'' if vol < 0.05 else '   <-- CLASH'}")
     print(f"bar     x frame      {_vol(bar & fr):8.2f} mm3{'' if _vol(bar & fr) < 0.05 else '   <-- CLASH'}")
     if _vol(bar & fr) >= 0.05: bad += 1
-    for pn, piece in (("module", mod), ("lid", lid), ("backer", bk), ("frame", fr), ("bar", bar)):
+    for pn, piece in (("module", mod), ("lid", lid), ("backer", bk), ("frame", fr), ("cover", bar)):
         print(f"{pn}: solids={len(piece.solids())} valid={piece.is_valid} vol={piece.volume:.0f}")
     print(summary())
     print("PASS" if bad == 0 else f"FAIL ({bad})")
