@@ -27,7 +27,7 @@ Every firmware file and the wiring page derive from this table. Change it here f
 Power path: cell → charger board B+/B− (AITRIP TP4057 with protection) → OUT+ → switch → 1N5817 → Pico VSYS;
 OUT− is the ground (protection FET in it). Pico VBUS → board IN+ (1 A charge from USB or Qi). The cell's own PCM
 is a second layer of protection. The Pico's own VBUS→VSYS diode and the 1N5817 OR the two sources; USB wins when
-plugged in. (The SunFounder LTC4054 module is retired: its output diode died after a reversed plug-in.)
+plugged in.
 Green 5 mm LED: 3V3 OUT (pin 36) → 470 Ω → LED long leg → short leg → GND (lit whenever the band is on or USB is in; no GPIO).
 It is soldered INTO the strip (rows 21-22, chest-side outer column) and shows through a plain hole in the lid.
 
@@ -40,7 +40,7 @@ carry a male housing at each end. All three box sockets are in the +X end wall (
 | trunk B, PH4 | strip side, rib side | SDA, SCL, INT, RST | forearm module |
 | cord, PH3 | strip side, next to trunk B | TX, RX, GND | hand (crossed at the hand: band TX → hand RX) |
 
-The button and the coin motor live in the forearm module (2026-09-24 print review: reachable, and the motor sits
+The button and the coin motor live in the forearm module (reachable, and the motor sits
 on the strap); their driver parts (1k, S8050, 1N4007) stay on the strip and the two lines ride trunk A.
 
 Trunk colours: green, black, yellow, yellow, white, white, white (INT), white (RST) - mark INT/RST with tape.

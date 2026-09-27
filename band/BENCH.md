@@ -10,7 +10,7 @@ proved yet. Battery out of the circuit until stage 2 says so.
 | ------------------------- | ---------------------------------------------- | -------------------------------------------------------------- |
 | Pico 2 W (on headers)     | brain, Wi-Fi, BLE                              | goes in the band; bare Pico W goes to the hand later           |
 | breadboard + jumpers      | the whole box, temporarily                     | keep power on one end, signals on the other                    |
-| AITRIP TP4057 1A Type-C charger board (12.1 × 16.8, 18.35 with the USB-C, 4.2 tall) | charges the cell from USB / Qi, protects it | pads **B+ B−** (cell), **OUT+ OUT−** (to the switch / ground - the protection FET is in OUT−), **IN+ IN−** (5 V in, from Pico VBUS). Its own USB-C stays unused inside the box. Charges at 1 A (fine for the 1200 mAh cell; wall brick, not a laptop port). Replaces the SunFounder LTC4054 module, which died after a reversed plug-in |
+| AITRIP TP4057 1A Type-C charger board (12.1 × 16.8, 18.35 with the USB-C, 4.2 tall) | charges the cell from USB / Qi, protects it | pads **B+ B−** (cell), **OUT+ OUT−** (to the switch / ground - the protection FET is in OUT−), **IN+ IN−** (5 V in, from Pico VBUS). Its own USB-C stays unused inside the box. Charges at 1 A (fine for the 1200 mAh cell; wall brick, not a laptop port). |
 | EEMB 1200 mAh cell        | power                                          | **check polarity at the JST: red must land on the socket's +** |
 | slide switch              | kill switch                                    | middle pin + one outer pin                                     |
 | 1N5817 × 2                | one-way valves: cell → VSYS (diode 1), Qi → VBUS | stripe = cathode = the side current flows OUT of               |
@@ -32,14 +32,13 @@ proved yet. Battery out of the circuit until stage 2 says so.
 Wire only: cell, switch, diode 1, and the meter (the module is not in the battery path).
 
 1. Cell → charger JST. Meter across the **JST + pin and GND**: cell voltage, 3.6–4.2 V. If it reads negative, STOP — polarity is reversed; re-pin the plug.
-2. Cell + → switch middle. Switch outer → diode 1 plain end. Meter from **diode 1 stripe end to cell −**: switch on → cell minus ~0.3 V; switch off → 0 V. That's your kill switch working (done 2026-09-26: works).
+2. Cell + → switch middle. Switch outer → diode 1 plain end. Meter from **diode 1 stripe end to cell −**: switch on → cell minus ~0.3 V; switch off → 0 V. That's your kill switch working.
 3. Charger board alone: cell red → **B+**, black → **B−** (cut the cell's JST plug, one lead at a time, never both bare ends loose). Meter **OUT+ to OUT−**: the cell voltage. Type-C cable into its own socket for a moment: red LED = charging. That proves the board before it goes in the box.
 
 **Pass:** cell voltage correct polarity, diode 1 output follows the switch.
 
-**History (2026-09-26/27):** the SunFounder LTC4054 module's output diode died after the cell was once plugged in
-reversed, so the band now has its own 1N5817 in the battery path and the charger is the AITRIP TP4057 board (with
-protection). The cradle in box v210+ is cut for it; the old module no longer fits.
+The cradle in the box is cut for the AITRIP TP4057 board; a different charger board needs the cradle resized in
+`cad/band_box.py` (`DIM["charger"]` in `rk_parts.py`).
 
 ## 2. Pico alone, MicroPython, blink
 
@@ -55,7 +54,7 @@ protection). The cradle in box v210+ is cut for it; the old module no longer fit
 
 **Pass:** blinks on battery alone; USB + battery together is fine; switch off kills it.
 
-**This is the band's battery path** (2026-09-26): cell red → switch middle; switch outer → 1N5817 plain end; 1N5817
+**The band's battery path:** cell red → switch middle; switch outer → 1N5817 plain end; 1N5817
 stripe → Pico pin 39; cell black → Pico pin 38. The diode does what the module's B5819 was for: USB + battery together
 stays safe, USB wins. Never connect the cell straight to VSYS without that diode and then plug USB in: the Pico's
 internal diode would push USB current into the cell uncontrolled. Without the module in place nothing charges the

@@ -1,7 +1,7 @@
 """Copy an agentcad version's STL into print/<name>.stl and record its mesh bounding box in print/MANIFEST.md.
 
     .venv/Scripts/python.exe band/hardware/cad/publish.py <version_dir_or_label> <name>
-    e.g.  python band/hardware/cad/publish.py gauge fit_gauge
+    e.g.  python band/hardware/cad/publish.py band_box band_box
 
 Overwrites in place so print/ never holds stale copies. The manifest line is what to check against
 Bambu Studio's size readout after loading the file.

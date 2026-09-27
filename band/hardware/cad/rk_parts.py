@@ -3,12 +3,12 @@
 Conventions
 - Units mm. Each part is built with its mounting face on Z=0 and grows +Z (board bottom on Z=0, components up).
 - X is the part's long axis. Connectors/cables exit where noted in the docstring.
-- `SRC` records where each number came from: "datasheet", "measured" (Tabor), "guess" (must be verified
+- `SRC` records where each number came from: "datasheet", "measured" (caliper or gauge print), "guess" (must be verified
   with the fit gauge or a ruler before the box is printed). Do not silently promote a guess.
 - `keepout()` returns the part solid plus the volume a plug/cable/finger needs; pockets are cut from
   keepouts, never from bare parts.
 
-Confidence key: D = datasheet, M = measured by Tabor, G = guess.
+Confidence key: D = datasheet, M = measured, G = guess.
 """
 from build123d import (Box, Cylinder, Compound, Location, Align, Plane, Axis, Part, Solid,
                        fillet, Rectangle, extrude, Sketch)
@@ -35,18 +35,18 @@ DIM = {
                  comp_h=1.6,                                               # tallest passives elsewhere
                  hdr_pitch=2.54, hdr_base=2.5, hdr_pin_below=3.0, SRC="D"),
     # micro-USB plug, overmold envelope (typical cable)
-    # Tabor's cable (caliper 2026-09-23): overmold 19.9 x 10.7 wide x ~7.5 tall; metal shell 7.5 long x 6.85 wide x 1.9 tall
+    # the cable in hand (caliper 2026-09-23): overmold 19.9 x 10.7 wide x ~7.5 tall; metal shell 7.5 long x 6.85 wide x 1.9 tall
     # Wall hole = the Pico's receptacle outline + clearance; the receptacle nose sits `nose_in` INSIDE the wall hole.
     "usb_plug": dict(w=10.7, h=7.5, l=19.9, shell_l=7.5, shell_w=6.85, shell_h=1.9, insert=5.0, hole_w=9.0, hole_h=3.6,
                      nose_in=0.8, SRC="M"),   # 0.8: keeps the strip's edge just clear of the wall's inner face
-    # Perfboard strip the Pico is soldered onto (Tabor: 25x60 snapped from ELEGOO 4x6 cm board)
+    # Perfboard strip the Pico is soldered onto (25x60 snapped from an ELEGOO 4x6 cm board)
     # 64 = Pico 51 + 13 mm zone at the +X end for the 12 mm button; small parts go on the outer rows beside the Pico.
     # 10 x 25 holes of 2.54 mm perf, snapped: 25.4 x 63.5. Pico centred, USB face flush with the -X end.
-    # Tabor's cut perf: 10 columns x 22 rows, 57.0 x 29.9 x 1.6 (caliper 2026-09-23). Pico on rows 1-20 (USB at the
+    # the cut perf: 10 columns x 22 rows, 57.0 x 29.9 x 1.6 (caliper 2026-09-23). Pico on rows 1-20 (USB at the
     # row-1 end, socket nose ~0.8 past the edge), rows 21-22 free. Standoffs = grid holes drilled to 2.2 at
     # columns 1 & 10, rows 3 & 18 (the Pico's GND pins sit at rows 3/8/13/18 on both sides, so a screw head touching
     # the neighbouring solder joint touches ground) -> +-19.05 x +-11.43 from the board centre.
-    # Standoff holes AS DRILLED by Tabor 2026-09-24: rows 2 and 21 (one row in from each end), columns 1 and 10
+    # Standoff holes AS DRILLED (2026-09-24): rows 2 and 21 (one row in from each end), columns 1 and 10
     # -> +-24.13 x +-11.43 from the board centre. (The earlier 19.05 was rows 3/18 counted from the Pico's end - wrong
     # relative to the board's centre, and the reason the USB sat back from its hole on the first build.)
     "strip": dict(l=57.0, w=29.9, t=1.6, solder_below=1.5, standoff_x=24.13, standoff_u=11.43, pico_row_offset=-2.54,
@@ -73,8 +73,8 @@ DIM = {
                           plug_d=6.2, plug_l=22.0, bar_l=14.5, bar_w=5.8, bar_pitch=11.3, SRC="M/photo"),
     # caliper 2026-09-23: ~40 x 22; Gravity 3-pin socket on one short end, 3.5 mm jack on the other (cables both ends);
     # two mount holes at the jack end, 5.3 down from the jack edge (hole d assumed 3.0). Caliper said 2.7 in from
-    # the side; the 2026-09-25 module print put the posts ~1 mm too far apart and Tabor re-read them at 3 to 3.5 in
-    # (15 to 16 apart), so hole_in is 3.25 (15.5 spacing) - a best guess, no gauge (Tabor skipped it). The posts'
+    # the side; a first module print put the posts ~1 mm too far apart and the holes re-measured at 3 to 3.5 in
+    # (15 to 16 apart), so hole_in is 3.25 (15.5 spacing) - a best guess, no gauge print. The posts'
     # thread holes are 2.6 with a countersink so an M3 self-centres over a +-0.3 miss. Posts take M3 (M2 heads
     # nearly drop through the 3.0 holes).
     "emg_signal": dict(l=40.0, w=22.0, t=1.2, comp_h=6.0, hole_d=3.0, hole_in=3.25, hole_down=5.3,

@@ -39,7 +39,7 @@ PLATE_POST_D, PLATE_POST_UP = 6.2, 2.9        # the plate's posts rise this far 
 POST_FLANGE_T, POST_GAP = 1.5, 0.2            # the boss's top web the M2x6 pulls down onto the post's insert
 POST_BOSS_D, POST_BORE_D = 9.0, 4.5           # boss around the post; driver/head bore above the flange
 SERVICE_A = 0.4     # air above the coil
-LED_PROUD = 1.2     # LED dome tip above the lid (Tabor: ~1 mm is fine); keeps the lid boss above the Pico edge
+LED_PROUD = 1.2     # LED dome tip above the lid (~1 mm is fine); keeps the lid boss above the Pico edge
 
 b, s, c, q = DIM["batt"], DIM["strip"], DIM["charger"], DIM["qi"]
 SW_D, LED_D, WS_D = DIM["switch"], DIM["led"], DIM["ws2812"]

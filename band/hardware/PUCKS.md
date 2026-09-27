@@ -63,11 +63,10 @@ lies on its own facet and nothing wastes height.
 
 - electrode plate 36 x 23.3 x 1.11, bars 14.5 x 5.8 at 11.3 pitch and 1.5 proud, jack on the BACK overhanging ~2 mm
   (the plate rests on the frame's lip along its two long edges only; its middle is open to the skin)
-- signal board 40 x 22, holes 3.0 at **3.25 in from the sides (15.5 apart) - best guess** (the first print's posts at
-  2.7 in were ~1 mm too far apart; Tabor re-read the holes at 3 to 3.5 in). The posts' 2.6 holes have a countersink,
-  so an M3 still finds its way in if the real spacing is 15.0 or 16.0; drive the second screw while pressing the board
-  toward it. `board_gauge.stl` exists if it ever needs settling. The board sits 0.8 off the wrist wall, so the jack-end
-  distance may be up to 1 mm less than 5.3 without a change. Parts in its middle <= 2.5 tall
+- signal board 40 x 22, holes 3.0 at **3.25 in from the sides (15.5 apart; measured by eye at 3 to 3.5, no datasheet
+  figure)**. The posts' 2.6 holes have a countersink, so an M3 still finds its way in if the real spacing is 15.0 or
+  16.0; drive the second screw while pressing the board toward it. The board sits 0.8 off the wrist wall, so the
+  jack-end distance may be up to 1 mm less than 5.3 without a change. Parts in its middle <= 2.5 tall
 - BNO08x breakout 25.5 x 15.8 with a header on one long edge (clipped); **mount holes assumed** 2.5 mm in from the
   two corners on the edge opposite the header - if the board has none, snip the posts and glue it
 - strap 1.5 mm thick; forearm radius 34

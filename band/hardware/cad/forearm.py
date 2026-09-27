@@ -365,7 +365,7 @@ def module():
     # the tunnel runs UNDER the button pocket (its floor is the tunnel's ceiling, open where they meet)
     body -= Box(MOTOR_X - (X0 + 8.3), 4.0, 4.0, align=(Align.MIN, Align.CENTER, Align.MIN)).moved(Location((X0 + 8.3, 0, z_floor - 4.0)))
     # motor well: down through the floor onto the strap; its tab points at the button pocket through a slot up to the tunnel
-    # motor pocket: blind, its floor at bay-floor height (1.6 mm of plastic over the strap - Tabor: no hole); the
+    # motor pocket: blind, its floor at bay-floor height (1.6 mm of plastic over the strap, no hole to the strap); the
     # tab points at the button pocket through a slot that rises into the tunnel
     body -= Cylinder(MOTOR_D / 2, 200, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((MOTOR_X, 0, R_FLOOR)))
     body -= Box(MOTOR_D / 2 + 4.0, DIM["motor"]["tab_w"] + 1.0, z_floor - R_FLOOR + 0.5, align=(Align.MAX, Align.CENTER, Align.MIN)).moved(Location((MOTOR_X, 0, R_FLOOR)))
@@ -399,7 +399,7 @@ def module_backer():
     for sx in (-1, 1):
         b -= Cylinder(M2["clear_d"] / 2, 200).moved(Location((sx * BOSS_X, 0, 0)))
         b -= Cylinder(HEAD_D / 2, 200, align=(Align.CENTER, Align.CENTER, Align.MAX)).moved(Location((sx * BOSS_X, 0, -BACKER_T + HEAD_H)))   # from the skin face
-    # sewing eyelets (2026-09-25: Tabor may sew the module to the sleeve and keep the electrodes on their own loop):
+    # sewing eyelets (the module can be sewn to the sleeve while the electrodes stay on their own loop):
     # 2 mm radial holes 3 mm in from every edge, every 8 mm, clear of the rails and the clamp-screw counterbores
     def eyelet(x, y):
         rod = Cylinder(1.0, 40).moved(Location((x, 0, R_FA + BACKER_T / 2)))
