@@ -57,7 +57,11 @@ DIM = {
     # SunFounder Kepler-kit LiPo charger module (measured). Photo 2026-09-22: JST-PH socket on the -X short end
     # (battery plug axis along X), header pins CLIPPED (wires soldered instead) - pin_below=0.
     # caliper 2026-09-23: 22.0 long WITH the battery plug seated, 8.33 wide, 7.23 tall at the socket. plug_l = wire bend beyond.
-    "charger": dict(l=22.0, w=8.33, h=7.23, pin_below=0.0, plug_l=6.0, plug_w=5.0, plug_h=5.0, SRC="M"),
+    # AITRIP TP4057 1A Type-C charger with protection (caliper 2026-09-27): board 16.8 x 12.1, 18.35 long with the
+    # USB-C shell overhanging one short end, 4.2 tall with the shell. Pads B+/B-/OUT+/OUT-/IN+/IN- at the other end.
+    # Lies flat, long side across the bay, USB-C toward the triceps wall, pads toward the middle wall. The cell's
+    # leads are soldered to B+/B- (its JST plug cut off), so there is no plug volume.
+    "charger": dict(l=18.35, w=12.1, h=4.2, pin_below=0.0, plug_l=0.0, plug_w=0.0, plug_h=0.0, SRC="M"),
     # GY-BNO08X breakout (outline measured; header edge a guess)
     "imu": dict(l=25.5, w=15.8, t=1.6, comp_h=2.3, pins_h=8.4, hdr_pins=8, hdr_pitch=2.54, SRC="M"),   # caliper: 10.0 tall with header pins
     # DFRobot SEN0240: electrode plate AND signal board are both 22x35 (wiki). Thickness/jack unknown.
@@ -68,8 +72,12 @@ DIM = {
     "emg_electrode": dict(l=36.0, w=23.3, t=1.11, bar_h=1.5, jack_x0=23.82, jack_l=14.14, jack_w=6.5, jack_h=5.57,
                           plug_d=6.2, plug_l=22.0, bar_l=14.5, bar_w=5.8, bar_pitch=11.3, SRC="M/photo"),
     # caliper 2026-09-23: ~40 x 22; Gravity 3-pin socket on one short end, 3.5 mm jack on the other (cables both ends);
-    # two mount holes at the jack end, 2.7 in from the side, 5.3 down from the jack edge (hole d assumed 3.0).
-    "emg_signal": dict(l=40.0, w=22.0, t=1.2, comp_h=6.0, hole_d=3.0, hole_in=2.7, hole_down=5.3,
+    # two mount holes at the jack end, 5.3 down from the jack edge (hole d assumed 3.0). Caliper said 2.7 in from
+    # the side; the 2026-09-25 module print put the posts ~1 mm too far apart and Tabor re-read them at 3 to 3.5 in
+    # (15 to 16 apart), so hole_in is 3.25 (15.5 spacing) - a best guess, no gauge (Tabor skipped it). The posts'
+    # thread holes are 2.6 with a countersink so an M3 self-centres over a +-0.3 miss. Posts take M3 (M2 heads
+    # nearly drop through the 3.0 holes).
+    "emg_signal": dict(l=40.0, w=22.0, t=1.2, comp_h=6.0, hole_d=3.0, hole_in=3.25, hole_down=5.3,
                        jack_l=14.0, jack_w=6.5, plug_d=6.2, plug_l=22.0, grav_l=8.0, grav_w=10.0, grav_h=6.0, SRC="M/G"),
     # Slide switch (small SS12D00-style, 3 pins). Unverified.
     "switch": dict(l=8.6, w=3.7, h=3.6, nub_l=1.5, nub_w=1.5, nub_h=3.0, travel=2.0, pin_below=3.5,
@@ -89,15 +97,18 @@ DIM = {
     # the 4.4 gauge slot so it cannot be 6.11). Plug housing width = (n-1)*2 + 4.0; socket = (n-1)*2 + 4.1, 4.5 thick, 6.0
     # tall (mating axis), pins 3.4 straight out the back. Wall pockets: sock_w = measured + 0.3, plug window from the gauge.
     "jst_ph": dict(pitch=2.0, base_w=4.0, l=6.0, h=6.0, wire_bend=10.0, plug_w={2: 6.11, 3: 7.95, 4: 9.93, 6: 14.0},
-               plug_hole_w2=4.4, plug_hole_w3=6.4, plug_hole_h=5.2, socket_w2=6.2, socket_w3=8.2, socket_h=6.0,
-               sock_w={2: 6.4, 3: 8.25, 4: 10.25, 6: 14.3}, sock_t=4.5, sock_d=6.0, pin_l=3.4,
-               plug_hole_w={2: 4.4, 3: 6.4, 4: 8.4, 6: 12.4}, SRC="M/gauge/D"),
+               plug_hole_w2=4.4, plug_hole_w3=6.4, socket_w2=6.2, socket_w3=8.2, socket_h=6.0,
+               sock_w={2: 6.6, 3: 8.45, 4: 10.45, 6: 14.5}, sock_t=4.5, sock_d=6.0, pin_l=3.4,
+               # plug housings measured 2026-09-25 on the crimped cables: 3p 8.0, 4p 10.0, 6p 14.0 wide, 4.75 tall
+               # (the gauge-slot windows were too narrow). Window = housing + 0.8; socket pocket = socket + 0.5.
+               plug_hole_w={2: 6.8, 3: 8.8, 4: 10.8, 6: 14.8}, plug_hole_h=5.6, SRC="M/gauge/D"),
     # Zerone Qi receiver (photo vs tape 2026-09-22): oval coil ~48x35 with a ~20x10 window, black board ~25x15
     # with 2 corner holes, coil leads on one long edge, output wires at a corner; separate ferrite sheet.
     "qi": dict(coil_l=43.75, coil_w=25.3, coil_t=1.0, ferrite_t=0.6, board_l=25.2, board_w=14.6, board_t=2.0,
                SRC="M"),   # caliper 2026-09-23 (board thickness 0.2 bare; 2.0 with parts assumed)
     # M2 hardware
     "m2": dict(clear_d=2.3, thread_form_d=2.0, insert_hole_d=3.4, insert_l=4.0, head_d=3.8, SRC="gauge+print"),   # 2.0 bites by hand; 3.2 held but only started at an angle -> 3.4
+    "m3": dict(clear_d=3.4, thread_form_d=2.6, head_d=5.5, SRC="std"),                                            # thread-forming in PLA: 2.5-2.6 hole
 }
 
 
@@ -185,8 +196,10 @@ def charger():
 
 
 def charger_keepout():
-    """Module plus the seated battery plug and its wire bend off the -X short end (photo)."""
+    """Module plus the seated battery plug off the -X short end, when the board has a plug (plug_l > 0)."""
     d = DIM["charger"]
+    if d["plug_l"] <= 0:
+        return charger()
     return charger() + _box(d["plug_l"], d["plug_w"], d["plug_h"], -(d["l"] / 2 + d["plug_l"] / 2), 0, 1)
 
 

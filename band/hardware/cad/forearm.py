@@ -20,7 +20,7 @@ Strap prep: 2.5 mm holes at the screw positions (hot nail), one 8.5 x 14 notch f
 (the plate's jack lump pokes through it and through the cap).
 """
 import math
-from build123d import (Box, Cylinder, Location, Align, Axis, Rectangle, RectangleRounded, extrude, fillet, Compound)
+from build123d import (Box, Cylinder, Location, Align, Axis, Rectangle, RectangleRounded, extrude, fillet, Compound, Cone)
 from rk_parts import DIM, emg_electrode, emg_signal, imu, jst_socket, tactile_button, coin_motor, _box, _cyl
 
 # ---------------------------------------------------------------- parameters (mm)
@@ -56,7 +56,7 @@ FR_L, FR_W = 48.0, 2 * (BAR_Y + BAR_W / 2 + 1.0)
 BACKER_T = 2.4
 FLOOR_T, WALL, LID_T = 1.6, 1.2, 1.6
 IMU_POST = 2.5                                 # IMU on the floor of bay B (header clipped to 2 mm), under board B
-IMU_X = -0.5                                   # IMU centre relative to the board centre (between the Gravity pins and the board posts)
+IMU_X = -1.5                                   # IMU centre relative to the board centre (between the Gravity pins and the M3 posts)
 STANDOFF = {"A": 2.8, "B": IMU_POST + DIM["imu"]["t"] + DIM["imu"]["comp_h"] + 0.5}   # board B rides over the IMU
 RIB = 16.0                                     # solid middle: clamp bosses at its ends, button + motor in it (2026-09-24)
 BTN_D, BTN_LEG, BTN_CLR = DIM["button"], 1.5, 0.8    # button legs clipped to 1.5; pocket clearance per side
@@ -70,6 +70,10 @@ SOCK_STACK = (6, 4)                            # trunk sockets stacked in ONE po
                                                # (3V3 GND EMG1 EMG2 BTN MOTOR), PH4 above (SDA SCL INT RST); housings glued
 SKIRT, SKIRT_T, SKIRT_CLR = 3.0, 1.0, 0.25
 BOSS_D, BOSS_HOLE = 5.5, 2.0
+M3 = DIM["m3"]
+POST_D = 6.5                                   # signal-board posts take M3 (2026-09-25 print: M2 heads nearly fall through the 3.0 holes)
+BOARD_SHIFT = -0.5                             # boards sit 0.5 further from the wrist wall: the jack-end hole distance is a caliper
+                                               # guess, this lets it be up to 1 mm less without the board hitting the wall
 STRAP_W = 38.1                                 # the 1.5" strap; the clamp screws sit OUTSIDE it (no holes in the elastic)
 CORNER_R, EDGE_R = 4.0, 1.5
 
@@ -85,7 +89,7 @@ IN_L = SOCK_ZONE + g["l"] + 2 * CLR
 OUT_L, OUT_W = IN_L + 2 * WALL, IN_W + 2 * WALL
 X0 = -IN_L / 2
 BOSS_X = STRAP_W / 2 + 0.5 + BOSS_D / 2 + 0.3   # clamp bosses just outside the strap, merged into the end walls
-X_BOARD = X0 + SOCK_ZONE + CLR + g["l"] / 2      # board centre; Gravity end toward the sockets, jack at +X
+X_BOARD = X0 + SOCK_ZONE + CLR + g["l"] / 2 + BOARD_SHIFT   # board centre; Gravity end toward the sockets, jack at +X
 
 
 # ---------------------------------------------------------------- arm + row frames
@@ -268,12 +272,13 @@ def service_volumes(P):
     x_n = X0 + 8.3
     S["svc_motor_leads"] = _box(MOTOR_X - x_n, 3.0, 3.0, (MOTOR_X + x_n) / 2, 0, zb - BTN_LEG - 1.2 - 3.5)   # the whole tunnel, pocket to notch
     S["svc_wall_hole_wires"] = _box(3.5, 14.0, 3.5, X0 + 9.9, 7.0, zb - BTN_LEG - 1.2 - 3.75)               # out through the rib wall to the pins
+    S["svc_wall_hole_wires_A"] = _box(3.5, 14.0, 3.5, X0 + 9.9, -7.0, zb - BTN_LEG - 1.2 - 3.75)            # board A's three wires in from the bay-A side
     # IMU: six wires on its clipped header (-Y edge), under board B
     d = DIM["imu"]
     S["svc_imu_wires"] = on_row(_box(d["l"] - 4, 3.0, 3.5, IMU_X, -d["w"] / 2 - 0.5, IMU_POST - 1.0), "B", X_BOARD, 0, R_FLOOR)
     # each board's Gravity pins (through-hole stubs + wires) under its elbow end
     for k in ("A", "B"):
-        S[f"svc_grav_wires_{k}"] = on_row(_box(5.0, 11.0, 2.3, -g["l"] / 2 + 4.0, 0, -2.3), k, X_BOARD, 0, W_BOARD[k])
+        S[f"svc_grav_wires_{k}"] = on_row(_box(4.0, 11.0, 2.3, -g["l"] / 2 + 3.5, 0, -2.3), k, X_BOARD, 0, W_BOARD[k])   # pins 1.5-5.5 from the board end
     # board A's three wires crossing the rib to the sockets, through the rib notch at the elbow end
     S["svc_rib_wires"] = Box(5.0, RIB + 4.0, 3.0).moved(Location((X0 + 8.3, 0, R_FLOOR + 4.0 + 1.6)))   # centred box: sits just above the notch floor
     return S
@@ -328,11 +333,16 @@ def module():
     bl, bw = g["l"], g["w"]
     for k in ("A", "B"):
         so = STANDOFF[k]
-        # board: two M2 posts at its mount holes (jack end) + two pads under the Gravity end
+        # board: two M3 posts at its mount holes (jack end) + two pads under the Gravity end
         for sy in (-1, 1):
             px, py = X_BOARD + bl / 2 - g["hole_down"], sy * (bw / 2 - g["hole_in"])
-            body += on_row(_cyl(BOSS_D - 1.0, so, px, py, 0), k, 0, 0, R_FLOOR)
-            body -= on_row(_cyl(BOSS_HOLE, so + 1.2, px, py, -1.2), k, 0, 0, R_FLOOR)            # thread-forming, 1.2 into the floor (0.4 left)
+            post = _cyl(POST_D, so, px, py, 0)
+            if k == "B":                                                               # flat toward the IMU (1.5 mm wall left at the hole)
+                post -= _box(4.0, POST_D + 1.0, so + 1.0, px - 2.75 - 2.0, py, -0.5)
+            body += on_row(post, k, 0, 0, R_FLOOR)
+            body -= on_row(_cyl(M3["thread_form_d"], so + 1.2, px, py, -1.2), k, 0, 0, R_FLOOR)   # M3 thread-forming, 1.2 into the floor (0.4 left): M3x5 max under board A
+            body -= on_row(Cone(1.9, M3["thread_form_d"] / 2 - 0.05, 0.6, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((px, py, so - 0.6))),
+                           k, 0, 0, R_FLOOR)                                                    # countersink: the screw finds the hole if the spacing guess is 0.3 off
             body += on_row(_box(3.0, 3.0, so, X_BOARD - (bl / 2 - 1.5), sy * (bw / 2 - 1.5), 0), k, 0, 0, R_FLOOR)
         # the board's 3.5 mm jack through the wrist wall (jack body overhangs the board end 1.5 mm into the wall)
         win = extrude(RectangleRounded(5.5 + 1.0, g["jack_w"] + 1.0, 1.0), amount=WALL + 4).rotate(Axis.Y, 90)
@@ -359,8 +369,11 @@ def module():
     # tab points at the button pocket through a slot that rises into the tunnel
     body -= Cylinder(MOTOR_D / 2, 200, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((MOTOR_X, 0, R_FLOOR)))
     body -= Box(MOTOR_D / 2 + 4.0, DIM["motor"]["tab_w"] + 1.0, z_floor - R_FLOOR + 0.5, align=(Align.MAX, Align.CENTER, Align.MIN)).moved(Location((MOTOR_X, 0, R_FLOOR)))
-    # wire hole from the rib into bay B, right behind the socket block: the tunnel's exit to the JST pins
-    body -= Box(5.0, 16.0, 5.0, align=(Align.CENTER, Align.MIN, Align.MIN)).moved(Location((X0 + 9.9, 0, z_floor - 4.0)))
+    # wire passage straight across the rib at the tunnel's elbow end: into bay B right behind the socket block (the
+    # tunnel's exit to the JST pins) AND through the bay-A wall (2026-09-25 print: the notch above is blind on the A
+    # side because that wall leans out past its reach), so board A's three wires cross here too
+    for ay in (Align.MIN, Align.MAX):
+        body -= Box(5.0, 16.0, 5.0, align=(Align.CENTER, ay, Align.MIN)).moved(Location((X0 + 9.9, 0, z_floor - 4.0)))
     return body
 
 

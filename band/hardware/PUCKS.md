@@ -23,11 +23,12 @@ lies on its own facet and nothing wastes height.
 - module elbow wall -> ONE trunk plug: PH6 (below: 3V3 GND EMG1 EMG2 BTN MOTOR) and PH4 (above: SDA SCL INT RST)
   glued face-to-face into one block, one window in the wall; at the band box they go into two different walls
 - inside the module: each board's Gravity pins (GND VCC SIG, wires soldered under the board) go to the sockets;
-  board A's three wires cross the rib through the notch at the elbow end; the IMU's six wires go to the upper
+  board A's three wires cross the rib through the 5 x 5 passage at the elbow end (it goes straight through both rib walls); the IMU's six wires go to the upper
   socket + 3V3/GND; the button's two wires (BTN, GND) and the motor's two (3V3, MOTOR) run down the 4 x 4 tunnel
   in the rib's core and out through the 5 x 5 hole in the rib's wall into bay B, right behind the socket block,
-  to the PH6. Board A's three wires use the same hole (via the notch). Everything is screwed: 2 x M2x4 per board A, 2 x M2x6 board B, 2 x M2x4
-  the IMU. Button: clip two legs flush and the other two to 1.5 mm, solder the wires sideways, drop it in its
+  to the PH6. Board A's three wires use the same passage from the other side. Everything is screwed: 2 x **M3x5** per board A
+  (M3x6 only with a washer under the head - the post is 2.8 tall and the thread hole stops 0.4 above the strap), 2 x M3x6
+  board B, 2 x M2x4 the IMU. Button: clip two legs flush and the other two to 1.5 mm, solder the wires sideways, drop it in its
   pocket cap-up; the lid's cap hole holds it. Motor: leads first up its tab slot into the tunnel and out the wall
   hole, then peel its pad and press it onto the pocket floor, tab toward the button.
 
@@ -52,7 +53,7 @@ lies on its own facet and nothing wastes height.
    button into its pocket.
    Screws: the two ridge bosses are drilled through - M2x12 from the skin side (backer + strap + 9.5 mm of boss)
    and M2x4 from the top for the lid; no screw spans the whole height. (3) Board A into bay A
-   on its posts (jack end to the wrist wall), wire its Gravity pins, pass the three wires through the rib notch.
+   on its posts (jack end to the wrist wall), wire its Gravity pins, pass the three wires through the rib passage into bay B.
    (4) Board B over the IMU on its tall posts, wire it. (5) Backer under the strap with the strap between its rails,
    module on top, 2 x **M2x12 from the skin side** into the module's bosses (they pass beside the strap, not through
    it; the floor squeezes the strap 0.2 mm against the backer); lid on, 2 x M2x4. To wash: two screws out, slide
@@ -62,7 +63,11 @@ lies on its own facet and nothing wastes height.
 
 - electrode plate 36 x 23.3 x 1.11, bars 14.5 x 5.8 at 11.3 pitch and 1.5 proud, jack on the BACK overhanging ~2 mm
   (the plate rests on the frame's lip along its two long edges only; its middle is open to the skin)
-- signal board 40 x 22, holes 3.0 at 2.7 in / 5.3 from the jack end, parts in its middle <= 2.5 tall
+- signal board 40 x 22, holes 3.0 at **3.25 in from the sides (15.5 apart) - best guess** (the first print's posts at
+  2.7 in were ~1 mm too far apart; Tabor re-read the holes at 3 to 3.5 in). The posts' 2.6 holes have a countersink,
+  so an M3 still finds its way in if the real spacing is 15.0 or 16.0; drive the second screw while pressing the board
+  toward it. `board_gauge.stl` exists if it ever needs settling. The board sits 0.8 off the wrist wall, so the jack-end
+  distance may be up to 1 mm less than 5.3 without a change. Parts in its middle <= 2.5 tall
 - BNO08x breakout 25.5 x 15.8 with a header on one long edge (clipped); **mount holes assumed** 2.5 mm in from the
   two corners on the edge opposite the header - if the board has none, snip the posts and glue it
 - strap 1.5 mm thick; forearm radius 34

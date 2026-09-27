@@ -18,14 +18,16 @@ Every firmware file and the wiring page derive from this table. Change it here f
 | GP17, GP18 | 22, 24                       | free               | —                                                                          | were the old RGB LED                                                                    |
 | GP26       | 31                           | ADC0               | SEN0240 #1 signal (flexor)                                                 | 0–3 V, 1.5 V centred                                                                    |
 | GP27       | 32                           | ADC1               | SEN0240 #2 signal (extensor)                                               |                                                                                         |
-| GP28       | 34                           | ADC2               | battery divider midpoint                                                   | BAT+ → 100k → GP28 → 100k → GND (reads BAT/2)                                           |
+| GP28       | 34                           | ADC2               | battery divider midpoint                                                   | switched BAT+ (switch output, before the 1N5817) → 100k → GP28 → 100k → GND (reads BAT/2; zero drain when off)                                           |
 | 3V3(OUT)   | 36                           | 3.3 V              | SEN0240 ×2 VCC, BNO08x VIN, WS2812 +5V pad, motor +, green LED (via 470 Ω) | 300 mA budget; total load ≈ 150 mA worst case                                           |
-| VSYS       | 39                           | system 5 V/battery | charger OUT+ → slide switch → 1N5817 → VSYS                                | switch off = band dead, battery still charges                                           |
-| VBUS       | 40                           | USB 5 V            | charger IN+; Qi receiver +5 V → 1N5817 → VBUS                              | USB or Qi charges the cell through the module                                           |
-| GND        | 3, 8, 13, 18, 23, 28, 33, 38 | ground             | star point on the strip                                                    | one ground: sensors, IMU, motor, LEDs, charger OUT−, Qi −                               |
+| VSYS       | 39                           | system 5 V/battery | cell + → slide switch → 1N5817 → VSYS                                      | switch off = band dead, battery still charges; the module's VSYS pad is NOT used        |
+| VBUS       | 40                           | USB 5 V            | charger board IN+; Qi receiver +5 V → 1N5817 → VBUS                        | USB or Qi charges the cell through the board (1 A)                                      |
+| GND        | 3, 8, 13, 18, 23, 28, 33, 38 | ground             | star point on the strip                                                    | one ground: sensors, IMU, motor, LEDs, charger OUT−/IN−, Qi −                           |
 
-Power path: cell → charger module B+/B− (protection + TP4056) → OUT+ → switch → 1N5817 → VSYS. VBUS feeds the
-charger IN+. The Pico's own VBUS→VSYS diode and the 1N5817 OR the two sources; USB wins when plugged in.
+Power path: cell → charger board B+/B− (AITRIP TP4057 with protection) → OUT+ → switch → 1N5817 → Pico VSYS;
+OUT− is the ground (protection FET in it). Pico VBUS → board IN+ (1 A charge from USB or Qi). The cell's own PCM
+is a second layer of protection. The Pico's own VBUS→VSYS diode and the 1N5817 OR the two sources; USB wins when
+plugged in. (The SunFounder LTC4054 module is retired: its output diode died after a reversed plug-in.)
 Green 5 mm LED: 3V3 OUT (pin 36) → 470 Ω → LED long leg → short leg → GND (lit whenever the band is on or USB is in; no GPIO).
 It is soldered INTO the strip (rows 21-22, chest-side outer column) and shows through a plain hole in the lid.
 
