@@ -223,11 +223,19 @@ def parting_solid():
 
 
 def end_zone():
-    """Where the lid's skirt lives: the flat middle of each vertical end wall. The long sides lean outward, so a
-    skirt there would wedge when the lid lifts; those sides are a plain butt joint on the tent."""
-    w = OUT_W - 2 * CORNER_R - 2.0
-    return (Box(8.0, w, 200).moved(Location((-OUT_L / 2 + 3.0, 0, 0)))
-            + Box(8.0, w, 200).moved(Location((OUT_L / 2 - 3.0, 0, 0))))
+    """Where the lid's skirt lives: each vertical end wall, described in BOTH row frames so the zone leans with the
+    walls (a world-aligned box sized at floor level missed the outer half of every wall at lid height). It stops
+    CORNER_R + 1 short of the rounded outer corners. The long sides lean outward, so a skirt there would wedge when
+    the lid lifts; those sides are a plain butt joint on the tent."""
+    z = None
+    for k in ("A", "B"):
+        u_out = ROW_W[k] / 2 + WALL - CORNER_R - 1.0
+        u_in = ROW_W[k] / 2 + RIB / 2 + 16.0
+        u0, u1 = (-u_out, u_in) if k == "A" else (-u_in, u_out)
+        for xc in (-OUT_L / 2 + 3.0, OUT_L / 2 - 3.0):
+            b = on_row(Box(8.0, u1 - u0, 400).moved(Location((xc, (u0 + u1) / 2, 0))), k, 0, 0, 0)
+            z = b if z is None else z + b
+    return z
 
 
 def skirt_band_cut():
@@ -405,7 +413,7 @@ def socket_bank(k, bank):
 
 # ---------------------------------------------------------------- box
 def box():
-    body = rounded_outer() & tent(R_IN["A"] - 0.2, R_IN["B"] - 0.2)   # walls stop just under the lid
+    body = rounded_outer() & tent(R_IN["A"], R_IN["B"])               # wall tops touch the lid (bosses stay 0.2 short)
     body -= skirt_band_cut()                                           # thinned wall top at the ends only
     body -= cavities()
     xa = X0 + CLR
@@ -450,15 +458,15 @@ def box():
     #     corner). Its bottom edge pokes ~0.6 mm out of the wedge's leaning face, 4 mm above the strip.
     # +X: row B's chest corner, in the row frame so the screw is normal to that facet (the rib corner holds the cord socket).
     xl = -(IN_L / 2 - 3.5)
-    body -= on_row(Cylinder(LID_BOSS_HOLE / 2, 4.6 + 0.01, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
-                   xl, rib_screw_u(), R_IN["B"] - 0.2 - 4.6)                       # -X: straight into the wedge, no boss
+    body -= on_row(Cylinder(LID_BOSS_HOLE / 2, 4.6 + 20.0, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
+                   xl, rib_screw_u(), R_IN["B"] - 4.6)                             # -X: straight into the wedge, no boss; open at the top
     x = IN_L / 2 - 3.5
     boss_h = R_IN["B"] - 0.2 - R_FLOOR
     body += on_row(Cylinder(LID_BOSS_D / 2, boss_h, align=(Align.CENTER, Align.CENTER, Align.MIN))
                    + Box(3.5 + 0.5, LID_BOSS_D, boss_h, align=(Align.MIN, Align.CENTER, Align.MIN)), "B",
                    x, CHEST_BOSS_U, R_FLOOR) & outer_form()
-    body -= on_row(Cylinder(LID_BOSS_HOLE / 2, 4.6 + 0.01, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
-                   x, CHEST_BOSS_U, R_IN["B"] - 0.2 - 4.6)
+    body -= on_row(Cylinder(LID_BOSS_HOLE / 2, 4.6 + 20.0, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
+                   x, CHEST_BOSS_U, R_IN["B"] - 4.6)                                # open at the top (the walls beside the boss reach R_IN)
     body -= skirt_band_cut()                                           # bosses must not fill the skirt lap
     # plate posts (battery side): each comes up through the floor into a boss whose 1.5 mm top web the M2x6
     # clamps onto the post's heat-set insert (print 2026-09-24: the old post stood proud of the floor, so the
@@ -540,7 +548,7 @@ def nub_notch():
 
 def lid():
     cap = rounded_outer() - tent(R_IN["A"], R_IN["B"])                                   # the cap itself
-    skirt = ((rounded_outer() - parting_solid()) & tent(R_IN["A"], R_IN["B"]) & end_zone()) - outer_form(inset=SKIRT_T)
+    skirt = ((rounded_outer() - parting_solid()) & tent(R_IN["A"], R_IN["B"]) & end_zone()) - outer_form(inset=SKIRT_T)   # sits on the parting step; the wall tops touch the cap too - no designed gap
     cap += skirt                                                                          # skirt at the ends only
     P = placements()
     x_strip = X0 + STRIP_X0 + s["l"] / 2

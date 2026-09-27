@@ -173,7 +173,7 @@ def outer_form(inset=0.0):
         halves = None
         for k in ("A", "B"):
             half = ROW_W / 2
-            over = half + RIB / 2 + 12.0
+            over = half + RIB / 2 + 16.0      # past the centre by ~4 mm even at crest height (the frames lean; 12 left a 2 mm slot between the halves, 30 poked out below the outer walls)
             u0, u1 = (-(half + WALL - inset), over) if k == "A" else (-over, half + WALL - inset)
             hb = row_box(k, -OUT_L / 2 + inset, OUT_L / 2 - inset, u0, u1, -40, R_OUT + 20, r_out=CORNER_R - inset)
             halves = hb if halves is None else halves + hb
@@ -219,9 +219,18 @@ def cavity_inset(k, d):
 
 
 def end_zone():
-    w = OUT_W - 2 * CORNER_R - 2.0
-    return (Box(8.0, w, 200).moved(Location((-OUT_L / 2 + 3.0, 0, 0)))
-            + Box(8.0, w, 200).moved(Location((OUT_L / 2 - 3.0, 0, 0))))
+    """Where the lid's skirt lives: the two end walls, each described in BOTH row frames so the zone leans with the
+    walls (a world-aligned box sized at floor level missed the outer half of every wall at lid height and left the
+    wall top stepping through the jack windows). Stops CORNER_R + 1 short of the rounded outer corners."""
+    z = None
+    for k in ("A", "B"):
+        u_out = ROW_W / 2 + WALL - CORNER_R - 1.0
+        u_in = ROW_W / 2 + RIB / 2 + 12.0
+        u0, u1 = (-u_out, u_in) if k == "A" else (-u_in, u_out)
+        for xc in (-OUT_L / 2 + 3.0, OUT_L / 2 - 3.0):
+            b = on_row(Box(8.0, u1 - u0, 400).moved(Location((xc, (u0 + u1) / 2, 0))), k, 0, 0, 0)
+            z = b if z is None else z + b
+    return z
 
 
 def skirt_band_cut():
@@ -316,7 +325,7 @@ def sock_pocket_stack(sizes):
 
 
 def module():
-    body = rounded_outer() & tent(R_IN - 0.2, R_IN - 0.2)
+    body = rounded_outer() & tent(R_IN, R_IN)                          # wall tops touch the lid (bosses stay 0.2 short)
     body -= skirt_band_cut()
     body -= cavities()
     # clamp bosses on the ridge (vertical), through 2.0 holes: M2x12 from the backer, M2x4 from the lid
@@ -328,6 +337,12 @@ def module():
     blk, cut = sock_pocket_stack(SOCK_STACK)
     body += on_row(blk.rotate(Axis.Z, 180), "B", X0, 0, R_FLOOR) & cavity("B")
     body -= on_row(cut.rotate(Axis.Z, 180), "B", X0, 0, R_FLOOR)
+    # every end-wall window is an open notch up through the parting line (the end walls stop there; the lid's skirt
+    # is the wall above and closes the notch). A closed window left a 1 mm bridge of wall over itself, which printed
+    # as a dangling thread. Trunk window: the top level's width, straight up.
+    z_win = SOCK_SHELF + (len(SOCK_STACK) - 1) * JST["sock_t"] + JST["sock_t"] / 2       # centre of the top plug window, above the floor
+    body -= on_row(Box(WALL + 4, JST["plug_hole_w"][SOCK_STACK[-1]], IN_H + 2 - z_win, align=(Align.CENTER, Align.CENTER, Align.MIN)),
+                   "B", X0 - WALL / 2, 0, R_FLOOR + z_win)
     # rib notch at the elbow end: board A's wires cross to the sockets
     body -= Box(6.0, RIB + 6.0, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((X0 + 8.3, 0, R_FLOOR + 4.0)))   # clear of the -X boss
     bl, bw = g["l"], g["w"]
@@ -346,7 +361,10 @@ def module():
             body += on_row(_box(3.0, 3.0, so, X_BOARD - (bl / 2 - 1.5), sy * (bw / 2 - 1.5), 0), k, 0, 0, R_FLOOR)
         # the board's 3.5 mm jack through the wrist wall (jack body overhangs the board end 1.5 mm into the wall)
         win = extrude(RectangleRounded(5.5 + 1.0, g["jack_w"] + 1.0, 1.0), amount=WALL + 4).rotate(Axis.Y, 90)
-        body -= on_row(win, k, X0 + IN_L + WALL / 2 - (WALL + 4) / 2, 0, W_BOARD[k] + g["t"] + 5.5 / 2)
+        zc = W_BOARD[k] + g["t"] + 5.5 / 2
+        body -= on_row(win, k, X0 + IN_L + WALL / 2 - (WALL + 4) / 2, 0, zc)
+        body -= on_row(Box(WALL + 4, g["jack_w"] + 1.0, R_IN + 2 - zc, align=(Align.CENTER, Align.CENTER, Align.MIN)),
+                       k, X0 + IN_L + WALL / 2, 0, zc)                                   # open notch up to the lid
     # IMU under board B: two M2 posts at its +Y-edge corner holes (ASSUMED 2.5 mm in from the corners; if the board
     # has none, glue it) + a pad under the header edge, clear of the clipped pins
     d = DIM["imu"]
@@ -379,7 +397,7 @@ def module():
 
 def module_lid():
     cap = rounded_outer() - tent(R_IN, R_IN)
-    skirt = ((rounded_outer() - tent(PARTING, PARTING)) & tent(R_IN, R_IN) & end_zone()) - outer_form(inset=SKIRT_T)
+    skirt = ((rounded_outer() - tent(PARTING, PARTING)) & tent(R_IN, R_IN) & end_zone()) - outer_form(inset=SKIRT_T)   # sits on the parting step; wall tops touch the cap too
     cap += skirt
     for k in ("A", "B"):                                                        # jack windows continue through the skirt
         win = extrude(RectangleRounded(5.5 + 1.0, g["jack_w"] + 1.0, 1.0), amount=WALL + 4).rotate(Axis.Y, 90)

@@ -32,6 +32,10 @@ lies on its own facet and nothing wastes height.
   pocket cap-up; the lid's cap hole holds it. Motor: leads first up its tab slot into the tunnel and out the wall
   hole, then peel its pad and press it onto the pocket floor, tab toward the button.
 
+The two jack windows and the trunk window are open at the top: the module's end walls stop at the lid's parting
+line, and the lid's skirt closes each notch when it is on. That is by design (a closed window would leave a 1 mm
+bridge of wall above it, which does not print).
+
 ## Strap prep (hot nail: sealed holes)
 
 - electrodes: nothing to cut - the closed loop band lies across the frame and the bars clamp it

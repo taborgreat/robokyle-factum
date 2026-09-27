@@ -1,7 +1,7 @@
 # Band hardware
 
 `cad/` is the build123d/agentcad source, `print/` the exported STLs (with sizes in `MANIFEST.md`), `../BENCH.md` the
-electronics build guide. Pins: [../PINOUT.md](../PINOUT.md). Box, lid and plate print in PLA Tough (the clearances in `DIM` were measured on prints in it); PETG is
+electronics build guide. Pins: [../PINOUT.md](../PINOUT.md). Every measured part and fit rule: [../PARTS.md](../PARTS.md). Box, lid and plate print in PLA Tough (the clearances in `DIM` were measured on prints in it); PETG is
 reserved for the claw.
 
 ## Setup (done once, Windows)
