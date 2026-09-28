@@ -2,7 +2,7 @@
 
 Read with [PINOUT.md](PINOUT.md) (pins) and the wiring page (https://claude.ai/artifact/D63qQQRTtqdpi1PEdaQg2D).
 Rule of the bench: **one new thing at a time, and a check after each.** Never add a part to a circuit you haven't
-proved yet. Battery out of the circuit until stage 2 says so.
+proved yet. Nothing on the Pico until stage 3 says so.
 
 ## 0. Parts on the bench
 
@@ -10,35 +10,37 @@ proved yet. Battery out of the circuit until stage 2 says so.
 | ------------------------- | ---------------------------------------------- | -------------------------------------------------------------- |
 | Pico 2 W (on headers)     | brain, Wi-Fi, BLE                              | goes in the band; bare Pico W goes to the hand later           |
 | breadboard + jumpers      | the whole box, temporarily                     | keep power on one end, signals on the other                    |
-| AITRIP TP4057 1A Type-C charger board (12.1 × 16.8, 18.35 with the USB-C, 4.2 tall) | charges the cell from USB / Qi, protects it | pads **B+ B−** (cell), **OUT+ OUT−** (to the switch / ground - the protection FET is in OUT−), **IN+ IN−** (5 V in, from Pico VBUS). Its own USB-C stays unused inside the box. Charges at 1 A (fine for the 1200 mAh cell; wall brick, not a laptop port). |
+| AITRIP TP4057 1A Type-C charger board (12.1 × 16.8, 18.35 with the USB-C, 4.2 tall) | charges the cell from the Qi pad, protects it | pads **B+ B−** (cell), **OUT+ OUT−** (to the switch / ground - the protection FET is in OUT−), **IN+ IN−** (5 V in, from the Qi receiver through a 1N5817; **not** from the Pico, so the switch really kills the band even on the pad). Its own USB-C stays unused inside the box. Charges at 1 A, right at the Qi receiver's limit: swapping its PROG resistor from 1 kΩ (102) to 2 kΩ (202) gives ~500 mA, cooler and kinder to the receiver, optional. |
 | EEMB 1200 mAh cell        | power                                          | **check polarity at the JST: red must land on the socket's +** |
 | slide switch              | kill switch                                    | middle pin + one outer pin                                     |
-| 1N5817 × 2                | one-way valves: cell → VSYS (diode 1), Qi → VBUS | stripe = cathode = the side current flows OUT of               |
+| 1N5817 × 2                | one-way valves: cell → VSYS (diode 1), Qi + → charger IN+ (diode 2) | stripe = cathode = the side current flows OUT of               |
 | 1N4007 (SunFounder kit; 1N4148 also fine) | motor kick-back | stripe toward 3V3 |
 | S8050 NPN (SunFounder kit; 2N2222 also fine) | motor switch | flat face toward you, legs down: **E B C** on both; verify on the datasheet for your brand |
 | 1 kΩ, 470 Ω, 100 kΩ × 2 | base resistor, LED resistor, divider | colour bands: brown-black-red, yellow-violet-brown, brown-black-yellow |
 | coin motor, 5 mm green LED, 12 mm yellow button, WS2812 strip (cut 3 pixels) | UI | LED soldered into the strip (shows through the lid); bar lies in the middle-wall pocket; button + motor in the forearm module (trunk A) |
-| GY-BNO08X | orientation | I²C address 0x4B with AD0 low; **lives in the forearm module, not the box** |
+| GY-BNO08X | orientation | I²C address 0x4A with AD0/SA0 low, 0x4B with it high (datasheet); the bench prints which it finds and the firmware probes both. **Lives in the forearm module, not the box** |
 | SEN0240 × 2 (plate + signal board + 3.5 mm cable) | EMG | boards in the forearm module, plates on their loop band; the Gravity cables are not used |
 | JST-PH kit: 6-pin sockets × 2, 4-pin sockets × 2, 3-pin socket × 1, housings + crimp pins | every connector | box: PH6 + PH4 + PH3 in the walls; module: PH6 + PH4 stacked |
 | 1.5" elastic strap, ≤ 22 mm elastic (loop band), M2 × 4/6/8/12 screws, M3 × 5/6 (the two signal boards), M2 heat-set inserts | mounting | see PUCKS.md |
 | Qi receiver + coil + ferrite | wireless charging | last thing you add |
-| Kapton tape (amber) | insulation, heat-proof | around the cell's edges, over solder stubs, holds ferrite to coil and coil to lid |
+| Kapton tape (amber) | insulation, heat-proof | around the cell's edges, over solder stubs, holds ferrite to coil and the coil to the cell (nothing sticks to the lid) |
 | (optional, later) foil shield | conductive | only if the EMG trace is noisy: kitchen foil around the twisted EMG1/EMG2/GND trio with a bare wire under it to GND at the box end; **never near the Qi coil** |
 | multimeter | your eyes | DC volts; also continuity (beep) for checking joints |
 
 ## 1. Power, without the Pico
 
-Wire only: cell, switch, diode 1, and the meter (the module is not in the battery path).
+Wire only: cell, switch, diode 1, the charger board, and the meter.
 
-1. Cell → charger JST. Meter across the **JST + pin and GND**: cell voltage, 3.6–4.2 V. If it reads negative, STOP — polarity is reversed; re-pin the plug.
-2. Cell + → switch middle. Switch outer → diode 1 plain end. Meter from **diode 1 stripe end to cell −**: switch on → cell minus ~0.3 V; switch off → 0 V. That's your kill switch working.
-3. Charger board alone: cell red → **B+**, black → **B−** (cut the cell's JST plug, one lead at a time, never both bare ends loose). Meter **OUT+ to OUT−**: the cell voltage. Type-C cable into its own socket for a moment: red LED = charging. That proves the board before it goes in the box.
+1. **Polarity first.** Meter across the cell's own plug: 3.6–4.2 V with red on the red lead. Negative = the leads
+   are swapped at the plug; note which is really plus and go by the meter, not the colour, from here on.
+2. **Charger board.** Cut the cell's plug off one lead at a time (never two bare ends loose). Cell + → **B+**, cell − → **B−**.
+   Meter **OUT+ to OUT−**: the cell voltage. A Type-C cable in the board's own socket for a moment: red LED = charging.
+   Pull it out again; that socket stays unused in the box. Continuity with the cell unplugged: **IN− ↔ OUT−** beeps
+   (same net), **B− ↔ OUT−** does not (that is the protection FET). If B− beeps to IN− instead, stop and say so.
+3. **Kill switch.** OUT+ → switch middle. Switch outer → diode 1 plain end. Meter from **diode 1 stripe end to OUT−**:
+   switch on → cell minus ~0.3 V; switch off → 0 V.
 
-**Pass:** cell voltage correct polarity, diode 1 output follows the switch.
-
-The cradle in the box is cut for the AITRIP TP4057 board; a different charger board needs the cradle resized in
-`cad/band_box.py` (`DIM["charger"]` in `rk_parts.py`).
+**Pass:** correct polarity, OUT+ = cell voltage, red LED on USB, diode output follows the switch.
 
 ## 2. Pico alone, MicroPython, blink
 
@@ -48,17 +50,20 @@ The cradle in the box is cut for the AITRIP TP4057 board; a different charger bo
 
 ## 3. Pico on battery power
 
-1. Diode 1 stripe → Pico **pin 39 (VSYS)**. Cell − → Pico **pin 38**. Nothing else.
+1. Diode 1 stripe → Pico **pin 39 (VSYS)**. Charger **OUT−** → Pico **pin 38** (OUT−, not the cell lead: the protection FET sits between them). Nothing else.
 2. Unplug USB, switch on: onboard LED behaviour as before when you run the toggle from a saved `main.py` (write a two-line blink `main.py` first, over USB).
-3. Charger board in: cell on **B+/B−**, **OUT+** → switch middle (switch → 1N5817 → pin 39 as before), **OUT−** → Pico pin 38 (use OUT−, not B−: that is where the protection sits), Pico pin 40 → **IN+**, **IN−** → GND. Plug USB into the Pico with the switch on: nothing bad happens (diode 1 keeps USB out of the cell); red LED on the board = charging, the cell voltage creeps up over a few minutes; blue/green = full. Charge from a wall USB brick, not a laptop port: 1 A charge + the Pico will pull a weak port down.
+3. Charger's 5 V input comes from the **Qi receiver only**: Qi + → 1N5817 (stripe toward the board) → **IN+**, Qi − →
+   **IN−**. Pico pin 40 stays empty. Switch **off**, coil on the pad: red LED = charging and the Pico's onboard LED stays
+   dark. Switch on, still on the pad: the band runs from the battery while it charges; blue/green LED = full.
+4. USB into the Pico with the switch on: the Pico runs and nothing bad happens (diode 1 keeps USB out of the cell).
+   USB does **not** charge the cell; it is for programming. Charging is the pad (or the board's own USB-C if a window
+   is ever cut for it).
 
-**Pass:** blinks on battery alone; USB + battery together is fine; switch off kills it.
+**Pass:** blinks on battery alone; USB runs it; switch off on the pad = charging with the Pico dark.
 
-**The band's battery path:** cell red → switch middle; switch outer → 1N5817 plain end; 1N5817
-stripe → Pico pin 39; cell black → Pico pin 38. The diode does what the module's B5819 was for: USB + battery together
-stays safe, USB wins. Never connect the cell straight to VSYS without that diode and then plug USB in: the Pico's
-internal diode would push USB current into the cell uncontrolled. Without the module in place nothing charges the
-cell - charge it on a separate 1S LiPo charger through its JST.
+The band's battery path, for reference: cell → B+/B− → OUT+ → switch → 1N5817 → Pico pin 39; OUT− → Pico pin 38.
+Qi + → 1N5817 → IN+, Qi − → IN−. Never connect the cell straight to VSYS without the diode and then plug USB in: the
+Pico's internal diode would push USB current into the cell uncontrolled.
 
 ## 4. Peripherals, one at a time, with `bench/band_bench.py`
 
@@ -109,42 +114,61 @@ and reach the box through the trunk (stage 8).
 
 ## 7. Now solder (only after 6 passes)
 
-Where tall parts may go on the strip (the CAD checks these zones): the rib-side outer row anywhere from 20 mm
-before the strip centre to the free rows, and the chest-side outer row except under the switch (8 +- 6 mm from the
-strip centre) and under the LED (18 +- 5 mm) - keep those two spots for flat parts. Nothing over 4.5 mm.
+### 7a. What goes on the strip, and where
 
+- The Pico on its headers, rows 1–20, USB face flush with the row-1 end.
+- Green LED standing in rows 21–22, third column in on the chest side, 1 mm off the board, long leg toward its 470 Ω,
+  which lies flat beside it toward the centre. The lid's hole lands over the dome.
+- The divider pair (100 k × 2), the motor driver (1 k / S8050 / 1N4007), diode 1 (1N5817).
+- Tall parts (anything on end, up to 4.5 mm) only on the two outer rows beside the Pico: rib side anywhere from
+  20 mm before the strip centre to the free rows; chest side except under the switch (8 ± 6 mm from the strip centre)
+  and under the LED (18 ± 5 mm). The CAD checks exactly these zones.
+- Nothing else. The IMU, the EMG boards, the button and the motor are in the forearm module. Nothing is on the lid.
+- Standoffs: the four drilled holes (rows 2 and 21, columns 1 and 10). Nip both USB-end corners of the board ~2 mm
+  at 45° for the bay's rounded corners. Clip every lead 1.5 mm under the board.
 
-Standoffs: the board's four drilled holes are at rows 2 and 21, columns 1 and 10 (±24.13 × ±11.43 from the board
-centre) and the box's posts match them - all four are used (the lid's USB-end boss now stops 4 mm above the
-board, nothing to snip); just nip both USB-end corners of the board ~2 mm at 45° to clear the bay's rounded
-corners. What is on the strip: the Pico, the green LED standing
-in rows 21-22, third column in on the chest side (columns 1/10 of those rows are beside the standoff screws), its
-470 Ω lying flat beside it toward the centre (clip the LED's legs 1.5 mm under the board like every other part),
-the divider pair, the motor driver (1k / S8050 / 1N4007), diode 1 (1N5817, cell → VSYS), and wires to the
-charger corner, the wall sockets and the light bar. Nothing else - the IMU, the EMG boards, the
-button and the motor are in the forearm module.
+### 7b. Soldering order
 
-Order on the strip: Pico headers → star ground blob (row 22, outer columns - the lid sockets sit over the middle of
-rows 21-22) → 470 Ω + LED wires → 100k pair → 1k / S8050 / 1N4007
-→ wires to the charger corner (IN+, OUT−/GND, OUT+) → wall sockets (PH6 trunk A in the battery-side end
-wall, PH4 trunk B + PH3 cord in the strip-side end wall: 60 mm leads soldered to the socket pins clipped to 2 mm,
-sockets dropped into their wall pockets **before the battery goes in** - the PH6's wires run behind the battery
-ring) → three 60 mm leads on the light bar's -X pads (GND, +5V, DIN) down to the strip (GND, 3V3, GP16); the bar
-lies in the middle wall's pocket, LEDs up, leads through the USB-end notch. The LED is a strip part: solder it
-standing 1 mm off the board, long leg toward the 470 Ω; the lid's hole lands over its dome. Nothing is on the lid. Test with the bench script again after the strip is done and before
-it goes in the box. Then conformal coat, then box. Box assembly order (fit-checked in the CAD): wall sockets with their leads
-→ charger in its cradle (USB-C toward the triceps wall, pads toward the middle wall; cell leads already on B+/B−, they
-come back through the ring's notch) → Kapton over it, Qi board resting on the cradle's four bracket tops → battery (lip toward the charger,
-leads through the ring's notch) → ferrite + coil on the battery → strip onto its four standoffs (M2 thread-forming)
-→ light bar into its pocket → lid on, two M2x6 into the inserts (both go in square to the strip-side facet, i.e. leaning toward the chest, not vertical). Box to plate:
-two M2x6 from inside, down through the small bosses on the battery-side floor into the plate posts' inserts
-(the post sits inside the boss; the screw head pulls the boss's web onto the brass), before the strip goes in.
+1. Pico headers, then the star ground blob at row 22, outer columns.
+2. 470 Ω, then the LED (standing, 1 mm off the board).
+3. The 100 k pair (top end to the switch's output side, not to the cell), 1 k, S8050, 1N4007, diode 1.
+4. Flying leads off the strip, 60 mm each: switch (2), charger OUT+ / OUT− (2), light bar GND / 3V3 / GP16 (3). The
+   Qi receiver's two wires never reach the strip: + → 1N5817 → charger IN+, − → charger IN−.
+5. Wall sockets: clip each socket's pins to 2 mm, solder 60 mm leads on, and solder those leads to the strip:
+   PH6 = trunk A (3V3 GND EMG1 EMG2 BTN MOTOR), PH4 = trunk B (SDA SCL INT RST), PH3 = hand cord (TX RX GND).
+6. Charger board on its two leads plus the Qi pigtail (1N5817 in the + wire, stripe toward the board); switch on its
+   two; light bar on its three (its −X pads: GND, +5V, DIN).
+7. Bench script again with everything dangling off the strip. Only then conformal coat the strip (mask the
+   standoff holes and the LED).
 
-Tape, in order: Kapton over the strip's solder side (leave the standoff holes clear) → Kapton around the cell's four
-edges and the tape lip → charger module wrapped once → coil: ferrite on the inner face, Kapton over both, then Kapton
-tabs to the lid underside over the battery bay → Kapton over the charger's soldered wires → Qi board flat on it,
-parts up, coil/output wires down its rib-side edge (the lid holds it). Trunk: twist
-EMG1/EMG2 with a GND wire, then the braided sleeving over everything (foil shield only if the bench shows noise). All tapes are under 0.1 mm; the pockets already allow for it.
+### 7c. Box assembly, in this order (fit-checked in the CAD)
+
+1. **Box onto the plate**: two M2×6 from inside the battery bay, down through the small floor bosses into the plate
+   posts' inserts (the post sits inside the boss; the screw head pulls the boss's web onto the brass). Empty box, so
+   the driver has room.
+2. **Trunk A socket (PH6)** into the battery-side end-wall pocket, opening out; its leads run behind the battery ring
+   and through the USB-end notch to the strip. Hot glue on top of the socket.
+3. **Charger board** into its cradle: USB-C toward the triceps wall, pads toward the middle wall, cell leads already on
+   B+/B− and coming back through the ring's lead notch. Kapton over it.
+4. **Qi board** flat on the cradle's four bracket tops, parts up; its two output wires go to the charger's IN+ (through
+   the 1N5817) and IN−, right beside it, not to the strip.
+5. **Cell** into the ring, tape lip toward the charger, leads through the notch.
+6. **Ferrite + coil** on the cell, ferrite down, a Kapton band round the cell holding both. Nothing sticks to the lid;
+   it lifts straight off.
+7. **Trunk B (PH4) and hand cord (PH3) sockets** into the strip-side end-wall pockets, hot glue.
+8. **Strip** onto its four standoffs, four M2×4.
+9. **Switch**, already on its two leads, glued between the two fins on the chest wall, nub through the slot. Check it
+   still throws before the glue sets.
+10. **Light bar** into the middle-wall pocket, LEDs up, leads through the USB-end notch.
+11. **Lid**: two M2×6 into the inserts. Both screws go in square to the strip-side facet, leaning toward the chest,
+    not vertical.
+
+### 7d. Tape
+
+Kapton over the strip's solder side (standoff holes clear) → around the cell's four edges and the tape lip → once
+round the charger board → coil: ferrite on the inner face, Kapton over both, a band round the cell → over the charger's
+soldered wires before the Qi board goes on. All under 0.1 mm; the pockets allow for it. Trunk: twist EMG1/EMG2 with
+a GND wire, braided sleeving over both trunk cables together (foil shield only if the bench shows noise).
 
 ## 8. Forearm ring and the cables
 
@@ -168,7 +192,8 @@ housing's polarising ramp; check colours against the PINOUT table before the sec
 
 At the module the two trunk housings are glued face-to-face into one block (PH6 below, PH4 above, one tall
 window); at the box they go into two different walls, so they stay separate there. Glue the module end **after**
-a first plug-in so the pair sits square. Braided sleeving over both trunk cables together.
+a first plug-in so the pair sits square. Braided sleeving over both trunk cables together. ("Two walls" at the box
+= the two halves of the +X end wall, battery bay and strip bay, either side of the middle wall.)
 
 Bench test of the ring: plug the trunk into the box, run the stage-4 bench script; `IMU ok 0x4b` and both EMG
 columns must behave exactly as they did on the breadboard. If `IMU` fails, it is INT/RST swapped in trunk B.
@@ -176,6 +201,6 @@ columns must behave exactly as they did on the breadboard. If `IMU` fails, it is
 ## Safety, short version
 
 - LiPo: never short the JST, never charge unattended the first time, never charge while worn. Warm is normal; hot is not.
-- Check the JST polarity with the meter before plugging the cell into the module. Suppliers do not agree on red/black.
+- Check the cell's polarity with the meter before soldering it to B+/B−. Suppliers do not agree on red/black.
 - Diodes backwards do nothing (fine) or short things (not fine). Stripe = the end current leaves from.
 - The Pico's 3V3 pin can give ~300 mA total. Everything we hang on it adds up to ~150 mA. Don't add a servo to it.

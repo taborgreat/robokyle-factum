@@ -20,19 +20,22 @@ Every firmware file and the wiring page derive from this table. Change it here f
 | GP27       | 32                           | ADC1               | SEN0240 #2 signal (extensor)                                               |                                                                                         |
 | GP28       | 34                           | ADC2               | battery divider midpoint                                                   | switched BAT+ (switch output, before the 1N5817) → 100k → GP28 → 100k → GND (reads BAT/2; zero drain when off)                                           |
 | 3V3(OUT)   | 36                           | 3.3 V              | SEN0240 ×2 VCC, BNO08x VIN, WS2812 +5V pad, motor +, green LED (via 470 Ω) | 300 mA budget; total load ≈ 150 mA worst case                                           |
-| VSYS       | 39                           | system 5 V/battery | cell + → slide switch → 1N5817 → VSYS                                      | switch off = band dead, battery still charges; the module's VSYS pad is NOT used        |
-| VBUS       | 40                           | USB 5 V            | charger board IN+; Qi receiver +5 V → 1N5817 → VBUS                        | USB or Qi charges the cell through the board (1 A)                                      |
-| GND        | 3, 8, 13, 18, 23, 28, 33, 38 | ground             | star point on the strip                                                    | one ground: sensors, IMU, motor, LEDs, charger OUT−/IN−, Qi −                           |
+| VSYS       | 39                           | system 5 V/battery | cell + → slide switch → 1N5817 → VSYS                                      | switch off = band dead, even on the charging pad; the cell still charges                 |
+| VBUS       | 40                           | USB 5 V            | nothing external (the Pico's own USB feeds it)                             | USB runs / programs the Pico; it does NOT charge the cell                               |
+| GND        | 3, 8, 13, 18, 23, 28, 33, 38 | ground             | star point on the strip                                                    | one ground: sensors, IMU, motor, LEDs, charger OUT− (IN− and Qi − stay on the charger)  |
 
 Power path: cell → charger board B+/B− (AITRIP TP4057 with protection) → OUT+ → switch → 1N5817 → Pico VSYS;
-OUT− is the ground (protection FET in it). Pico VBUS → board IN+ (1 A charge from USB or Qi). The cell's own PCM
-is a second layer of protection. The Pico's own VBUS→VSYS diode and the 1N5817 OR the two sources; USB wins when
-plugged in.
+OUT− is the ground (protection FET in it). Charging: Qi receiver + → 1N5817 → board IN+, Qi − → board IN− (1 A).
+The charger is fed by the pad only, never through the Pico, so the switch kills the band even while it charges and
+the Qi receiver never has to feed the Pico as well. Pico pin 40 has nothing on it: USB runs and programs the Pico
+(its own VBUS→VSYS diode wins over the battery) but does not charge the cell. The cell's own PCM is a second
+protection layer.
 Green 5 mm LED: 3V3 OUT (pin 36) → 470 Ω → LED long leg → short leg → GND (lit whenever the band is on or USB is in; no GPIO).
 It is soldered INTO the strip (rows 21-22, chest-side outer column) and shows through a plain hole in the lid.
 
-Every cable is plug-to-plug: female JST-PH sockets sit in the box wall (and in the hub and the hand), the cables
-carry a male housing at each end. All three box sockets are in the +X end wall (the end opposite the USB):
+Every cable is plug-to-plug: JST-PH headers (the side with the pins) sit in the box walls, the forearm module and
+the hand; every cable carries a housing with crimped contacts at each end. All three box headers are at the +X end
+(the end opposite the USB), in the two halves of that end wall either side of the middle wall:
 
 | socket | wall | pin 1 → n | cable to |
 |---|---|---|---|

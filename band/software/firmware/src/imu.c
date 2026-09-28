@@ -23,23 +23,25 @@ static int hal_open(sh2_Hal_t *self) {
 }
 static void hal_close(sh2_Hal_t *self) { (void)self; }
 
+static uint8_t imu_addr = IMU_I2C_ADDR;                     // set by imu_init(): 0x4A or 0x4B, whichever answers
+
 static int hal_read(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len, uint32_t *t_us) {
   (void)self;
   if (gpio_get(PIN_IMU_INT)) return 0;                     // INT idle high: nothing waiting
   uint8_t hdr[4];
-  if (i2c_read_timeout_us(IMU_I2C, IMU_I2C_ADDR, hdr, 4, false, 20000) != 4) return 0;
+  if (i2c_read_timeout_us(IMU_I2C, imu_addr, hdr, 4, false, 20000) != 4) return 0;
   uint16_t packet_len = ((hdr[1] << 8) | hdr[0]) & 0x7FFF;
   if (packet_len == 0 || packet_len > len) return 0;
   *t_us = to_us_since_boot(get_absolute_time());
   // the hub re-sends the header with the body; read the whole packet in one go
-  if (i2c_read_timeout_us(IMU_I2C, IMU_I2C_ADDR, pBuffer, packet_len, false, 50000) != packet_len) return 0;
+  if (i2c_read_timeout_us(IMU_I2C, imu_addr, pBuffer, packet_len, false, 50000) != packet_len) return 0;
   return packet_len;
 }
 
 static int hal_write(sh2_Hal_t *self, uint8_t *pBuffer, unsigned len) {
   (void)self;
   if (len > SH2_HAL_MAX_TRANSFER_OUT) len = SH2_HAL_MAX_TRANSFER_OUT;
-  int w = i2c_write_timeout_us(IMU_I2C, IMU_I2C_ADDR, pBuffer, len, false, 50000);
+  int w = i2c_write_timeout_us(IMU_I2C, imu_addr, pBuffer, len, false, 50000);
   return w < 0 ? 0 : w;
 }
 static uint32_t hal_time_us(sh2_Hal_t *self) { (void)self; return to_us_since_boot(get_absolute_time()); }
@@ -95,10 +97,14 @@ bool imu_init(void) {
   gpio_pull_up(PIN_IMU_SDA); gpio_pull_up(PIN_IMU_SCL);
   gpio_init(PIN_IMU_INT); gpio_set_dir(PIN_IMU_INT, GPIO_IN); gpio_pull_up(PIN_IMU_INT);
   gpio_init(PIN_IMU_RST); gpio_set_dir(PIN_IMU_RST, GPIO_OUT); gpio_put(PIN_IMU_RST, 1);
-  uint8_t probe;
-  if (i2c_read_timeout_us(IMU_I2C, IMU_I2C_ADDR, &probe, 1, false, 10000) < 0) {
-    printf("imu: no device at 0x%02x\n", IMU_I2C_ADDR); hub_present = false; return false;
+  // the BNO08x answers at 0x4A (SA0 low) or 0x4B (SA0 high); breakouts differ in how SA0 is strapped, so try both
+  const uint8_t addrs[2] = { IMU_I2C_ADDR, (uint8_t)(IMU_I2C_ADDR == 0x4A ? 0x4B : 0x4A) };
+  uint8_t probe; bool found = false;
+  for (int i = 0; i < 2 && !found; i++) {
+    if (i2c_read_timeout_us(IMU_I2C, addrs[i], &probe, 1, false, 10000) >= 0) { imu_addr = addrs[i]; found = true; }
   }
+  if (!found) { printf("imu: no device at 0x4a or 0x4b\n"); hub_present = false; return false; }
+  printf("imu: found at 0x%02x\n", imu_addr);
   if (sh2_open(&hal, async_cb, NULL) != SH2_OK) { printf("imu: sh2_open failed\n"); return false; }
   sh2_ProductIds_t ids; memset(&ids, 0, sizeof ids);
   if (sh2_getProdIds(&ids) == SH2_OK && ids.numEntries)
