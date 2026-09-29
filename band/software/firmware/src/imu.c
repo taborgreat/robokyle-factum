@@ -18,7 +18,11 @@ static int hal_open(sh2_Hal_t *self) {
   (void)self;
   // Reset the hub; sh2_open() then waits for its reset/advertisement packets through hal_read, so do NOT
   // read anything here.
+#if PIN_IMU_RST >= 0
   gpio_put(PIN_IMU_RST, 0); sleep_ms(10); gpio_put(PIN_IMU_RST, 1); sleep_ms(50);
+#else
+  sleep_ms(50);                                             // RST is tied high on the board; the sh2 soft reset does the rest
+#endif
   return SH2_OK;
 }
 static void hal_close(sh2_Hal_t *self) { (void)self; }
@@ -96,7 +100,9 @@ bool imu_init(void) {
   gpio_set_function(PIN_IMU_SDA, GPIO_FUNC_I2C); gpio_set_function(PIN_IMU_SCL, GPIO_FUNC_I2C);
   gpio_pull_up(PIN_IMU_SDA); gpio_pull_up(PIN_IMU_SCL);
   gpio_init(PIN_IMU_INT); gpio_set_dir(PIN_IMU_INT, GPIO_IN); gpio_pull_up(PIN_IMU_INT);
+#if PIN_IMU_RST >= 0
   gpio_init(PIN_IMU_RST); gpio_set_dir(PIN_IMU_RST, GPIO_OUT); gpio_put(PIN_IMU_RST, 1);
+#endif
   // the BNO08x answers at 0x4A (SA0 low) or 0x4B (SA0 high); breakouts differ in how SA0 is strapped, so try both
   const uint8_t addrs[2] = { IMU_I2C_ADDR, (uint8_t)(IMU_I2C_ADDR == 0x4A ? 0x4B : 0x4A) };
   uint8_t probe; bool found = false;

@@ -105,7 +105,7 @@ static void mouse_tick(effort_t e, imu_t m) {
 }
 
 void modes_tick(void) {
-  effort_t e = emg_frame(); imu_t m = imu_get(); seq++; last_effort = e;
+  imu_t m = imu_get(); effort_t e = emg_gate(emg_frame(), m.gx, m.gy, m.gz, m.valid, buzz_busy()); seq++; last_effort = e;
   net_tick(); wire_check();
   if (mode == MODE_MOUSE) mouse_tick(e, m); else hand_tick(e, m);
 }

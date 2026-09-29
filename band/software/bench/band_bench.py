@@ -18,8 +18,8 @@ import neopixel
 
 # ---------------------------------------------------------------- PINOUT.md
 PIN_EMG1, PIN_EMG2, PIN_VBAT = 26, 27, 28
-PIN_SDA, PIN_SCL, PIN_IMU_INT, PIN_IMU_RST = 4, 5, 6, 7
-PIN_BTN, PIN_MOTOR, PIN_WS2812 = 14, 13, 16
+PIN_SDA, PIN_SCL, PIN_IMU_INT = 4, 5, 6            # IMU RST is jumpered to VCC on its board
+PIN_BTN, PIN_MOTOR, PIN_WS2812 = 7, 13, 16
 N_PIXELS = 3
 
 # optional Wi-Fi UDP stream (fill in to test level 1 of the build order)
@@ -30,7 +30,6 @@ UDP_HOST, UDP_PORT = "192.168.1.10", 5005
 emg1, emg2, vbat = ADC(PIN_EMG1), ADC(PIN_EMG2), ADC(PIN_VBAT)
 btn = Pin(PIN_BTN, Pin.IN, Pin.PULL_UP)
 motor = Pin(PIN_MOTOR, Pin.OUT, value=0)
-imu_rst = Pin(PIN_IMU_RST, Pin.OUT, value=1)
 px = neopixel.NeoPixel(Pin(PIN_WS2812), N_PIXELS)
 i2c = I2C(0, sda=Pin(PIN_SDA), scl=Pin(PIN_SCL), freq=400_000)
 led = Pin("LED", Pin.OUT)

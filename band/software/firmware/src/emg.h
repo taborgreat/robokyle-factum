@@ -11,7 +11,8 @@ typedef enum { INTENT_REST, INTENT_CLOSE, INTENT_OPEN, INTENT_COCON } intent_t;
 
 void emg_init(void);
 void emg_sample(void);                 // called at EMG_SAMPLE_HZ from a repeating timer
-effort_t emg_frame(void);              // mean |v - 1.5| per channel since the last call, then resets
+effort_t emg_frame(void);              // mean |20 Hz high-passed v| per channel since the last call, then resets
+effort_t emg_gate(effort_t e, float gx, float gy, float gz, bool imu_valid, bool motor_on);   // holds the last trusted effort 150 ms after a gyro jolt, and through a buzz + 40 ms
 intent_t emg_classify(effort_t e);     // hysteresis (on/off thresholds) + debounce (3 frames on, 5 off)
 float emg_force(effort_t e);           // 0..force_limit from flexor effort above flex_on
 bool emg_cocon_double(intent_t cur);   // two co-contractions within 1 s -> true once

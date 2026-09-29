@@ -57,3 +57,11 @@ to need a first-run fix: the BNO08x SHTP read sequence in `firmware/src/imu.c` (
 `Adafruit_BNO08x` HAL if it stalls), directed advertising parameters in `ble_mouse.c` (an iPhone may want
 undirected + whitelist instead), and the Feetech register map in `claw/software/firmware/src/feetech.c` (verify against the STS3215
 memory table).
+
+## Signal conditioning (why the effort numbers are what they are)
+
+Each EMG channel is sampled at 1 kHz and passed through a 20 Hz high-pass (two first-order sections) before
+rectification, so the slow junction-voltage jumps a sliding dry plate produces are removed while muscle (20-500 Hz)
+passes; the 20 ms effort frame is the mean of the rectified, filtered signal. A gyro jolt above 250 deg/s on the
+BNO08x holds the last trusted effort for 150 ms instead of acting on the plates' movement. Re-run calibration
+after changing either number: the effort scale is not the same as the old |v - 1.5| measure.

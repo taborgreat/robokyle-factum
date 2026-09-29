@@ -10,14 +10,14 @@ proved yet. Nothing on the Pico until stage 3 says so.
 | ------------------------- | ---------------------------------------------- | -------------------------------------------------------------- |
 | Pico 2 W (on headers)     | brain, Wi-Fi, BLE                              | goes in the band; bare Pico W goes to the hand later           |
 | breadboard + jumpers      | the whole box, temporarily                     | keep power on one end, signals on the other                    |
-| AITRIP TP4057 1A Type-C charger board (12.1 × 16.8, 18.35 with the USB-C, 4.2 tall) | charges the cell from the Qi pad, protects it | pads **B+ B−** (cell), **OUT+ OUT−** (to the switch / ground - the protection FET is in OUT−), **IN+ IN−** (5 V in, from the Qi receiver through a 1N5817; **not** from the Pico, so the switch really kills the band even on the pad). Its own USB-C stays unused inside the box. Charges at 1 A, right at the Qi receiver's limit: swapping its PROG resistor from 1 kΩ (102) to 2 kΩ (202) gives ~500 mA, cooler and kinder to the receiver, optional. |
+| AITRIP TP4057 1A Type-C charger board (12.1 × 16.8, 18.35 with the USB-C, 4.2 tall) | charges the cell from the Qi pad, protects it | pads **B+ B−** (cell), **OUT+ OUT−** (to the switch / ground - the protection FET is in OUT−), **IN+ IN−** (5 V in: from the Qi receiver through a 1N5817, and from Pico pin 40 through another 1N5817, the two diodes meeting at IN+). Its own USB-C stays unused inside the box. Charges at 1 A, right at the Qi receiver's limit: swapping its PROG resistor from 1 kΩ (102) to 2 kΩ (202) gives ~500 mA, cooler and kinder to the receiver, optional. |
 | EEMB 1200 mAh cell        | power                                          | **check polarity at the JST: red must land on the socket's +** |
 | slide switch              | kill switch                                    | middle pin + one outer pin                                     |
-| 1N5817 × 2                | one-way valves: cell → VSYS (diode 1), Qi + → charger IN+ (diode 2) | stripe = cathode = the side current flows OUT of               |
+| 1N5817 × 3                | one-way valves: cell → VSYS (diode 1), Qi + → charger IN+ (diode 2), Pico VBUS → charger IN+ (diode 3) | stripe = cathode = the side current flows OUT of               |
 | 1N4007 (SunFounder kit; 1N4148 also fine) | motor kick-back | stripe toward 3V3 |
 | S8050 NPN (SunFounder kit; 2N2222 also fine) | motor switch | flat face toward you, legs down: **E B C** on both; verify on the datasheet for your brand |
 | 1 kΩ, 470 Ω, 100 kΩ × 2 | base resistor, LED resistor, divider | colour bands: brown-black-red, yellow-violet-brown, brown-black-yellow |
-| coin motor, 5 mm green LED, 12 mm yellow button, WS2812 strip (cut 3 pixels) | UI | LED soldered into the strip (shows through the lid); bar lies in the middle-wall pocket; button + motor in the forearm module (trunk A) |
+| coin motor, 5 mm green LED, 12 mm yellow button, WS2812 strip (cut 3 pixels) | UI | LED soldered into the strip (shows through the lid); bar lies in the middle-wall pocket; button (trunk B) + motor (trunk A, its own two wires) in the forearm module |
 | GY-BNO08X | orientation | I²C address 0x4A with AD0/SA0 low, 0x4B with it high (datasheet); the bench prints which it finds and the firmware probes both. **Lives in the forearm module, not the box** |
 | SEN0240 × 2 (plate + signal board + 3.5 mm cable) | EMG | boards in the forearm module, plates on their loop band; the Gravity cables are not used |
 | JST-PH kit: 6-pin sockets × 2, 4-pin sockets × 2, 3-pin socket × 1, housings + crimp pins | every connector | box: PH6 + PH4 + PH3 in the walls; module: PH6 + PH4 stacked |
@@ -52,18 +52,24 @@ Wire only: cell, switch, diode 1, the charger board, and the meter.
 
 1. Diode 1 stripe → Pico **pin 39 (VSYS)**. Charger **OUT−** → Pico **pin 38** (OUT−, not the cell lead: the protection FET sits between them). Nothing else.
 2. Unplug USB, switch on: onboard LED behaviour as before when you run the toggle from a saved `main.py` (write a two-line blink `main.py` first, over USB).
-3. Charger's 5 V input comes from the **Qi receiver only**: Qi + → 1N5817 (stripe toward the board) → **IN+**, Qi − →
-   **IN−**. Pico pin 40 stays empty. Switch **off**, coil on the pad: red LED = charging and the Pico's onboard LED stays
-   dark. Switch on, still on the pad: the band runs from the battery while it charges; blue/green LED = full.
-4. USB into the Pico with the switch on: the Pico runs and nothing bad happens (diode 1 keeps USB out of the cell).
-   USB does **not** charge the cell; it is for programming. Charging is the pad (or the board's own USB-C if a window
-   is ever cut for it).
+3. Charger's 5 V input, two feeds meeting at **IN+**, each through its own 1N5817 with the stripe toward the board:
+   Qi + → diode 2 → IN+, Qi − → IN−; Pico pin 40 (VBUS) → diode 3 → IN+. Switch **off**, coil on the pad: red LED =
+   charging and the Pico's onboard LED stays dark. Switch on, still on the pad: the band runs from the battery while
+   it charges; blue/green LED = full.
+4. USB into the Pico, switch off: the Pico runs from USB (that is the programming state) and the red LED shows the
+   cell charging through diode 3. Switch on: same, and the band's battery reading is live. Diode 1 keeps USB out of
+   the cell by any path but the charger. Charge from a wall brick, not a laptop port: 1 A charge plus the Pico pulls
+   a weak port down.
 
-**Pass:** blinks on battery alone; USB runs it; switch off on the pad = charging with the Pico dark.
+**Pass:** blinks on battery alone; USB runs it and charges; switch off on the pad = charging with the Pico dark.
+
+What each state does: switch off + nothing plugged = dead, zero drain. Switch off + pad = charging, Pico dark.
+Switch off + USB = Pico on (programming) + charging, battery reading shows 0 so the firmware knows the switch is
+off. Switch on = band runs from the battery, and USB or the pad charge it meanwhile.
 
 The band's battery path, for reference: cell → B+/B− → OUT+ → switch → 1N5817 → Pico pin 39; OUT− → Pico pin 38.
-Qi + → 1N5817 → IN+, Qi − → IN−. Never connect the cell straight to VSYS without the diode and then plug USB in: the
-Pico's internal diode would push USB current into the cell uncontrolled.
+Never connect the cell straight to VSYS without the diode and then plug USB in: the Pico's internal diode would push
+USB current into the cell uncontrolled.
 
 ## 4. Peripherals, one at a time, with `bench/band_bench.py`
 
@@ -72,12 +78,12 @@ every 150 ms and runs a self-test on the button. Add parts in this order and wat
 
 | add                 | wiring                                                                                     | what the bench script shows                                                        |
 | ------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
-| **button**          | GP14 ↔ one leg, GND ↔ diagonal leg                                                         | `BTN 1` while pressed; tap = buzz attempt + pixel chase (nothing yet, that's fine) |
+| **button**          | GP7 ↔ one leg, GND ↔ diagonal leg                                                          | `BTN 1` while pressed; tap = buzz attempt + pixel chase (nothing yet, that's fine) |
 | **WS2812 (3 px)**   | +5V pad → 3V3 (pin 36), GND → GND, DIN → GP16                                              | self-test colours R G B W at boot; then pixels 0/1 meter the EMG                   |
 | **motor circuit**   | GP13 → 1k → base; E → GND; 3V3 → motor → C; 1N4007 across the motor, stripe to 3V3         | tap the button: a 60 ms buzz. If it hums weakly, the transistor legs are swapped   |
 | **green LED**       | 3V3 → 470 Ω → long leg; short leg → GND                                                    | on whenever the Pico is on (no code involved)                                      |
 | **battery divider** | switch output (before the 1N5817) → 100k → GP28 → 100k → GND                                                           | `BAT 3.9x V` matches the meter on the cell within 0.05 V                           |
-| **BNO08x**          | 3V3→VCC, GND→GND, GP4→SDA, GP5→SCL, GP6→INT, GP7→RST, PS0 + PS1 + AD0 → GND, CS left open  | `IMU ok 0x4b`                                                                      |
+| **BNO08x**          | 3V3→VCC, GND→GND, GP4→SDA, GP5→SCL, GP6→INT, RST → VCC (jumper on the board), PS0 + PS1 + AD0 → GND, CS left open  | `IMU ok 0x4b`                                                                      |
 | **SEN0240 #1**      | signal board: + → 3V3, − → GND, S → GP26; 3.5 mm cable to the plate; plate on your forearm | `flex=` sits ~0.02 at rest, rises to 0.2–0.5 when you make a fist                  |
 | **SEN0240 #2**      | same on GP27                                                                               | `ext=` rises when you spread your fingers hard                                     |
 
@@ -114,6 +120,9 @@ and reach the box through the trunk (stage 8).
 
 ## 7. Now solder (only after 6 passes)
 
+Diagrams with every hole, wire and build order for the strip, the battery bay, the forearm module and the cables:
+[hardware/strip_map.html](hardware/strip_map.html) (open it in a browser; the generator is hardware/cad/strip_map_svg.py).
+
 ### 7a. What goes on the strip, and where
 
 - The Pico on its headers, rows 1–20, USB face flush with the row-1 end.
@@ -133,10 +142,11 @@ and reach the box through the trunk (stage 8).
 1. Pico headers, then the star ground blob at row 22, outer columns.
 2. 470 Ω, then the LED (standing, 1 mm off the board).
 3. The 100 k pair (top end to the switch's output side, not to the cell), 1 k, S8050, diode 1, at the holes in PARTS.md.
-4. Flying leads off the strip, 60 mm each: switch (2), charger OUT+ / OUT− (2), light bar GND / 3V3 / GP16 (3). The
-   Qi receiver's two wires never reach the strip: + → 1N5817 → charger IN+, − → charger IN−.
+4. Flying leads off the strip, 60 mm each: switch (2), charger OUT+ / OUT− (2), light bar GND / 3V3 / GP16 (3), and
+   VBUS (pin 40 stub) → diode 3 → charger IN+. The Qi receiver's two wires never reach the strip: + → diode 2 → charger
+   IN+, − → charger IN−.
 5. Wall sockets: clip each socket's pins to 2 mm, solder 60 mm leads on, and solder those leads to the strip:
-   PH6 = trunk A (3V3 GND EMG1 EMG2 BTN MOTOR), PH4 = trunk B (SDA SCL INT RST), PH3 = hand cord (TX RX GND).
+   PH6 = trunk A (3V3 GND EMG1 EMG2 MOT+ MOT−), PH4 = trunk B (SDA SCL INT BTN), PH3 = hand cord (TX RX GND).
 6. Charger board on its two leads plus the Qi pigtail (1N5817 in the + wire, stripe toward the board); switch on its
    two; light bar on its three (its −X pads: GND, +5V, DIN).
 7. Bench script again with everything dangling off the strip. Only then conformal coat the strip (mask the
@@ -186,8 +196,8 @@ housing's polarising ramp; check colours against the PINOUT table before the sec
 
 | cable | ends | length | notes |
 |---|---|---|---|
-| trunk A | PH6 ↔ PH6 | 25 cm | 3V3, GND, EMG1, EMG2, BTN, MOTOR - twist EMG1/EMG2 together with GND (that is the shielding for v1) |
-| trunk B | PH4 ↔ PH4 | 25 cm | SDA, SCL, INT, RST |
+| trunk A | PH6 ↔ PH6 | 25 cm | 3V3, GND, EMG1, EMG2, MOT+, MOT− - twist EMG1/EMG2 together with GND (that is the shielding for v1) |
+| trunk B | PH4 ↔ PH4 | 25 cm | SDA, SCL, INT, BTN |
 | hand cord | PH3 ↔ PH3 | as needed | TX, RX, GND, **crossed** (band TX → hand RX); HAND-WIRED mode |
 | plate cables | 3.5 mm ↔ 3.5 mm | the kit's | one per electrode, plate jack → module wrist wall |
 
@@ -197,7 +207,7 @@ a first plug-in so the pair sits square. Braided sleeving over both trunk cables
 = the two halves of the +X end wall, battery bay and strip bay, either side of the middle wall.)
 
 Bench test of the ring: plug the trunk into the box, run the stage-4 bench script; `IMU ok 0x4b` and both EMG
-columns must behave exactly as they did on the breadboard. If `IMU` fails, it is INT/RST swapped in trunk B.
+columns must behave exactly as they did on the breadboard. If `IMU` fails, it is SDA/SCL or INT swapped in trunk B.
 
 ## Safety, short version
 

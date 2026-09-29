@@ -1,0 +1,1166 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Band Build Maps</title><link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<style>
+:root{--bg:#f6f4ef;--ink:#1d1f24;--mute:#6b6f7a;--line:#cfcac0;--board:#e9dfc7;--pico:#d7e6d6;--hole:#fff;--hole-line:#8a8478;
+--used:#3b3f4a;--gnd:#222;--pwr:#c0392b;--sig:#1f5fbf;--chg:#7d3c98;--sw:#1d6fa5;--bar:#0f7f7a;--ta:#2e7d32;--tb:#b26a00;--cord:#5d6d7e;--part:#4a4a4a;--led:#2e9e44;--screw:#b03a2e}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171b;--ink:#e8e6e1;--mute:#9a9ea8;--line:#3a3d45;--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
+--used:#e8e6e1;--gnd:#e8e6e1;--pwr:#ff6b5b;--sig:#6fa6ff;--chg:#c58ee0;--sw:#5fb3ec;--bar:#3fd0c9;--ta:#6fcf74;--tb:#f0a93a;--cord:#aab7c4;--part:#d0d0d0;--led:#5fd67a;--screw:#ff7b6b}}
+:root[data-theme=dark]{--bg:#15171b;--ink:#e8e6e1;--mute:#9a9ea8;--line:#3a3d45;--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
+--used:#e8e6e1;--gnd:#e8e6e1;--pwr:#ff6b5b;--sig:#6fa6ff;--chg:#c58ee0;--sw:#5fb3ec;--bar:#3fd0c9;--ta:#6fcf74;--tb:#f0a93a;--cord:#aab7c4;--part:#d0d0d0;--led:#5fd67a;--screw:#ff7b6b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "IBM Plex Sans",system-ui,sans-serif;padding:24px 16px 48px}
+h1{font-size:22px;margin:0 0 4px;letter-spacing:.01em}h2{font-size:18px;margin:28px 0 4px}h3{font-size:15px;margin:16px 0 4px}ol{margin:4px 0 0;padding-left:22px}ol li{margin:3px 0}ul{margin:2px 0 0;padding-left:18px}p.sub{color:var(--mute);margin:0 0 20px;max-width:70ch}
+.wrap{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}figure{margin:0;flex:1 1 520px;min-width:0}
+figcaption{font-weight:600;margin:0 0 6px}svg{width:100%;height:auto;display:block;background:transparent}
+.board{fill:var(--board);stroke:var(--line)}.usb{fill:var(--mute)}.pico{fill:var(--pico);stroke:var(--line)}
+.hole{fill:var(--hole);stroke:var(--hole-line);stroke-width:1}.hole.used{fill:var(--used)}
+.screw{fill:none;stroke:var(--screw);stroke-width:1.5;stroke-dasharray:3 2}
+text{font-family:"IBM Plex Mono",ui-monospace,monospace;fill:var(--ink)}.lab{font-size:11px;fill:var(--mute)}.mid{text-anchor:middle}.end{text-anchor:end}
+.pin{font-size:9.5px}.pin.gnd{fill:var(--mute)}.tiny{font-size:10px}.pico-label{font-size:11px;fill:var(--mute);letter-spacing:.06em}
+.lead{stroke:var(--part);stroke-width:2}.resbody{fill:#d9b56a;stroke:var(--part)}.diobody{fill:#333;stroke:var(--part)}.stripe{fill:#ddd}
+.ledbody{fill:var(--led);opacity:.85}.ghost{opacity:.32;stroke-dasharray:3 2}.arrow{fill:#fff}.plab{font-size:10px;fill:var(--ink);font-weight:500}.to92{fill:#333;stroke:var(--part)}
+.bridge{stroke:var(--used);stroke-width:9;stroke-linecap:round;fill:none;opacity:.85}
+.uwire{fill:none;stroke-width:2.2;stroke-linecap:round}.wlab{font-size:10.5px}.leadline{stroke-width:2;fill:none;stroke-dasharray:4 3}
+.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin:18px 0 0;padding:0;list-style:none;font-size:13px}
+.legend li::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--c)}
+table{border-collapse:collapse;margin-top:22px;font-size:13px}td,th{text-align:left;padding:4px 10px;border-bottom:1px solid var(--line)}th{font-weight:600}
+
+section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
+.node{fill:var(--pico);stroke:var(--line);stroke-width:1.2}.node.small{fill:var(--board)}.node.dashed{fill:none;stroke-dasharray:6 4}
+.ntitle{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;font-weight:600}.nsub{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:10.5px;fill:var(--mute)}
+.port{fill:var(--bg);stroke:var(--ink);stroke-width:1.4}.pname{font-size:10px}.swire{fill:none;stroke-width:2;stroke-linejoin:round}.note{font-size:11px;fill:var(--mute);font-family:"IBM Plex Sans",system-ui,sans-serif}
+</style></head><body>
+<h1>Band build maps</h1><p class="sub">Four separate sections: the strip (both sides), the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another.</p><section id="strip"><h2>1. The strip, both sides</h2>
+<p class="sub">Look down at the top with the USB end at the top: column 1 top-left, column 10 top-right, rows 1–22 from the USB end. Pin 1 (GP0) is at (1,2), pin 40 (VBUS) at (1,9). The bottom view is the board flipped left-to-right, USB still at the top, so column 1 appears on the right. Dark holes carry solder. Lengths in mm.</p>
+<div class="wrap"><figure><figcaption>TOP — components (nothing else is soldered here)</figcaption><svg viewBox="0 0 950 756" role="img" aria-label="TOP — components (nothing else is soldered here)"><rect x="318" y="50" width="314" height="670" rx="4" class="board"/>
+<rect x="458.0" y="36" width="34" height="16" rx="2" class="usb"/><text x="475.0" y="47" class="tiny mid">USB</text>
+<rect x="358" y="58" width="234" height="594" rx="5" class="pico"/>
+<text x="475.0" y="355.0" class="pico-label mid" transform="rotate(-90 475.0 355.0)">Pico 2 W  ·  component side up</text>
+<text x="340" y="26" class="lab mid">1</text>
+<text x="370" y="26" class="lab mid">2</text>
+<text x="400" y="26" class="lab mid">3</text>
+<text x="430" y="26" class="lab mid">4</text>
+<text x="460" y="26" class="lab mid">5</text>
+<text x="490" y="26" class="lab mid">6</text>
+<text x="520" y="26" class="lab mid">7</text>
+<text x="550" y="26" class="lab mid">8</text>
+<text x="580" y="26" class="lab mid">9</text>
+<text x="610" y="26" class="lab mid">10</text>
+<text x="306" y="74" class="lab end">1</text>
+<text x="644" y="74" class="lab">1</text>
+<text x="306" y="104" class="lab end">2</text>
+<text x="644" y="104" class="lab">2</text>
+<text x="306" y="134" class="lab end">3</text>
+<text x="644" y="134" class="lab">3</text>
+<text x="306" y="164" class="lab end">4</text>
+<text x="644" y="164" class="lab">4</text>
+<text x="306" y="194" class="lab end">5</text>
+<text x="644" y="194" class="lab">5</text>
+<text x="306" y="224" class="lab end">6</text>
+<text x="644" y="224" class="lab">6</text>
+<text x="306" y="254" class="lab end">7</text>
+<text x="644" y="254" class="lab">7</text>
+<text x="306" y="284" class="lab end">8</text>
+<text x="644" y="284" class="lab">8</text>
+<text x="306" y="314" class="lab end">9</text>
+<text x="644" y="314" class="lab">9</text>
+<text x="306" y="344" class="lab end">10</text>
+<text x="644" y="344" class="lab">10</text>
+<text x="306" y="374" class="lab end">11</text>
+<text x="644" y="374" class="lab">11</text>
+<text x="306" y="404" class="lab end">12</text>
+<text x="644" y="404" class="lab">12</text>
+<text x="306" y="434" class="lab end">13</text>
+<text x="644" y="434" class="lab">13</text>
+<text x="306" y="464" class="lab end">14</text>
+<text x="644" y="464" class="lab">14</text>
+<text x="306" y="494" class="lab end">15</text>
+<text x="644" y="494" class="lab">15</text>
+<text x="306" y="524" class="lab end">16</text>
+<text x="644" y="524" class="lab">16</text>
+<text x="306" y="554" class="lab end">17</text>
+<text x="644" y="554" class="lab">17</text>
+<text x="306" y="584" class="lab end">18</text>
+<text x="644" y="584" class="lab">18</text>
+<text x="306" y="614" class="lab end">19</text>
+<text x="644" y="614" class="lab">19</text>
+<text x="306" y="644" class="lab end">20</text>
+<text x="644" y="644" class="lab">20</text>
+<text x="306" y="674" class="lab end">21</text>
+<text x="644" y="674" class="lab">21</text>
+<text x="306" y="704" class="lab end">22</text>
+<text x="644" y="704" class="lab">22</text>
+<circle cx="340" cy="70" r="5" class="hole"/>
+<circle cx="370" cy="70" r="5" class="hole used"/>
+<text x="380" y="73.5" class="pin  ">GP0</text>
+<circle cx="400" cy="70" r="5" class="hole"/>
+<circle cx="430" cy="70" r="5" class="hole"/>
+<circle cx="460" cy="70" r="5" class="hole"/>
+<circle cx="490" cy="70" r="5" class="hole"/>
+<circle cx="520" cy="70" r="5" class="hole"/>
+<circle cx="550" cy="70" r="5" class="hole"/>
+<circle cx="580" cy="70" r="5" class="hole used"/>
+<text x="570" y="73.5" class="pin  end">VBUS</text>
+<circle cx="610" cy="70" r="5" class="hole"/>
+<circle cx="340" cy="100" r="5" class="hole"/>
+<circle cx="340" cy="100" r="9" class="screw"/>
+<circle cx="370" cy="100" r="5" class="hole used"/>
+<text x="380" y="103.5" class="pin  ">GP1</text>
+<circle cx="400" cy="100" r="5" class="hole"/>
+<circle cx="430" cy="100" r="5" class="hole"/>
+<circle cx="460" cy="100" r="5" class="hole"/>
+<circle cx="490" cy="100" r="5" class="hole"/>
+<circle cx="520" cy="100" r="5" class="hole"/>
+<circle cx="550" cy="100" r="5" class="hole"/>
+<circle cx="580" cy="100" r="5" class="hole used"/>
+<text x="570" y="103.5" class="pin  end">VSYS</text>
+<circle cx="610" cy="100" r="5" class="hole"/>
+<circle cx="610" cy="100" r="9" class="screw"/>
+<circle cx="340" cy="130" r="5" class="hole"/>
+<circle cx="370" cy="130" r="5" class="hole used"/>
+<text x="380" y="133.5" class="pin gnd ">GND</text>
+<circle cx="400" cy="130" r="5" class="hole"/>
+<circle cx="430" cy="130" r="5" class="hole"/>
+<circle cx="460" cy="130" r="5" class="hole"/>
+<circle cx="490" cy="130" r="5" class="hole"/>
+<circle cx="520" cy="130" r="5" class="hole"/>
+<circle cx="550" cy="130" r="5" class="hole"/>
+<circle cx="580" cy="130" r="5" class="hole used"/>
+<text x="570" y="133.5" class="pin gnd end">GND</text>
+<circle cx="610" cy="130" r="5" class="hole"/>
+<circle cx="340" cy="160" r="5" class="hole"/>
+<circle cx="370" cy="160" r="5" class="hole used"/>
+<text x="380" y="163.5" class="pin  ">GP2</text>
+<circle cx="400" cy="160" r="5" class="hole"/>
+<circle cx="430" cy="160" r="5" class="hole"/>
+<circle cx="460" cy="160" r="5" class="hole"/>
+<circle cx="490" cy="160" r="5" class="hole"/>
+<circle cx="520" cy="160" r="5" class="hole"/>
+<circle cx="550" cy="160" r="5" class="hole"/>
+<circle cx="580" cy="160" r="5" class="hole used"/>
+<text x="570" y="163.5" class="pin  end">3V3_EN</text>
+<circle cx="610" cy="160" r="5" class="hole used"/>
+<circle cx="340" cy="190" r="5" class="hole"/>
+<circle cx="370" cy="190" r="5" class="hole used"/>
+<text x="380" y="193.5" class="pin  ">GP3</text>
+<circle cx="400" cy="190" r="5" class="hole"/>
+<circle cx="430" cy="190" r="5" class="hole"/>
+<circle cx="460" cy="190" r="5" class="hole"/>
+<circle cx="490" cy="190" r="5" class="hole"/>
+<circle cx="520" cy="190" r="5" class="hole"/>
+<circle cx="550" cy="190" r="5" class="hole"/>
+<circle cx="580" cy="190" r="5" class="hole used"/>
+<text x="570" y="193.5" class="pin  end">3V3</text>
+<circle cx="610" cy="190" r="5" class="hole used"/>
+<circle cx="340" cy="220" r="5" class="hole"/>
+<circle cx="370" cy="220" r="5" class="hole used"/>
+<text x="380" y="223.5" class="pin  ">GP4</text>
+<circle cx="400" cy="220" r="5" class="hole"/>
+<circle cx="430" cy="220" r="5" class="hole"/>
+<circle cx="460" cy="220" r="5" class="hole"/>
+<circle cx="490" cy="220" r="5" class="hole"/>
+<circle cx="520" cy="220" r="5" class="hole"/>
+<circle cx="550" cy="220" r="5" class="hole"/>
+<circle cx="580" cy="220" r="5" class="hole used"/>
+<text x="570" y="223.5" class="pin  end">ADC_VREF</text>
+<circle cx="610" cy="220" r="5" class="hole"/>
+<circle cx="340" cy="250" r="5" class="hole"/>
+<circle cx="370" cy="250" r="5" class="hole used"/>
+<text x="380" y="253.5" class="pin  ">GP5</text>
+<circle cx="400" cy="250" r="5" class="hole"/>
+<circle cx="430" cy="250" r="5" class="hole"/>
+<circle cx="460" cy="250" r="5" class="hole"/>
+<circle cx="490" cy="250" r="5" class="hole"/>
+<circle cx="520" cy="250" r="5" class="hole"/>
+<circle cx="550" cy="250" r="5" class="hole"/>
+<circle cx="580" cy="250" r="5" class="hole used"/>
+<text x="570" y="253.5" class="pin  end">GP28</text>
+<circle cx="610" cy="250" r="5" class="hole used"/>
+<circle cx="340" cy="280" r="5" class="hole"/>
+<circle cx="370" cy="280" r="5" class="hole used"/>
+<text x="380" y="283.5" class="pin gnd ">GND</text>
+<circle cx="400" cy="280" r="5" class="hole"/>
+<circle cx="430" cy="280" r="5" class="hole"/>
+<circle cx="460" cy="280" r="5" class="hole"/>
+<circle cx="490" cy="280" r="5" class="hole"/>
+<circle cx="520" cy="280" r="5" class="hole"/>
+<circle cx="550" cy="280" r="5" class="hole"/>
+<circle cx="580" cy="280" r="5" class="hole used"/>
+<text x="570" y="283.5" class="pin gnd end">GND</text>
+<circle cx="610" cy="280" r="5" class="hole"/>
+<circle cx="340" cy="310" r="5" class="hole"/>
+<circle cx="370" cy="310" r="5" class="hole used"/>
+<text x="380" y="313.5" class="pin  ">GP6</text>
+<circle cx="400" cy="310" r="5" class="hole"/>
+<circle cx="430" cy="310" r="5" class="hole"/>
+<circle cx="460" cy="310" r="5" class="hole"/>
+<circle cx="490" cy="310" r="5" class="hole"/>
+<circle cx="520" cy="310" r="5" class="hole"/>
+<circle cx="550" cy="310" r="5" class="hole"/>
+<circle cx="580" cy="310" r="5" class="hole used"/>
+<text x="570" y="313.5" class="pin  end">GP27</text>
+<circle cx="610" cy="310" r="5" class="hole"/>
+<circle cx="340" cy="340" r="5" class="hole"/>
+<circle cx="370" cy="340" r="5" class="hole used"/>
+<text x="380" y="343.5" class="pin  ">GP7</text>
+<circle cx="400" cy="340" r="5" class="hole"/>
+<circle cx="430" cy="340" r="5" class="hole"/>
+<circle cx="460" cy="340" r="5" class="hole"/>
+<circle cx="490" cy="340" r="5" class="hole"/>
+<circle cx="520" cy="340" r="5" class="hole"/>
+<circle cx="550" cy="340" r="5" class="hole"/>
+<circle cx="580" cy="340" r="5" class="hole used"/>
+<text x="570" y="343.5" class="pin  end">GP26</text>
+<circle cx="610" cy="340" r="5" class="hole used"/>
+<circle cx="340" cy="370" r="5" class="hole"/>
+<circle cx="370" cy="370" r="5" class="hole used"/>
+<text x="380" y="373.5" class="pin  ">GP8</text>
+<circle cx="400" cy="370" r="5" class="hole"/>
+<circle cx="430" cy="370" r="5" class="hole"/>
+<circle cx="460" cy="370" r="5" class="hole"/>
+<circle cx="490" cy="370" r="5" class="hole"/>
+<circle cx="520" cy="370" r="5" class="hole"/>
+<circle cx="550" cy="370" r="5" class="hole"/>
+<circle cx="580" cy="370" r="5" class="hole used"/>
+<text x="570" y="373.5" class="pin  end">RUN</text>
+<circle cx="610" cy="370" r="5" class="hole"/>
+<circle cx="340" cy="400" r="5" class="hole"/>
+<circle cx="370" cy="400" r="5" class="hole used"/>
+<text x="380" y="403.5" class="pin  ">GP9</text>
+<circle cx="400" cy="400" r="5" class="hole"/>
+<circle cx="430" cy="400" r="5" class="hole"/>
+<circle cx="460" cy="400" r="5" class="hole"/>
+<circle cx="490" cy="400" r="5" class="hole"/>
+<circle cx="520" cy="400" r="5" class="hole"/>
+<circle cx="550" cy="400" r="5" class="hole"/>
+<circle cx="580" cy="400" r="5" class="hole used"/>
+<text x="570" y="403.5" class="pin  end">GP22</text>
+<circle cx="610" cy="400" r="5" class="hole"/>
+<circle cx="340" cy="430" r="5" class="hole used"/>
+<circle cx="370" cy="430" r="5" class="hole used"/>
+<text x="380" y="433.5" class="pin gnd ">GND</text>
+<circle cx="400" cy="430" r="5" class="hole"/>
+<circle cx="430" cy="430" r="5" class="hole"/>
+<circle cx="460" cy="430" r="5" class="hole"/>
+<circle cx="490" cy="430" r="5" class="hole"/>
+<circle cx="520" cy="430" r="5" class="hole"/>
+<circle cx="550" cy="430" r="5" class="hole"/>
+<circle cx="580" cy="430" r="5" class="hole used"/>
+<text x="570" y="433.5" class="pin gnd end">GND</text>
+<circle cx="610" cy="430" r="5" class="hole"/>
+<circle cx="340" cy="460" r="5" class="hole used"/>
+<circle cx="370" cy="460" r="5" class="hole used"/>
+<text x="380" y="463.5" class="pin  ">GP10</text>
+<circle cx="400" cy="460" r="5" class="hole"/>
+<circle cx="430" cy="460" r="5" class="hole"/>
+<circle cx="460" cy="460" r="5" class="hole"/>
+<circle cx="490" cy="460" r="5" class="hole"/>
+<circle cx="520" cy="460" r="5" class="hole"/>
+<circle cx="550" cy="460" r="5" class="hole"/>
+<circle cx="580" cy="460" r="5" class="hole used"/>
+<text x="570" y="463.5" class="pin  end">GP21</text>
+<circle cx="610" cy="460" r="5" class="hole"/>
+<circle cx="340" cy="490" r="5" class="hole used"/>
+<circle cx="370" cy="490" r="5" class="hole used"/>
+<text x="380" y="493.5" class="pin  ">GP11</text>
+<circle cx="400" cy="490" r="5" class="hole"/>
+<circle cx="430" cy="490" r="5" class="hole"/>
+<circle cx="460" cy="490" r="5" class="hole"/>
+<circle cx="490" cy="490" r="5" class="hole"/>
+<circle cx="520" cy="490" r="5" class="hole"/>
+<circle cx="550" cy="490" r="5" class="hole"/>
+<circle cx="580" cy="490" r="5" class="hole used"/>
+<text x="570" y="493.5" class="pin  end">GP20</text>
+<circle cx="610" cy="490" r="5" class="hole"/>
+<circle cx="340" cy="520" r="5" class="hole"/>
+<circle cx="370" cy="520" r="5" class="hole used"/>
+<text x="380" y="523.5" class="pin  ">GP12</text>
+<circle cx="400" cy="520" r="5" class="hole"/>
+<circle cx="430" cy="520" r="5" class="hole"/>
+<circle cx="460" cy="520" r="5" class="hole"/>
+<circle cx="490" cy="520" r="5" class="hole"/>
+<circle cx="520" cy="520" r="5" class="hole"/>
+<circle cx="550" cy="520" r="5" class="hole"/>
+<circle cx="580" cy="520" r="5" class="hole used"/>
+<text x="570" y="523.5" class="pin  end">GP19</text>
+<circle cx="610" cy="520" r="5" class="hole"/>
+<circle cx="340" cy="550" r="5" class="hole used"/>
+<circle cx="370" cy="550" r="5" class="hole used"/>
+<text x="380" y="553.5" class="pin  ">GP13</text>
+<circle cx="400" cy="550" r="5" class="hole"/>
+<circle cx="430" cy="550" r="5" class="hole"/>
+<circle cx="460" cy="550" r="5" class="hole"/>
+<circle cx="490" cy="550" r="5" class="hole"/>
+<circle cx="520" cy="550" r="5" class="hole"/>
+<circle cx="550" cy="550" r="5" class="hole"/>
+<circle cx="580" cy="550" r="5" class="hole used"/>
+<text x="570" y="553.5" class="pin  end">GP18</text>
+<circle cx="610" cy="550" r="5" class="hole"/>
+<circle cx="340" cy="580" r="5" class="hole"/>
+<circle cx="370" cy="580" r="5" class="hole used"/>
+<text x="380" y="583.5" class="pin gnd ">GND</text>
+<circle cx="400" cy="580" r="5" class="hole"/>
+<circle cx="430" cy="580" r="5" class="hole"/>
+<circle cx="460" cy="580" r="5" class="hole"/>
+<circle cx="490" cy="580" r="5" class="hole"/>
+<circle cx="520" cy="580" r="5" class="hole"/>
+<circle cx="550" cy="580" r="5" class="hole"/>
+<circle cx="580" cy="580" r="5" class="hole used"/>
+<text x="570" y="583.5" class="pin gnd end">GND</text>
+<circle cx="610" cy="580" r="5" class="hole"/>
+<circle cx="340" cy="610" r="5" class="hole"/>
+<circle cx="370" cy="610" r="5" class="hole used"/>
+<text x="380" y="613.5" class="pin  ">GP14</text>
+<circle cx="400" cy="610" r="5" class="hole"/>
+<circle cx="430" cy="610" r="5" class="hole"/>
+<circle cx="460" cy="610" r="5" class="hole"/>
+<circle cx="490" cy="610" r="5" class="hole"/>
+<circle cx="520" cy="610" r="5" class="hole"/>
+<circle cx="550" cy="610" r="5" class="hole"/>
+<circle cx="580" cy="610" r="5" class="hole used"/>
+<text x="570" y="613.5" class="pin  end">GP17</text>
+<circle cx="610" cy="610" r="5" class="hole"/>
+<circle cx="340" cy="640" r="5" class="hole"/>
+<circle cx="370" cy="640" r="5" class="hole used"/>
+<text x="380" y="643.5" class="pin  ">GP15</text>
+<circle cx="400" cy="640" r="5" class="hole"/>
+<circle cx="430" cy="640" r="5" class="hole"/>
+<circle cx="460" cy="640" r="5" class="hole"/>
+<circle cx="490" cy="640" r="5" class="hole"/>
+<circle cx="520" cy="640" r="5" class="hole"/>
+<circle cx="550" cy="640" r="5" class="hole"/>
+<circle cx="580" cy="640" r="5" class="hole used"/>
+<text x="570" y="643.5" class="pin  end">GP16</text>
+<circle cx="610" cy="640" r="5" class="hole"/>
+<circle cx="340" cy="670" r="5" class="hole"/>
+<circle cx="340" cy="670" r="9" class="screw"/>
+<circle cx="370" cy="670" r="5" class="hole"/>
+<circle cx="400" cy="670" r="5" class="hole"/>
+<circle cx="430" cy="670" r="5" class="hole used"/>
+<circle cx="460" cy="670" r="5" class="hole"/>
+<circle cx="490" cy="670" r="5" class="hole used"/>
+<circle cx="520" cy="670" r="5" class="hole used"/>
+<circle cx="550" cy="670" r="5" class="hole used"/>
+<circle cx="580" cy="670" r="5" class="hole"/>
+<circle cx="610" cy="670" r="5" class="hole"/>
+<circle cx="610" cy="670" r="9" class="screw"/>
+<circle cx="340" cy="700" r="5" class="hole"/>
+<circle cx="370" cy="700" r="5" class="hole used"/>
+<circle cx="400" cy="700" r="5" class="hole"/>
+<circle cx="430" cy="700" r="5" class="hole"/>
+<circle cx="460" cy="700" r="5" class="hole used"/>
+<circle cx="490" cy="700" r="5" class="hole"/>
+<circle cx="520" cy="700" r="5" class="hole"/>
+<circle cx="550" cy="700" r="5" class="hole used"/>
+<circle cx="580" cy="700" r="5" class="hole"/>
+<circle cx="610" cy="700" r="5" class="hole"/>
+<circle cx="550.0" cy="685.0" r="13" class="ledbody"/>
+<text x="567" y="674" class="tiny">+ long leg</text>
+<text x="567" y="704" class="tiny">− short leg</text>
+<text x="550.0" y="651" class="plab mid">green LED</text>
+<line x1="430" y1="670" x2="490" y2="670" class="lead"/>
+<rect x="443.2" y="664.0" width="33.6" height="12" rx="3" class="resbody" transform="rotate(0.0 460.0 670.0)"/>
+<text x="460.0" y="658.0" class="plab mid">470 Ω</text>
+<line x1="370" y1="700" x2="460" y2="700" class="lead"/>
+<rect x="388.0" y="694.0" width="54.0" height="12" rx="2" class="diobody"/>
+<rect x="391.0" y="694.0" width="4" height="12" class="stripe"/>
+<path d="M420.0,696.0 L410.0,700.0 L420.0,704.0 z" class="arrow"/>
+<text x="415.0" y="720.0" class="plab mid">1N5817 diode 1, stripe at column 2</text>
+<text x="415.0" y="731.0" class="tiny mid">current → stripe</text>
+<line x1="610" y1="160" x2="610" y2="250" class="lead"/>
+<rect x="584.8" y="199.0" width="50.400000000000006" height="12" rx="3" class="resbody" transform="rotate(90.0 610.0 205.0)"/>
+<text x="594.0" y="205.0" class="plab mid" transform="rotate(-90 594.0 205.0)">R1 100k</text>
+<line x1="610" y1="250" x2="610" y2="340" class="lead"/>
+<rect x="584.8" y="289.0" width="50.400000000000006" height="12" rx="3" class="resbody" transform="rotate(90.0 610.0 295.0)"/>
+<text x="594.0" y="295.0" class="plab mid" transform="rotate(-90 594.0 295.0)">R2 100k</text>
+<path d="M331,418 v84 a14,42.0 0 0 0 0,-84 z" class="to92"/>
+<text x="324" y="434" class="tiny end">E</text>
+<text x="324" y="464" class="tiny end">B</text>
+<text x="324" y="494" class="tiny end">C</text>
+<text x="362" y="460.0" class="plab mid" transform="rotate(-90 362 460.0)">S8050  flat face out</text>
+<line x1="340" y1="460" x2="340" y2="550" class="lead"/>
+<rect x="314.8" y="499.0" width="50.400000000000006" height="12" rx="3" class="resbody" transform="rotate(90.0 340.0 505.0)"/>
+<text x="356.0" y="505.0" class="plab mid" transform="rotate(-90 356.0 505.0)">1k</text>
+<path d="M370,70 L290,70" class="leadline" style="stroke:var(--cord)"/>
+<circle cx="290" cy="70" r="3" style="fill:var(--cord)"/>
+<text x="282" y="74" class="wlab end" style="fill:var(--cord)">cord TX  60</text>
+<path d="M370,100 L290,100" class="leadline" style="stroke:var(--cord)"/>
+<circle cx="290" cy="100" r="3" style="fill:var(--cord)"/>
+<text x="282" y="104" class="wlab end" style="fill:var(--cord)">cord RX  60</text>
+<path d="M370,130 L290,130" class="leadline" style="stroke:var(--chg)"/>
+<circle cx="290" cy="130" r="3" style="fill:var(--chg)"/>
+<text x="282" y="134" class="wlab end" style="fill:var(--chg)">charger OUT−  60</text>
+<path d="M370,220 L290,220" class="leadline" style="stroke:var(--tb)"/>
+<circle cx="290" cy="220" r="3" style="fill:var(--tb)"/>
+<text x="282" y="224" class="wlab end" style="fill:var(--tb)">trunk B SDA  60</text>
+<path d="M370,250 L290,250" class="leadline" style="stroke:var(--tb)"/>
+<circle cx="290" cy="250" r="3" style="fill:var(--tb)"/>
+<text x="282" y="254" class="wlab end" style="fill:var(--tb)">trunk B SCL  60</text>
+<path d="M370,280 L290,280" class="leadline" style="stroke:var(--gnd)"/>
+<circle cx="290" cy="280" r="3" style="fill:var(--gnd)"/>
+<text x="282" y="284" class="wlab end" style="fill:var(--gnd)">light bar GND  60  +  trunk A GND  60</text>
+<path d="M370,310 L290,310" class="leadline" style="stroke:var(--tb)"/>
+<circle cx="290" cy="310" r="3" style="fill:var(--tb)"/>
+<text x="282" y="314" class="wlab end" style="fill:var(--tb)">trunk B INT  60</text>
+<path d="M370,340 L290,340" class="leadline" style="stroke:var(--tb)"/>
+<circle cx="290" cy="340" r="3" style="fill:var(--tb)"/>
+<text x="282" y="344" class="wlab end" style="fill:var(--tb)">trunk B BTN  60</text>
+<path d="M340,490 L290,490" class="leadline" style="stroke:var(--ta)"/>
+<circle cx="290" cy="490" r="3" style="fill:var(--ta)"/>
+<text x="282" y="494" class="wlab end" style="fill:var(--ta)">trunk A MOT−  60  (S8050 C leg)</text>
+<path d="M370,580 L290,580" class="leadline" style="stroke:var(--cord)"/>
+<circle cx="290" cy="580" r="3" style="fill:var(--cord)"/>
+<text x="282" y="584" class="wlab end" style="fill:var(--cord)">cord GND  60</text>
+<path d="M580,70 L660,70" class="leadline" style="stroke:var(--chg)"/>
+<circle cx="660" cy="70" r="3" style="fill:var(--chg)"/>
+<text x="668" y="74" class="wlab " style="fill:var(--chg)">VBUS → 1N5817 → charger IN+  60</text>
+<path d="M580,190 L660,190" class="leadline" style="stroke:var(--bar)"/>
+<circle cx="660" cy="190" r="3" style="fill:var(--bar)"/>
+<text x="668" y="194" class="wlab " style="fill:var(--bar)">light bar +5V  60</text>
+<path d="M610,203 L660,203" class="leadline" style="stroke:var(--ta)"/>
+<circle cx="660" cy="203" r="3" style="fill:var(--ta)"/>
+<text x="668" y="207" class="wlab " style="fill:var(--ta)">trunk A 3V3 + MOT+  60 each  (3V3 point)</text>
+<path d="M580,310 L660,310" class="leadline" style="stroke:var(--ta)"/>
+<circle cx="660" cy="310" r="3" style="fill:var(--ta)"/>
+<text x="668" y="314" class="wlab " style="fill:var(--ta)">trunk A EMG2  60</text>
+<path d="M580,340 L660,340" class="leadline" style="stroke:var(--ta)"/>
+<circle cx="660" cy="340" r="3" style="fill:var(--ta)"/>
+<text x="668" y="344" class="wlab " style="fill:var(--ta)">trunk A EMG1  60</text>
+<path d="M580,640 L660,640" class="leadline" style="stroke:var(--bar)"/>
+<circle cx="660" cy="640" r="3" style="fill:var(--bar)"/>
+<text x="668" y="644" class="wlab " style="fill:var(--bar)">light bar DIN  60</text>
+<path d="M460,700 L660,700" class="leadline" style="stroke:var(--sw)"/>
+<circle cx="660" cy="700" r="3" style="fill:var(--sw)"/>
+<text x="668" y="704" class="wlab " style="fill:var(--sw)">switch outer  60</text></svg></figure><figure><figcaption>BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)</figcaption><svg viewBox="0 0 950 756" role="img" aria-label="BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)"><rect x="318" y="50" width="314" height="670" rx="4" class="board"/>
+<rect x="458.0" y="36" width="34" height="16" rx="2" class="usb"/><text x="475.0" y="47" class="tiny mid">USB</text>
+<rect x="358" y="58" width="234" height="594" rx="5" class="pico"/>
+<text x="475.0" y="355.0" class="pico-label mid" transform="rotate(-90 475.0 355.0)">Pico 2 W  ·  seen from below</text>
+<text x="610" y="26" class="lab mid">1</text>
+<text x="580" y="26" class="lab mid">2</text>
+<text x="550" y="26" class="lab mid">3</text>
+<text x="520" y="26" class="lab mid">4</text>
+<text x="490" y="26" class="lab mid">5</text>
+<text x="460" y="26" class="lab mid">6</text>
+<text x="430" y="26" class="lab mid">7</text>
+<text x="400" y="26" class="lab mid">8</text>
+<text x="370" y="26" class="lab mid">9</text>
+<text x="340" y="26" class="lab mid">10</text>
+<text x="306" y="74" class="lab end">1</text>
+<text x="644" y="74" class="lab">1</text>
+<text x="306" y="104" class="lab end">2</text>
+<text x="644" y="104" class="lab">2</text>
+<text x="306" y="134" class="lab end">3</text>
+<text x="644" y="134" class="lab">3</text>
+<text x="306" y="164" class="lab end">4</text>
+<text x="644" y="164" class="lab">4</text>
+<text x="306" y="194" class="lab end">5</text>
+<text x="644" y="194" class="lab">5</text>
+<text x="306" y="224" class="lab end">6</text>
+<text x="644" y="224" class="lab">6</text>
+<text x="306" y="254" class="lab end">7</text>
+<text x="644" y="254" class="lab">7</text>
+<text x="306" y="284" class="lab end">8</text>
+<text x="644" y="284" class="lab">8</text>
+<text x="306" y="314" class="lab end">9</text>
+<text x="644" y="314" class="lab">9</text>
+<text x="306" y="344" class="lab end">10</text>
+<text x="644" y="344" class="lab">10</text>
+<text x="306" y="374" class="lab end">11</text>
+<text x="644" y="374" class="lab">11</text>
+<text x="306" y="404" class="lab end">12</text>
+<text x="644" y="404" class="lab">12</text>
+<text x="306" y="434" class="lab end">13</text>
+<text x="644" y="434" class="lab">13</text>
+<text x="306" y="464" class="lab end">14</text>
+<text x="644" y="464" class="lab">14</text>
+<text x="306" y="494" class="lab end">15</text>
+<text x="644" y="494" class="lab">15</text>
+<text x="306" y="524" class="lab end">16</text>
+<text x="644" y="524" class="lab">16</text>
+<text x="306" y="554" class="lab end">17</text>
+<text x="644" y="554" class="lab">17</text>
+<text x="306" y="584" class="lab end">18</text>
+<text x="644" y="584" class="lab">18</text>
+<text x="306" y="614" class="lab end">19</text>
+<text x="644" y="614" class="lab">19</text>
+<text x="306" y="644" class="lab end">20</text>
+<text x="644" y="644" class="lab">20</text>
+<text x="306" y="674" class="lab end">21</text>
+<text x="644" y="674" class="lab">21</text>
+<text x="306" y="704" class="lab end">22</text>
+<text x="644" y="704" class="lab">22</text>
+<circle cx="610" cy="70" r="5" class="hole"/>
+<circle cx="580" cy="70" r="5" class="hole used"/>
+<text x="570" y="73.5" class="pin  end">GP0</text>
+<circle cx="550" cy="70" r="5" class="hole"/>
+<circle cx="520" cy="70" r="5" class="hole"/>
+<circle cx="490" cy="70" r="5" class="hole"/>
+<circle cx="460" cy="70" r="5" class="hole"/>
+<circle cx="430" cy="70" r="5" class="hole"/>
+<circle cx="400" cy="70" r="5" class="hole"/>
+<circle cx="370" cy="70" r="5" class="hole used"/>
+<text x="380" y="73.5" class="pin  ">VBUS</text>
+<circle cx="340" cy="70" r="5" class="hole"/>
+<circle cx="610" cy="100" r="5" class="hole"/>
+<circle cx="610" cy="100" r="9" class="screw"/>
+<circle cx="580" cy="100" r="5" class="hole used"/>
+<text x="570" y="103.5" class="pin  end">GP1</text>
+<circle cx="550" cy="100" r="5" class="hole"/>
+<circle cx="520" cy="100" r="5" class="hole"/>
+<circle cx="490" cy="100" r="5" class="hole"/>
+<circle cx="460" cy="100" r="5" class="hole"/>
+<circle cx="430" cy="100" r="5" class="hole"/>
+<circle cx="400" cy="100" r="5" class="hole"/>
+<circle cx="370" cy="100" r="5" class="hole used"/>
+<text x="380" y="103.5" class="pin  ">VSYS</text>
+<circle cx="340" cy="100" r="5" class="hole"/>
+<circle cx="340" cy="100" r="9" class="screw"/>
+<circle cx="610" cy="130" r="5" class="hole"/>
+<circle cx="580" cy="130" r="5" class="hole used"/>
+<text x="570" y="133.5" class="pin gnd end">GND</text>
+<circle cx="550" cy="130" r="5" class="hole"/>
+<circle cx="520" cy="130" r="5" class="hole"/>
+<circle cx="490" cy="130" r="5" class="hole"/>
+<circle cx="460" cy="130" r="5" class="hole"/>
+<circle cx="430" cy="130" r="5" class="hole"/>
+<circle cx="400" cy="130" r="5" class="hole"/>
+<circle cx="370" cy="130" r="5" class="hole used"/>
+<text x="380" y="133.5" class="pin gnd ">GND</text>
+<circle cx="340" cy="130" r="5" class="hole"/>
+<circle cx="610" cy="160" r="5" class="hole"/>
+<circle cx="580" cy="160" r="5" class="hole used"/>
+<text x="570" y="163.5" class="pin  end">GP2</text>
+<circle cx="550" cy="160" r="5" class="hole"/>
+<circle cx="520" cy="160" r="5" class="hole"/>
+<circle cx="490" cy="160" r="5" class="hole"/>
+<circle cx="460" cy="160" r="5" class="hole"/>
+<circle cx="430" cy="160" r="5" class="hole"/>
+<circle cx="400" cy="160" r="5" class="hole"/>
+<circle cx="370" cy="160" r="5" class="hole used"/>
+<text x="380" y="163.5" class="pin  ">3V3_EN</text>
+<circle cx="340" cy="160" r="5" class="hole used"/>
+<circle cx="610" cy="190" r="5" class="hole"/>
+<circle cx="580" cy="190" r="5" class="hole used"/>
+<text x="570" y="193.5" class="pin  end">GP3</text>
+<circle cx="550" cy="190" r="5" class="hole"/>
+<circle cx="520" cy="190" r="5" class="hole"/>
+<circle cx="490" cy="190" r="5" class="hole"/>
+<circle cx="460" cy="190" r="5" class="hole"/>
+<circle cx="430" cy="190" r="5" class="hole"/>
+<circle cx="400" cy="190" r="5" class="hole"/>
+<circle cx="370" cy="190" r="5" class="hole used"/>
+<text x="380" y="193.5" class="pin  ">3V3</text>
+<circle cx="340" cy="190" r="5" class="hole used"/>
+<circle cx="610" cy="220" r="5" class="hole"/>
+<circle cx="580" cy="220" r="5" class="hole used"/>
+<text x="570" y="223.5" class="pin  end">GP4</text>
+<circle cx="550" cy="220" r="5" class="hole"/>
+<circle cx="520" cy="220" r="5" class="hole"/>
+<circle cx="490" cy="220" r="5" class="hole"/>
+<circle cx="460" cy="220" r="5" class="hole"/>
+<circle cx="430" cy="220" r="5" class="hole"/>
+<circle cx="400" cy="220" r="5" class="hole"/>
+<circle cx="370" cy="220" r="5" class="hole used"/>
+<text x="380" y="223.5" class="pin  ">ADC_VREF</text>
+<circle cx="340" cy="220" r="5" class="hole"/>
+<circle cx="610" cy="250" r="5" class="hole"/>
+<circle cx="580" cy="250" r="5" class="hole used"/>
+<text x="570" y="253.5" class="pin  end">GP5</text>
+<circle cx="550" cy="250" r="5" class="hole"/>
+<circle cx="520" cy="250" r="5" class="hole"/>
+<circle cx="490" cy="250" r="5" class="hole"/>
+<circle cx="460" cy="250" r="5" class="hole"/>
+<circle cx="430" cy="250" r="5" class="hole"/>
+<circle cx="400" cy="250" r="5" class="hole"/>
+<circle cx="370" cy="250" r="5" class="hole used"/>
+<text x="380" y="253.5" class="pin  ">GP28</text>
+<circle cx="340" cy="250" r="5" class="hole used"/>
+<circle cx="610" cy="280" r="5" class="hole"/>
+<circle cx="580" cy="280" r="5" class="hole used"/>
+<text x="570" y="283.5" class="pin gnd end">GND</text>
+<circle cx="550" cy="280" r="5" class="hole"/>
+<circle cx="520" cy="280" r="5" class="hole"/>
+<circle cx="490" cy="280" r="5" class="hole"/>
+<circle cx="460" cy="280" r="5" class="hole"/>
+<circle cx="430" cy="280" r="5" class="hole"/>
+<circle cx="400" cy="280" r="5" class="hole"/>
+<circle cx="370" cy="280" r="5" class="hole used"/>
+<text x="380" y="283.5" class="pin gnd ">GND</text>
+<circle cx="340" cy="280" r="5" class="hole"/>
+<circle cx="610" cy="310" r="5" class="hole"/>
+<circle cx="580" cy="310" r="5" class="hole used"/>
+<text x="570" y="313.5" class="pin  end">GP6</text>
+<circle cx="550" cy="310" r="5" class="hole"/>
+<circle cx="520" cy="310" r="5" class="hole"/>
+<circle cx="490" cy="310" r="5" class="hole"/>
+<circle cx="460" cy="310" r="5" class="hole"/>
+<circle cx="430" cy="310" r="5" class="hole"/>
+<circle cx="400" cy="310" r="5" class="hole"/>
+<circle cx="370" cy="310" r="5" class="hole used"/>
+<text x="380" y="313.5" class="pin  ">GP27</text>
+<circle cx="340" cy="310" r="5" class="hole"/>
+<circle cx="610" cy="340" r="5" class="hole"/>
+<circle cx="580" cy="340" r="5" class="hole used"/>
+<text x="570" y="343.5" class="pin  end">GP7</text>
+<circle cx="550" cy="340" r="5" class="hole"/>
+<circle cx="520" cy="340" r="5" class="hole"/>
+<circle cx="490" cy="340" r="5" class="hole"/>
+<circle cx="460" cy="340" r="5" class="hole"/>
+<circle cx="430" cy="340" r="5" class="hole"/>
+<circle cx="400" cy="340" r="5" class="hole"/>
+<circle cx="370" cy="340" r="5" class="hole used"/>
+<text x="380" y="343.5" class="pin  ">GP26</text>
+<circle cx="340" cy="340" r="5" class="hole used"/>
+<circle cx="610" cy="370" r="5" class="hole"/>
+<circle cx="580" cy="370" r="5" class="hole used"/>
+<text x="570" y="373.5" class="pin  end">GP8</text>
+<circle cx="550" cy="370" r="5" class="hole"/>
+<circle cx="520" cy="370" r="5" class="hole"/>
+<circle cx="490" cy="370" r="5" class="hole"/>
+<circle cx="460" cy="370" r="5" class="hole"/>
+<circle cx="430" cy="370" r="5" class="hole"/>
+<circle cx="400" cy="370" r="5" class="hole"/>
+<circle cx="370" cy="370" r="5" class="hole used"/>
+<text x="380" y="373.5" class="pin  ">RUN</text>
+<circle cx="340" cy="370" r="5" class="hole"/>
+<circle cx="610" cy="400" r="5" class="hole"/>
+<circle cx="580" cy="400" r="5" class="hole used"/>
+<text x="570" y="403.5" class="pin  end">GP9</text>
+<circle cx="550" cy="400" r="5" class="hole"/>
+<circle cx="520" cy="400" r="5" class="hole"/>
+<circle cx="490" cy="400" r="5" class="hole"/>
+<circle cx="460" cy="400" r="5" class="hole"/>
+<circle cx="430" cy="400" r="5" class="hole"/>
+<circle cx="400" cy="400" r="5" class="hole"/>
+<circle cx="370" cy="400" r="5" class="hole used"/>
+<text x="380" y="403.5" class="pin  ">GP22</text>
+<circle cx="340" cy="400" r="5" class="hole"/>
+<circle cx="610" cy="430" r="5" class="hole used"/>
+<circle cx="580" cy="430" r="5" class="hole used"/>
+<text x="570" y="433.5" class="pin gnd end">GND</text>
+<circle cx="550" cy="430" r="5" class="hole"/>
+<circle cx="520" cy="430" r="5" class="hole"/>
+<circle cx="490" cy="430" r="5" class="hole"/>
+<circle cx="460" cy="430" r="5" class="hole"/>
+<circle cx="430" cy="430" r="5" class="hole"/>
+<circle cx="400" cy="430" r="5" class="hole"/>
+<circle cx="370" cy="430" r="5" class="hole used"/>
+<text x="380" y="433.5" class="pin gnd ">GND</text>
+<circle cx="340" cy="430" r="5" class="hole"/>
+<circle cx="610" cy="460" r="5" class="hole used"/>
+<circle cx="580" cy="460" r="5" class="hole used"/>
+<text x="570" y="463.5" class="pin  end">GP10</text>
+<circle cx="550" cy="460" r="5" class="hole"/>
+<circle cx="520" cy="460" r="5" class="hole"/>
+<circle cx="490" cy="460" r="5" class="hole"/>
+<circle cx="460" cy="460" r="5" class="hole"/>
+<circle cx="430" cy="460" r="5" class="hole"/>
+<circle cx="400" cy="460" r="5" class="hole"/>
+<circle cx="370" cy="460" r="5" class="hole used"/>
+<text x="380" y="463.5" class="pin  ">GP21</text>
+<circle cx="340" cy="460" r="5" class="hole"/>
+<circle cx="610" cy="490" r="5" class="hole used"/>
+<circle cx="580" cy="490" r="5" class="hole used"/>
+<text x="570" y="493.5" class="pin  end">GP11</text>
+<circle cx="550" cy="490" r="5" class="hole"/>
+<circle cx="520" cy="490" r="5" class="hole"/>
+<circle cx="490" cy="490" r="5" class="hole"/>
+<circle cx="460" cy="490" r="5" class="hole"/>
+<circle cx="430" cy="490" r="5" class="hole"/>
+<circle cx="400" cy="490" r="5" class="hole"/>
+<circle cx="370" cy="490" r="5" class="hole used"/>
+<text x="380" y="493.5" class="pin  ">GP20</text>
+<circle cx="340" cy="490" r="5" class="hole"/>
+<circle cx="610" cy="520" r="5" class="hole"/>
+<circle cx="580" cy="520" r="5" class="hole used"/>
+<text x="570" y="523.5" class="pin  end">GP12</text>
+<circle cx="550" cy="520" r="5" class="hole"/>
+<circle cx="520" cy="520" r="5" class="hole"/>
+<circle cx="490" cy="520" r="5" class="hole"/>
+<circle cx="460" cy="520" r="5" class="hole"/>
+<circle cx="430" cy="520" r="5" class="hole"/>
+<circle cx="400" cy="520" r="5" class="hole"/>
+<circle cx="370" cy="520" r="5" class="hole used"/>
+<text x="380" y="523.5" class="pin  ">GP19</text>
+<circle cx="340" cy="520" r="5" class="hole"/>
+<circle cx="610" cy="550" r="5" class="hole used"/>
+<circle cx="580" cy="550" r="5" class="hole used"/>
+<text x="570" y="553.5" class="pin  end">GP13</text>
+<circle cx="550" cy="550" r="5" class="hole"/>
+<circle cx="520" cy="550" r="5" class="hole"/>
+<circle cx="490" cy="550" r="5" class="hole"/>
+<circle cx="460" cy="550" r="5" class="hole"/>
+<circle cx="430" cy="550" r="5" class="hole"/>
+<circle cx="400" cy="550" r="5" class="hole"/>
+<circle cx="370" cy="550" r="5" class="hole used"/>
+<text x="380" y="553.5" class="pin  ">GP18</text>
+<circle cx="340" cy="550" r="5" class="hole"/>
+<circle cx="610" cy="580" r="5" class="hole"/>
+<circle cx="580" cy="580" r="5" class="hole used"/>
+<text x="570" y="583.5" class="pin gnd end">GND</text>
+<circle cx="550" cy="580" r="5" class="hole"/>
+<circle cx="520" cy="580" r="5" class="hole"/>
+<circle cx="490" cy="580" r="5" class="hole"/>
+<circle cx="460" cy="580" r="5" class="hole"/>
+<circle cx="430" cy="580" r="5" class="hole"/>
+<circle cx="400" cy="580" r="5" class="hole"/>
+<circle cx="370" cy="580" r="5" class="hole used"/>
+<text x="380" y="583.5" class="pin gnd ">GND</text>
+<circle cx="340" cy="580" r="5" class="hole"/>
+<circle cx="610" cy="610" r="5" class="hole"/>
+<circle cx="580" cy="610" r="5" class="hole used"/>
+<text x="570" y="613.5" class="pin  end">GP14</text>
+<circle cx="550" cy="610" r="5" class="hole"/>
+<circle cx="520" cy="610" r="5" class="hole"/>
+<circle cx="490" cy="610" r="5" class="hole"/>
+<circle cx="460" cy="610" r="5" class="hole"/>
+<circle cx="430" cy="610" r="5" class="hole"/>
+<circle cx="400" cy="610" r="5" class="hole"/>
+<circle cx="370" cy="610" r="5" class="hole used"/>
+<text x="380" y="613.5" class="pin  ">GP17</text>
+<circle cx="340" cy="610" r="5" class="hole"/>
+<circle cx="610" cy="640" r="5" class="hole"/>
+<circle cx="580" cy="640" r="5" class="hole used"/>
+<text x="570" y="643.5" class="pin  end">GP15</text>
+<circle cx="550" cy="640" r="5" class="hole"/>
+<circle cx="520" cy="640" r="5" class="hole"/>
+<circle cx="490" cy="640" r="5" class="hole"/>
+<circle cx="460" cy="640" r="5" class="hole"/>
+<circle cx="430" cy="640" r="5" class="hole"/>
+<circle cx="400" cy="640" r="5" class="hole"/>
+<circle cx="370" cy="640" r="5" class="hole used"/>
+<text x="380" y="643.5" class="pin  ">GP16</text>
+<circle cx="340" cy="640" r="5" class="hole"/>
+<circle cx="610" cy="670" r="5" class="hole"/>
+<circle cx="610" cy="670" r="9" class="screw"/>
+<circle cx="580" cy="670" r="5" class="hole"/>
+<circle cx="550" cy="670" r="5" class="hole"/>
+<circle cx="520" cy="670" r="5" class="hole used"/>
+<circle cx="490" cy="670" r="5" class="hole"/>
+<circle cx="460" cy="670" r="5" class="hole used"/>
+<circle cx="430" cy="670" r="5" class="hole used"/>
+<circle cx="400" cy="670" r="5" class="hole used"/>
+<circle cx="370" cy="670" r="5" class="hole"/>
+<circle cx="340" cy="670" r="5" class="hole"/>
+<circle cx="340" cy="670" r="9" class="screw"/>
+<circle cx="610" cy="700" r="5" class="hole"/>
+<circle cx="580" cy="700" r="5" class="hole used"/>
+<circle cx="550" cy="700" r="5" class="hole"/>
+<circle cx="520" cy="700" r="5" class="hole"/>
+<circle cx="490" cy="700" r="5" class="hole used"/>
+<circle cx="460" cy="700" r="5" class="hole"/>
+<circle cx="430" cy="700" r="5" class="hole"/>
+<circle cx="400" cy="700" r="5" class="hole used"/>
+<circle cx="370" cy="700" r="5" class="hole"/>
+<circle cx="340" cy="700" r="5" class="hole"/>
+<path d="M460,670 L430,670 L400,670" class="bridge"/>
+<path d="M610,430 L580,430" class="bridge"/>
+<path d="M610,550 L580,550" class="bridge"/>
+<path d="M340,250 L370,250" class="bridge"/>
+<path d="M370,190 L340,190" class="bridge"/>
+<path d="M580,700 Q493.0,400.0 370,100" class="uwire" style="stroke:var(--pwr)"/>
+<text x="497.0" y="403.0" class="wlab" style="fill:var(--pwr)">VSYS  55 mm</text>
+<path d="M490,700 Q433.0,430.0 340,160" class="uwire" style="stroke:var(--sw)"/>
+<text x="437.0" y="433.0" class="wlab" style="fill:var(--sw)">divider tap  50 mm</text>
+<path d="M340,340 Q373.0,310.0 370,280" class="uwire" style="stroke:var(--gnd)"/>
+<text x="377.0" y="313.0" class="wlab" style="fill:var(--gnd)">divider GND  10 mm</text>
+<path d="M520,670 Q463.0,430.0 370,190" class="uwire" style="stroke:var(--pwr)"/>
+<text x="467.0" y="433.0" class="wlab" style="fill:var(--pwr)">LED supply  45 mm</text>
+<path d="M400,700 Q403.0,640.0 370,580" class="uwire" style="stroke:var(--gnd)"/>
+<text x="407.0" y="643.0" class="wlab" style="fill:var(--gnd)">LED GND  12 mm</text>
+<circle cx="400.0" cy="685.0" r="13" class="ledbody ghost"/>
+<text x="383" y="674" class="tiny end">+ long leg</text>
+<text x="383" y="704" class="tiny end">− short leg</text>
+<text x="400.0" y="651" class="plab mid">green LED</text>
+<line x1="520" y1="670" x2="460" y2="670" class="lead ghost"/>
+<rect x="473.2" y="664.0" width="33.6" height="12" rx="3" class="resbody ghost" transform="rotate(180.0 490.0 670.0)"/>
+<text x="490.0" y="658.0" class="plab mid">470 Ω</text>
+<line x1="580" y1="700" x2="490" y2="700" class="lead ghost"/>
+<rect x="508.0" y="694.0" width="54.0" height="12" rx="2" class="diobody ghost"/>
+<rect x="555.0" y="694.0" width="4" height="12" class="stripe"/>
+<path d="M530.0,696.0 L540.0,700.0 L530.0,704.0 z" class="arrow"/>
+<text x="535.0" y="720.0" class="plab mid">1N5817 diode 1, stripe at column 2</text>
+<text x="535.0" y="731.0" class="tiny mid">current → stripe</text>
+<line x1="340" y1="160" x2="340" y2="250" class="lead ghost"/>
+<rect x="314.8" y="199.0" width="50.400000000000006" height="12" rx="3" class="resbody ghost" transform="rotate(90.0 340.0 205.0)"/>
+<text x="356.0" y="205.0" class="plab mid" transform="rotate(-90 356.0 205.0)">R1 100k</text>
+<line x1="340" y1="250" x2="340" y2="340" class="lead ghost"/>
+<rect x="314.8" y="289.0" width="50.400000000000006" height="12" rx="3" class="resbody ghost" transform="rotate(90.0 340.0 295.0)"/>
+<text x="356.0" y="295.0" class="plab mid" transform="rotate(-90 356.0 295.0)">R2 100k</text>
+<path d="M619,418 v84 a14,42.0 0 0 1 0,-84 z" class="to92 ghost"/>
+<text x="626" y="434" class="tiny">E</text>
+<text x="626" y="464" class="tiny">B</text>
+<text x="626" y="494" class="tiny">C</text>
+<text x="588" y="460.0" class="plab mid" transform="rotate(-90 588 460.0)">S8050  flat face out</text>
+<line x1="610" y1="460" x2="610" y2="550" class="lead ghost"/>
+<rect x="584.8" y="499.0" width="50.400000000000006" height="12" rx="3" class="resbody ghost" transform="rotate(90.0 610.0 505.0)"/>
+<text x="594.0" y="505.0" class="plab mid" transform="rotate(-90 594.0 505.0)">1k</text>
+<path d="M370,70 L290,70" class="leadline" style="stroke:var(--chg)"/>
+<circle cx="290" cy="70" r="3" style="fill:var(--chg)"/>
+<text x="282" y="74" class="wlab end" style="fill:var(--chg)">VBUS → 1N5817 → charger IN+  60</text>
+<path d="M370,190 L290,190" class="leadline" style="stroke:var(--bar)"/>
+<circle cx="290" cy="190" r="3" style="fill:var(--bar)"/>
+<text x="282" y="194" class="wlab end" style="fill:var(--bar)">light bar +5V  60</text>
+<path d="M340,203 L290,203" class="leadline" style="stroke:var(--ta)"/>
+<circle cx="290" cy="203" r="3" style="fill:var(--ta)"/>
+<text x="282" y="207" class="wlab end" style="fill:var(--ta)">trunk A 3V3 + MOT+  60 each  (3V3 point)</text>
+<path d="M370,310 L290,310" class="leadline" style="stroke:var(--ta)"/>
+<circle cx="290" cy="310" r="3" style="fill:var(--ta)"/>
+<text x="282" y="314" class="wlab end" style="fill:var(--ta)">trunk A EMG2  60</text>
+<path d="M370,340 L290,340" class="leadline" style="stroke:var(--ta)"/>
+<circle cx="290" cy="340" r="3" style="fill:var(--ta)"/>
+<text x="282" y="344" class="wlab end" style="fill:var(--ta)">trunk A EMG1  60</text>
+<path d="M370,640 L290,640" class="leadline" style="stroke:var(--bar)"/>
+<circle cx="290" cy="640" r="3" style="fill:var(--bar)"/>
+<text x="282" y="644" class="wlab end" style="fill:var(--bar)">light bar DIN  60</text>
+<path d="M490,700 L290,700" class="leadline" style="stroke:var(--sw)"/>
+<circle cx="290" cy="700" r="3" style="fill:var(--sw)"/>
+<text x="282" y="704" class="wlab end" style="fill:var(--sw)">switch outer  60</text>
+<path d="M580,70 L660,70" class="leadline" style="stroke:var(--cord)"/>
+<circle cx="660" cy="70" r="3" style="fill:var(--cord)"/>
+<text x="668" y="74" class="wlab " style="fill:var(--cord)">cord TX  60</text>
+<path d="M580,100 L660,100" class="leadline" style="stroke:var(--cord)"/>
+<circle cx="660" cy="100" r="3" style="fill:var(--cord)"/>
+<text x="668" y="104" class="wlab " style="fill:var(--cord)">cord RX  60</text>
+<path d="M580,130 L660,130" class="leadline" style="stroke:var(--chg)"/>
+<circle cx="660" cy="130" r="3" style="fill:var(--chg)"/>
+<text x="668" y="134" class="wlab " style="fill:var(--chg)">charger OUT−  60</text>
+<path d="M580,220 L660,220" class="leadline" style="stroke:var(--tb)"/>
+<circle cx="660" cy="220" r="3" style="fill:var(--tb)"/>
+<text x="668" y="224" class="wlab " style="fill:var(--tb)">trunk B SDA  60</text>
+<path d="M580,250 L660,250" class="leadline" style="stroke:var(--tb)"/>
+<circle cx="660" cy="250" r="3" style="fill:var(--tb)"/>
+<text x="668" y="254" class="wlab " style="fill:var(--tb)">trunk B SCL  60</text>
+<path d="M580,280 L660,280" class="leadline" style="stroke:var(--gnd)"/>
+<circle cx="660" cy="280" r="3" style="fill:var(--gnd)"/>
+<text x="668" y="284" class="wlab " style="fill:var(--gnd)">light bar GND  60  +  trunk A GND  60</text>
+<path d="M580,310 L660,310" class="leadline" style="stroke:var(--tb)"/>
+<circle cx="660" cy="310" r="3" style="fill:var(--tb)"/>
+<text x="668" y="314" class="wlab " style="fill:var(--tb)">trunk B INT  60</text>
+<path d="M580,340 L660,340" class="leadline" style="stroke:var(--tb)"/>
+<circle cx="660" cy="340" r="3" style="fill:var(--tb)"/>
+<text x="668" y="344" class="wlab " style="fill:var(--tb)">trunk B BTN  60</text>
+<path d="M610,490 L660,490" class="leadline" style="stroke:var(--ta)"/>
+<circle cx="660" cy="490" r="3" style="fill:var(--ta)"/>
+<text x="668" y="494" class="wlab " style="fill:var(--ta)">trunk A MOT−  60  (S8050 C leg)</text>
+<path d="M580,580 L660,580" class="leadline" style="stroke:var(--cord)"/>
+<circle cx="660" cy="580" r="3" style="fill:var(--cord)"/>
+<text x="668" y="584" class="wlab " style="fill:var(--cord)">cord GND  60</text></svg></figure></div>
+<ul class="legend"><li style="--c:var(--used)">solder blob / used hole</li><li style="--c:var(--gnd)">ground</li><li style="--c:var(--pwr)">battery / 3V3</li><li style="--c:var(--chg)">charger</li><li style="--c:var(--sw)">switch, divider tap</li><li style="--c:var(--bar)">light bar</li><li style="--c:var(--ta)">trunk A</li><li style="--c:var(--tb)">trunk B</li><li style="--c:var(--cord)">hand cord</li><li style="--c:var(--screw)">standoff screw</li></ul>
+<table><thead><tr><th>part</th><th>holes</th><th>note</th></tr></thead><tbody><tr><td>Pico</td><td>rows 1–20, columns 2 and 9</td><td>USB face flush with the row-1 edge</td></tr><tr><td>green LED</td><td>+ long leg (21,8), − short leg (22,8)</td><td>flange 1 mm above the board; long leg = anode = toward the 470 Ω</td></tr><tr><td>470 Ω</td><td>(21,4) → (21,6)</td><td>underside solder run (21,6)–(21,7)–(21,8)</td></tr><tr><td>1N5817 diode 1</td><td>stripe (22,2), plain (22,5)</td><td>stripe toward column 1 / the middle wall; current flows from the switch side into VSYS</td></tr><tr><td>R1 / R2 100 k</td><td>(4,10)→(7,10), (7,10)→(10,10)</td><td>shared hole (7,10); bridge (7,10)–(7,9) = GP28</td></tr><tr><td>S8050</td><td>E (13,1) B (14,1) C (15,1)</td><td>standing; flat face toward the board edge (away from the Pico); E nearest the USB end; bridge (13,1)–(13,2) = GND</td></tr><tr><td>1 kΩ</td><td>B leg → (17,1)</td><td>bridge (17,1)–(17,2) = GP13</td></tr><tr><td>3V3 point</td><td>bridge (5,9)–(5,10)</td><td>trunk A 3V3 lands on (5,10)</td></tr></tbody></table>
+<h3>Build order</h3><p class="sub">Everything in the drawing, in the order to do it. Parts from the top, all solder underneath, leads clipped to 1.5 mm. Wires are tinned and laid along a stub, one joint each.</p>
+<h3>1. Parts</h3><ol>
+<li><strong>Pico</strong>: rows 1–20, columns 2 and 9, USB face flush with the row-1 edge. Tack two diagonal pins, check it sits flat and square, solder the other 38, clip all to 1.5 mm. Plug USB in and run the blink before anything else goes on.</li>
+<li><strong>green LED</strong>: long leg (21,8), short leg (22,8). Hold the flange 1 mm above the board while soldering. Clip.</li>
+<li><strong>470 Ω</strong>: flat on row 21, legs (21,4) and (21,6). Solder, clip.</li>
+<li><strong>1N5817 diode 1</strong>: flat on row 22, STRIPE end (22,2), plain end (22,5). Solder, clip.</li>
+<li><strong>R1 100k</strong>: flat on column 10, legs (4,10) and (7,10). Solder (4,10) only for now, clip it.</li>
+<li><strong>R2 100k</strong>: flat on column 10, legs (7,10) and (10,10). Its top leg goes into (7,10) WITH R1's leg: twist the two together first. Solder (7,10) and (10,10), clip.</li>
+<li><strong>S8050</strong>: standing on column 1, legs E (13,1), B (14,1), C (15,1), flat face away from the Pico, E nearest the USB end. Solder, clip.</li>
+<li><strong>1 kΩ</strong>: one lead soldered to the transistor's B leg 3 mm above the board (a top-side joint), body lying toward the far end on the outer side of the C leg, other lead into (17,1). Solder (17,1), clip.</li>
+</ol><h3>2. Solder bridges underneath</h3><ol>
+<li>470 → LED +: one run of solder across (21,6) – (21,7) – (21,8)</li>
+<li>E → GND: one run of solder across (13,1) – (13,2)</li>
+<li>1 k → GP13: one run of solder across (17,1) – (17,2)</li>
+<li>divider mid → GP28: one run of solder across (7,10) – (7,9)</li>
+<li>3V3 → 3V3 point: one run of solder across (5,9) – (5,10)</li>
+</ol><h3>3. Wires that stay under the board</h3><ol>
+<li>VSYS  55 mm: from the stub at (22,2) to the stub at (2,9), routed in the bare lanes, never over another stub.</li>
+<li>divider tap  50 mm: from the stub at (22,5) to the stub at (4,10), routed in the bare lanes, never over another stub.</li>
+<li>divider GND  10 mm: from the stub at (10,10) to the stub at (8,9), routed in the bare lanes, never over another stub.</li>
+<li>LED supply  45 mm: from the stub at (21,4) to the stub at (5,9), routed in the bare lanes, never over another stub.</li>
+<li>LED GND  12 mm: from the stub at (22,8) to the stub at (18,9), routed in the bare lanes, never over another stub.</li>
+</ol><h3>4. Leads leaving the board (tin, lay along the stub, one joint)</h3><ol>
+<li><strong>charger</strong><ul>
+<li>charger OUT−  60 → stub at (3,2)</li>
+<li>charger OUT+  60 → the switch's middle pin (not the strip)</li>
+</ul></li>
+<li><strong>switch</strong><ul>
+<li>switch outer  60 → stub at (22,5)</li>
+</ul></li>
+<li><strong>light bar</strong><ul>
+<li>light bar GND  60  +  trunk A GND  60 → stub at (8,2)</li>
+<li>light bar +5V  60 → stub at (5,9)</li>
+<li>light bar DIN  60 → stub at (20,9)</li>
+</ul></li>
+<li><strong>trunk A</strong><ul>
+<li>trunk A MOT−  60  (S8050 C leg) → stub at (15,1)</li>
+<li>trunk A 3V3 + MOT+  60 each  (3V3 point) → stub at (5,10)</li>
+<li>trunk A EMG2  60 → stub at (9,9)</li>
+<li>trunk A EMG1  60 → stub at (10,9)</li>
+</ul></li>
+<li><strong>trunk B</strong><ul>
+<li>trunk B SDA  60 → stub at (6,2)</li>
+<li>trunk B SCL  60 → stub at (7,2)</li>
+<li>trunk B INT  60 → stub at (9,2)</li>
+<li>trunk B BTN  60 → stub at (10,2)</li>
+</ul></li>
+<li><strong>cord</strong><ul>
+<li>cord TX  60 → stub at (1,2)</li>
+<li>cord RX  60 → stub at (2,2)</li>
+<li>cord GND  60 → stub at (18,2)</li>
+</ul></li>
+<li><strong>VBUS</strong><ul>
+<li>VBUS → 1N5817 → charger IN+  60 → stub at (1,9)</li>
+<li>the 1N5817 sits in this wire, stripe toward the charger; heat-shrink over it</li>
+</ul></li>
+</ol><p class="sub">Stubs that take two wires: (5,9) 3V3 takes the LED supply and the light bar +5V; (8,2) GND takes the light bar GND and trunk A GND; (5,10) takes trunk A 3V3 and MOT+. Tin both ends together, then one joint.</p>
+<h3>5. Meter checks before it goes in the box</h3><ol>
+<li>LED: diode mode, red on (21,8) stub, black on (22,8) stub: ~2 V and a faint glow. Open = LED backwards.</li>
+<li>470 Ω: ohms, (21,4) stub to (21,8) stub: 470. Open = the (21,6)–(21,8) run is incomplete.</li>
+<li>(22,8) must not touch (21,8): diode mode both ways between them reads open in one direction, not a short.</li>
+<li>Diode 1: diode mode, red on (22,5) stub, black on (22,2) stub: ~0.2 V. Swapped = diode in backwards.</li>
+<li>Divider: ohms (4,10) to (10,10): 200 k; (7,9) to either end: 100 k.</li>
+<li>S8050: diode mode, red on B (14,1): ~0.6 V to E and to C. Open both = legs swapped.</li>
+<li>No bridge (13,1)/(13,2) to (14,1): ohms B to GND reads open (not the 1 k).</li>
+<li>GND to 3V3 (any GND stub to (5,9)): must not beep.</li>
+</ol><p class="sub">Then Kapton over the solder side (standoff holes clear), and the bench script once more with everything dangling.</p>
+</section><section id="battery"><h2>2. Battery bay: cell, charger, switch, Qi</h2><p class="sub">Port to port. Nothing here touches the strip except three wires: the switch return into (22,5), ground into (3,2), and the VBUS lead out of (1,9).</p><figure><figcaption>Battery bay wiring (block diagram, not to scale)</figcaption><svg viewBox="0 0 960 470" role="img" aria-label="Battery bay wiring (block diagram, not to scale)"><rect x="20" y="150" width="130" height="80" rx="6" class="node"/>
+<text x="85.0" y="166" class="ntitle mid">LiPo cell</text>
+<text x="85.0" y="179" class="nsub mid">EEMB 1200 mAh</text>
+<circle cx="150" cy="178.0" r="3.2" class="port"/>
+<text x="144" y="182.0" class="pname end">red +</text>
+<circle cx="150" cy="206.0" r="3.2" class="port"/>
+<text x="144" y="210.0" class="pname end">black −</text>
+<rect x="200" y="150" width="90" height="80" rx="6" class="node small"/>
+<text x="245.0" y="166" class="ntitle mid">PH2 pigtail</text>
+<text x="245.0" y="179" class="nsub mid">header + 30 mm</text>
+<circle cx="200" cy="178.0" r="3.2" class="port"/>
+<text x="206" y="182.0" class="pname">in +</text>
+<circle cx="200" cy="206.0" r="3.2" class="port"/>
+<text x="206" y="210.0" class="pname">in −</text>
+<circle cx="290" cy="178.0" r="3.2" class="port"/>
+<text x="284" y="182.0" class="pname end">B+</text>
+<circle cx="290" cy="206.0" r="3.2" class="port"/>
+<text x="284" y="210.0" class="pname end">B−</text>
+<rect x="360" y="110" width="190" height="190" rx="6" class="node"/>
+<text x="455.0" y="126" class="ntitle mid">Charger board</text>
+<text x="455.0" y="139" class="nsub mid">AITRIP TP4057, protection on OUT−</text>
+<circle cx="360" cy="157.5" r="3.2" class="port"/>
+<text x="366" y="161.5" class="pname">B+</text>
+<circle cx="360" cy="186.0" r="3.2" class="port"/>
+<text x="366" y="190.0" class="pname">B−</text>
+<circle cx="360" cy="243.0" r="3.2" class="port"/>
+<text x="366" y="247.0" class="pname">IN+</text>
+<circle cx="360" cy="271.5" r="3.2" class="port"/>
+<text x="366" y="275.5" class="pname">IN−</text>
+<circle cx="550" cy="157.5" r="3.2" class="port"/>
+<text x="544" y="161.5" class="pname end">OUT+</text>
+<circle cx="550" cy="205.0" r="3.2" class="port"/>
+<text x="544" y="209.0" class="pname end">OUT−</text>
+<rect x="640" y="60" width="130" height="70" rx="6" class="node"/>
+<text x="705.0" y="76" class="ntitle mid">Slide switch</text>
+<text x="705.0" y="89" class="nsub mid">glued between the chest-wall fins</text>
+<circle cx="640" cy="95.0" r="3.2" class="port"/>
+<text x="646" y="99.0" class="pname">middle</text>
+<circle cx="770" cy="84.5" r="3.2" class="port"/>
+<text x="764" y="88.5" class="pname end">outer A</text>
+<circle cx="770" cy="109.0" r="3.2" class="port"/>
+<text x="764" y="113.0" class="pname end">outer B</text>
+<rect x="820" y="40" width="120" height="250" rx="6" class="node"/>
+<text x="880.0" y="56" class="ntitle mid">Strip</text>
+<text x="880.0" y="69" class="nsub mid">see the map above</text>
+<circle cx="820" cy="90.0" r="3.2" class="port"/>
+<text x="826" y="94.0" class="pname">(22,5) D1 plain</text>
+<circle cx="820" cy="165.0" r="3.2" class="port"/>
+<text x="826" y="169.0" class="pname">(3,2) GND</text>
+<circle cx="820" cy="240.0" r="3.2" class="port"/>
+<text x="826" y="244.0" class="pname">(1,9) VBUS</text>
+<rect x="360" y="360" width="190" height="80" rx="6" class="node"/>
+<text x="455.0" y="376" class="ntitle mid">Qi receiver board</text>
+<text x="455.0" y="389" class="nsub mid">on the cradle's bracket tops</text>
+<circle cx="550" cy="388.0" r="3.2" class="port"/>
+<text x="544" y="392.0" class="pname end">out +</text>
+<circle cx="550" cy="416.0" r="3.2" class="port"/>
+<text x="544" y="420.0" class="pname end">out −</text>
+<circle cx="360" cy="400.0" r="3.2" class="port"/>
+<text x="366" y="404.0" class="pname">coil</text>
+<rect x="60" y="360" width="200" height="80" rx="6" class="node"/>
+<text x="160.0" y="376" class="ntitle mid">Qi coil + ferrite</text>
+<text x="160.0" y="389" class="nsub mid">on the cell, ferrite DOWN, Kapton band</text>
+<circle cx="260" cy="400.0" r="3.2" class="port"/>
+<text x="254" y="404.0" class="pname end">leads</text>
+<path d="M150,178.0 L175.0,178.0 L175.0,178.0 L200,178.0" class="swire" style="stroke:var(--pwr)"/>
+<path d="M150,206.0 L175.0,206.0 L175.0,206.0 L200,206.0" class="swire" style="stroke:var(--gnd)"/>
+<path d="M290,178.0 L325.0,178.0 L325.0,157.5 L360,157.5" class="swire" style="stroke:var(--pwr)"/>
+<path d="M290,206.0 L325.0,206.0 L325.0,186.0 L360,186.0" class="swire" style="stroke:var(--gnd)"/>
+<path d="M550,157.5 L600,157.5 L600,95.0 L640,95.0" class="swire" style="stroke:var(--sw)"/>
+<text x="600" y="121.25" class="wlab mid" style="fill:var(--sw)">60 mm</text>
+<path d="M770,84.5 L795,84.5 L795,90.0 L820,90.0" class="swire" style="stroke:var(--sw)"/>
+<text x="795" y="82.25" class="wlab mid" style="fill:var(--sw)">60 mm</text>
+<path d="M550,205.0 L700,205.0 L700,165.0 L820,165.0" class="swire" style="stroke:var(--gnd)"/>
+<text x="700" y="179.0" class="wlab mid" style="fill:var(--gnd)">60 mm, ground</text>
+<path d="M260,400.0 L310.0,400.0 L310.0,400.0 L360,400.0" class="swire" style="stroke:var(--bar)"/>
+<path d="M550,388.0 L600,388.0 L600,243.0 L360,243.0" class="swire" style="stroke:var(--bar)"/>
+<rect x="593" y="306.5" width="14" height="18" class="diobody"/>
+<rect x="593" y="306.5" width="14" height="4" class="stripe"/>
+<path d="M596,319.5 L604,319.5 L600,312.5 z" class="arrow"/>
+<text x="611" y="319.5" class="wlab" style="fill:var(--bar)">diode 2, 1N5817</text>
+<path d="M550,416.0 L620,416.0 L620,271.5 L360,271.5" class="swire" style="stroke:var(--bar)"/>
+<path d="M820,240.0 L740,240.0 L740,243.0 L360,243.0" class="swire" style="stroke:var(--chg)"/>
+<rect x="733" y="232.5" width="14" height="18" class="diobody"/>
+<rect x="733" y="246.5" width="14" height="4" class="stripe"/>
+<path d="M736,237.5 L744,237.5 L740,244.5 z" class="arrow"/>
+<text x="751" y="245.5" class="wlab" style="fill:var(--chg)">diode 3, 1N5817</text>
+<text x="20" y="30" class="note">Cell → charger → switch → strip.  IN+ has two diode feeds (pad and USB); the switch alone owns the battery.</text></svg></figure><h3>Build order</h3><ol><li><strong>Pigtail</strong>: 2-pin PH header, red 30 mm to B+, black 30 mm to B−, wires in from the top, soldered underneath. Meter the cell's plug to find plus before the first plug-in; red must land on B+.</li><li><strong>Charger leads</strong>, 60 mm, from the top, soldered underneath: OUT+, OUT−, IN+, IN−. Leave the board's own USB-C empty.</li><li><strong>Qi receiver</strong>: splice diode 2 into its + output wire, stripe toward the charger, heat-shrink; + → IN+, − → IN−. Coil: ferrite sheet on the side that faces the cell.</li><li><strong>Diode 3</strong> in the strip's VBUS lead (from stub (1,9)), stripe toward the charger, joins IN+ with diode 2's wire: twist, tin, one joint on the IN+ pad.</li><li><strong>Switch</strong>: OUT+ to its middle pin; its outer pin to the strip's diode 1 plain stub (22,5); the second outer pin stays empty.</li><li><strong>Bench proof before the box</strong> (BENCH stage 1 + 3): OUT+ to OUT− reads the cell; IN− ↔ OUT− beeps, B− ↔ OUT− does not; switch off + coil on the pad = red LED, Pico dark; switch on = Pico runs; USB in = Pico runs and red LED.</li><li><strong>Into the box, in this order</strong>: box onto the plate (2 × M2×6 from inside) → trunk A header into the battery-bay end-wall pocket, leads behind the ring → charger into its cradle, USB-C toward the triceps wall, pads toward the middle wall, cell leads back through the ring's notch → Kapton over it → Qi board on the four bracket tops → cell into the ring, lip toward the charger → ferrite + coil on the cell, Kapton band → strip-side headers → strip → switch between its fins → light bar → lid.</li></ol></section><section id="module"><h2>3. Forearm module: boards, IMU, button, motor, trunk headers</h2><p class="sub">Port to port. Everything inside the module ends on the two stacked headers; the trunk cables carry it to the box.</p><figure><figcaption>Forearm module wiring (block diagram, not to scale)</figcaption><svg viewBox="0 0 960 620" role="img" aria-label="Forearm module wiring (block diagram, not to scale)"><rect x="20" y="60" width="150" height="250" rx="6" class="node"/>
+<text x="95.0" y="76" class="ntitle mid">PH6 trunk A</text>
+<text x="95.0" y="89" class="nsub mid">lower in the elbow pocket</text>
+<circle cx="170" cy="90.0" r="3.2" class="port"/>
+<text x="164" y="94.0" class="pname end">1  3V3</text>
+<circle cx="170" cy="127.5" r="3.2" class="port"/>
+<text x="164" y="131.5" class="pname end">2  GND</text>
+<circle cx="170" cy="165.0" r="3.2" class="port"/>
+<text x="164" y="169.0" class="pname end">3  EMG1</text>
+<circle cx="170" cy="202.5" r="3.2" class="port"/>
+<text x="164" y="206.5" class="pname end">4  EMG2</text>
+<circle cx="170" cy="240.0" r="3.2" class="port"/>
+<text x="164" y="244.0" class="pname end">5  MOT+</text>
+<circle cx="170" cy="277.5" r="3.2" class="port"/>
+<text x="164" y="281.5" class="pname end">6  MOT−</text>
+<rect x="20" y="340" width="150" height="180" rx="6" class="node"/>
+<text x="95.0" y="356" class="ntitle mid">PH4 trunk B</text>
+<text x="95.0" y="369" class="nsub mid">stacked on top of the PH6</text>
+<circle cx="170" cy="372.4" r="3.2" class="port"/>
+<text x="164" y="376.4" class="pname end">1  SDA</text>
+<circle cx="170" cy="412.0" r="3.2" class="port"/>
+<text x="164" y="416.0" class="pname end">2  SCL</text>
+<circle cx="170" cy="451.6" r="3.2" class="port"/>
+<text x="164" y="455.6" class="pname end">3  INT</text>
+<circle cx="170" cy="491.2" r="3.2" class="port"/>
+<text x="164" y="495.2" class="pname end">4  BTN</text>
+<rect x="420" y="40" width="210" height="110" rx="6" class="node"/>
+<text x="525.0" y="56" class="ntitle mid">Board A  (flexor)</text>
+<text x="525.0" y="69" class="nsub mid">bay A, M3×5 ×2; wires cross the rib passage</text>
+<circle cx="420" cy="73.0" r="3.2" class="port"/>
+<text x="426" y="77.0" class="pname">−</text>
+<circle cx="420" cy="100.5" r="3.2" class="port"/>
+<text x="426" y="104.5" class="pname">+</text>
+<circle cx="420" cy="128.0" r="3.2" class="port"/>
+<text x="426" y="132.0" class="pname">S</text>
+<circle cx="630" cy="95.0" r="3.2" class="port"/>
+<text x="624" y="99.0" class="pname end">jack</text>
+<rect x="420" y="170" width="210" height="110" rx="6" class="node"/>
+<text x="525.0" y="186" class="ntitle mid">Board B  (extensor)</text>
+<text x="525.0" y="199" class="nsub mid">bay B over the IMU, M3×6 ×2</text>
+<circle cx="420" cy="203.0" r="3.2" class="port"/>
+<text x="426" y="207.0" class="pname">−</text>
+<circle cx="420" cy="230.5" r="3.2" class="port"/>
+<text x="426" y="234.5" class="pname">+</text>
+<circle cx="420" cy="258.0" r="3.2" class="port"/>
+<text x="426" y="262.0" class="pname">S</text>
+<circle cx="630" cy="225.0" r="3.2" class="port"/>
+<text x="624" y="229.0" class="pname end">jack</text>
+<rect x="420" y="310" width="210" height="150" rx="6" class="node"/>
+<text x="525.0" y="326" class="ntitle mid">BNO08x IMU</text>
+<text x="525.0" y="339" class="nsub mid">under board B, M2×4 ×2; PS0 PS1 AD0 → GND, RST → VCC, CS open</text>
+<circle cx="420" cy="331.0" r="3.2" class="port"/>
+<text x="426" y="335.0" class="pname">VCC</text>
+<circle cx="420" cy="355.0" r="3.2" class="port"/>
+<text x="426" y="359.0" class="pname">GND</text>
+<circle cx="420" cy="379.0" r="3.2" class="port"/>
+<text x="426" y="383.0" class="pname">SDA</text>
+<circle cx="420" cy="400.0" r="3.2" class="port"/>
+<text x="426" y="404.0" class="pname">SCL</text>
+<circle cx="420" cy="421.0" r="3.2" class="port"/>
+<text x="426" y="425.0" class="pname">INT</text>
+<rect x="420" y="490" width="120" height="60" rx="6" class="node small"/>
+<text x="480.0" y="506" class="ntitle mid">Button</text>
+<text x="480.0" y="519" class="nsub mid">in the rib, cap up</text>
+<circle cx="420" cy="511.0" r="3.2" class="port"/>
+<text x="426" y="515.0" class="pname">leg</text>
+<circle cx="420" cy="533.2" r="3.2" class="port"/>
+<text x="426" y="537.2" class="pname">leg (diagonal)</text>
+<rect x="560" y="490" width="120" height="60" rx="6" class="node small"/>
+<text x="620.0" y="506" class="ntitle mid">Coin motor</text>
+<text x="620.0" y="519" class="nsub mid">blind pocket; 1N4007 across its tabs, stripe on MOT+</text>
+<circle cx="560" cy="511.0" r="3.2" class="port"/>
+<text x="566" y="515.0" class="pname">lead</text>
+<circle cx="560" cy="533.2" r="3.2" class="port"/>
+<text x="566" y="537.2" class="pname">lead</text>
+<rect x="760" y="40" width="180" height="110" rx="6" class="node"/>
+<text x="850.0" y="56" class="ntitle mid">Flexor frame</text>
+<text x="850.0" y="69" class="nsub mid">inside of forearm</text>
+<circle cx="760" cy="95.0" r="3.2" class="port"/>
+<text x="766" y="99.0" class="pname">3.5 mm</text>
+<rect x="760" y="170" width="180" height="110" rx="6" class="node"/>
+<text x="850.0" y="186" class="ntitle mid">Extensor frame</text>
+<text x="850.0" y="199" class="nsub mid">outside of forearm</text>
+<circle cx="760" cy="225.0" r="3.2" class="port"/>
+<text x="766" y="229.0" class="pname">3.5 mm</text>
+<path d="M170,90.0 L230,90.0 L230,100.5 L420,100.5" class="swire" style="stroke:var(--pwr)"/>
+<path d="M170,90.0 L230,90.0 L230,230.5 L420,230.5" class="swire" style="stroke:var(--pwr)"/>
+<path d="M170,90.0 L230,90.0 L230,331.0 L420,331.0" class="swire" style="stroke:var(--pwr)"/>
+<text x="290" y="140.5" class="wlab mid" style="fill:var(--pwr)">3V3: three wires on pin 1</text>
+<path d="M170,127.5 L260,127.5 L260,73.0 L420,73.0" class="swire" style="stroke:var(--gnd)"/>
+<path d="M170,127.5 L260,127.5 L260,203.0 L420,203.0" class="swire" style="stroke:var(--gnd)"/>
+<path d="M170,127.5 L260,127.5 L260,355.0 L420,355.0" class="swire" style="stroke:var(--gnd)"/>
+<text x="330" y="201.25" class="wlab mid" style="fill:var(--gnd)">GND: four wires on pin 2</text>
+<path d="M170,127.5 L260,127.5 L260,533.2 L420,533.2" class="swire" style="stroke:var(--gnd)"/>
+<path d="M170,165.0 L300,165.0 L300,128.0 L420,128.0" class="swire" style="stroke:var(--ta)"/>
+<text x="300" y="141.5" class="wlab mid" style="fill:var(--ta)">EMG1</text>
+<path d="M170,202.5 L320,202.5 L320,258.0 L420,258.0" class="swire" style="stroke:var(--ta)"/>
+<text x="320" y="225.25" class="wlab mid" style="fill:var(--ta)">EMG2</text>
+<path d="M170,240.0 L340,240.0 L340,533.2 L560,533.2" class="swire" style="stroke:var(--ta)"/>
+<text x="340" y="380.6" class="wlab mid" style="fill:var(--ta)">MOT+ (motor supply, its own wire)</text>
+<path d="M170,277.5 L360,277.5 L360,533.2 L560,533.2" class="swire" style="stroke:var(--ta)"/>
+<text x="360" y="413.35" class="wlab mid" style="fill:var(--ta)">MOT− (to the collector)</text>
+<path d="M170,372.4 L380,372.4 L380,379.0 L420,379.0" class="swire" style="stroke:var(--tb)"/>
+<path d="M170,412.0 L380,412.0 L380,400.0 L420,400.0" class="swire" style="stroke:var(--tb)"/>
+<path d="M170,451.6 L380,451.6 L380,421.0 L420,421.0" class="swire" style="stroke:var(--tb)"/>
+<path d="M170,491.2 L400,491.2 L400,511.0 L420,511.0" class="swire" style="stroke:var(--tb)"/>
+<text x="400" y="496.1" class="wlab mid" style="fill:var(--tb)">BTN</text>
+<path d="M630,95.0 L700,95.0 L700,95.0 L760,95.0" class="swire" style="stroke:var(--cord)"/>
+<text x="700" y="90.0" class="wlab mid" style="fill:var(--cord)">plate cable</text>
+<path d="M630,225.0 L700,225.0 L700,225.0 L760,225.0" class="swire" style="stroke:var(--cord)"/>
+<text x="700" y="220.0" class="wlab mid" style="fill:var(--cord)">plate cable</text>
+<text x="200" y="582" class="note">All wires 60 mm: under the boards at the Gravity pins, onto the headers' clipped pins.</text>
+<text x="200" y="598" class="note">The motor has its own pair, MOT+ and MOT−, so its current never rides the boards' 3V3 or GND.</text></svg></figure><h3>Build order</h3><ol><li><strong>IMU</strong>: clip its header to ~2 mm; one short jumper joins PS0, PS1 and AD0 to the board's own GND pin (I²C mode, address 0x4A; the firmware probes both), another joins RST to VCC; leave CS open. Five 60 mm wires on VCC, GND, SDA, SCL, INT. Screw it to its two posts in bay B, header edge toward the rib, 2 × M2×4.</li><li><strong>Headers</strong>: clip the PH6's and PH4's pins to 2 mm, solder a 60 mm lead on every pin, drop both into the elbow-wall pocket, PH6 below (trunk A), PH4 above (trunk B), hot glue on top. Pin 1 is the end with the housing's ramp.</li><li><strong>Motor</strong>: solder the 1N4007 across its two tabs first, standing up along the tab slot, stripe on the tab that will be MOT+ (PH6 pin 5); the other tab is MOT− (PH6 pin 6). Leads up the tab slot into the rib tunnel and out the wall hole into bay B; peel the pad, press it onto the pocket floor, tab toward the button.</li><li><strong>Button</strong>: clip two legs flush and the other two to 1.5 mm; two wires soldered sideways (one leg → PH4 pin 4, the diagonal leg → PH6 pin 2); down the tunnel with the motor leads; drop it in its pocket cap up.</li><li><strong>Board A</strong> (flexor, EMG1): three wires on its Gravity pins under the board (− → PH6 2, + → PH6 1, S → PH6 3), pass them through the rib passage into bay B, screw the board to its posts, jack end to the wrist wall, 2 × M3×5.</li><li><strong>Board B</strong> (extensor, EMG2): same, − → PH6 2, + → PH6 1, S → PH6 4; it sits over the IMU on the tall posts, 2 × M3×6.</li><li><strong>Header pins with many wires</strong>: PH6 pin 1 takes three (board A +, board B +, IMU VCC), pin 2 takes four (board A −, board B −, IMU GND, button). Twist and tin each group, then one joint on the pin.</li><li><strong>Close</strong>: backer under the strap with the strap between its rails, module on top, 2 × M2×12 from the skin side (pan heads), lid on, 2 × M2×4. Bench: plug the trunk into the box, run the stage-4 script; IMU ok and both EMG columns move.</li><li><strong>Electrode frames</strong>: plate into the frame bars down, loop band down through one cover slot and up the other, cover on, 4 × M2×6; 3.5 mm cable to the matching jack (flexor → board A, extensor → board B).</li></ol></section><section id="system"><h2>4. The whole band and its cables</h2><p class="sub">Where each box sits and which plug joins them. The band never receives commands; the cables carry power and signals out to the forearm, and serial to the hand.</p><figure><figcaption>Band, forearm module, electrode frames, claw: connectors and cables</figcaption><svg viewBox="0 0 960 330" role="img" aria-label="Band, forearm module, electrode frames, claw: connectors and cables"><rect x="20" y="60" width="260" height="200" rx="6" class="node"/>
+<text x="150.0" y="76" class="ntitle mid">Band box  (upper arm)</text>
+<text x="150.0" y="89" class="nsub mid">Pico 2 W, cell, charger, switch</text>
+<circle cx="280" cy="110.0" r="3.2" class="port"/>
+<text x="274" y="114.0" class="pname end">PH6 trunk A</text>
+<circle cx="280" cy="160.0" r="3.2" class="port"/>
+<text x="274" y="164.0" class="pname end">PH4 trunk B</text>
+<circle cx="280" cy="210.0" r="3.2" class="port"/>
+<text x="274" y="214.0" class="pname end">PH3 hand cord</text>
+<circle cx="20" cy="120.0" r="3.2" class="port"/>
+<text x="26" y="124.0" class="pname">micro-USB</text>
+<circle cx="20" cy="200.0" r="3.2" class="port"/>
+<text x="26" y="204.0" class="pname">Qi coil under the lid</text>
+<rect x="430" y="40" width="250" height="150" rx="6" class="node"/>
+<text x="555.0" y="56" class="ntitle mid">Forearm module  (thumb side, 1.5" strap)</text>
+<text x="555.0" y="69" class="nsub mid">2 signal boards, IMU, button, motor</text>
+<circle cx="430" cy="100.0" r="3.2" class="port"/>
+<text x="436" y="104.0" class="pname">PH6 + PH4 stacked</text>
+<circle cx="680" cy="92.5" r="3.2" class="port"/>
+<text x="674" y="96.5" class="pname end">jack A</text>
+<circle cx="680" cy="137.5" r="3.2" class="port"/>
+<text x="674" y="141.5" class="pname end">jack B</text>
+<rect x="800" y="30" width="150" height="70" rx="6" class="node small"/>
+<text x="875.0" y="46" class="ntitle mid">Flexor frame</text>
+<text x="875.0" y="59" class="nsub mid">inside of the forearm</text>
+<circle cx="800" cy="65.0" r="3.2" class="port"/>
+<text x="806" y="69.0" class="pname">3.5 mm</text>
+<rect x="800" y="120" width="150" height="70" rx="6" class="node small"/>
+<text x="875.0" y="136" class="ntitle mid">Extensor frame</text>
+<text x="875.0" y="149" class="nsub mid">outside of the forearm</text>
+<circle cx="800" cy="155.0" r="3.2" class="port"/>
+<text x="806" y="159.0" class="pname">3.5 mm</text>
+<rect x="430" y="230" width="250" height="70" rx="6" class="node dashed"/>
+<text x="555.0" y="246" class="ntitle mid">Claw  (coming soon)</text>
+<text x="555.0" y="259" class="nsub mid">Pico W, servo gripper; own battery</text>
+<circle cx="430" cy="265.0" r="3.2" class="port"/>
+<text x="436" y="269.0" class="pname">PH3</text>
+<path d="M280,110.0 L340,110.0 L340,100.0 L430,100.0" class="swire" style="stroke:var(--ta)"/>
+<text x="340" y="95.0" class="wlab mid" style="fill:var(--ta)">trunk A, PH6 ↔ PH6, 25 cm</text>
+<path d="M280,160.0 L370,160.0 L370,100.0 L430,100.0" class="swire" style="stroke:var(--tb)"/>
+<text x="370" y="144.0" class="wlab mid" style="fill:var(--tb)">trunk B, PH4 ↔ PH4, 25 cm (glued to trunk A at the module end)</text>
+<path d="M280,210.0 L360,210.0 L360,265.0 L430,265.0" class="swire" style="stroke:var(--cord)"/>
+<text x="360" y="229.5" class="wlab mid" style="fill:var(--cord)">hand cord, PH3 ↔ PH3, TX/RX crossed, length as needed</text>
+<path d="M680,92.5 L740,92.5 L740,65.0 L800,65.0" class="swire" style="stroke:var(--cord)"/>
+<text x="740" y="73.75" class="wlab mid" style="fill:var(--cord)">3.5 mm, the kit's</text>
+<path d="M680,137.5 L740,137.5 L740,155.0 L800,155.0" class="swire" style="stroke:var(--cord)"/>
+<text x="740" y="141.25" class="wlab mid" style="fill:var(--cord)">3.5 mm, the kit's</text>
+<text x="30" y="292" class="note">Plug-to-plug everywhere: headers (pins) in the walls, crimped housings on the cables.</text>
+<text x="30" y="308" class="note">Twist EMG1, EMG2 and GND together in trunk A; braided sleeving over both trunks.</text></svg></figure><h3>Cables to make</h3><ol><li><strong>Trunk A</strong>: PH6 housing at both ends, six wires 25 cm, order 3V3 GND EMG1 EMG2 MOT+ MOT− pin 1 to 6 at both ends (straight through). Twist EMG1, EMG2 and GND together along the run; twist MOT+ with MOT−.</li><li><strong>Trunk B</strong>: PH4 both ends, SDA SCL INT BTN straight through, 25 cm. Glue its module-end housing face-to-face with trunk A's after a first plug-in so the pair sits square in the stacked pocket.</li><li><strong>Hand cord</strong>: PH3 both ends, TX RX GND, <em>crossed</em> (band TX → hand RX). Make it when the claw is ready.</li><li><strong>Plate cables</strong>: the kit's 3.5 mm leads, flexor plate → jack A, extensor plate → jack B.</li><li>Crimp recipe (PA-09): strip 2.5 mm, no tinning, conductor in the 1.4 slot, insulation in the 1.9 slot, tug test, contact in with its lance toward the housing windows until it clicks. Thin wire: double the copper over, heat-shrink under the insulation tabs.</li></ol></section><p class="sub" style="margin-top:18px">The slide switch is not on the strip: it is glued between the two fins on the chest wall (right-hand side here, beside rows 12–17) and reaches the board only through its two wires, charger OUT+ into its middle pin and its outer pin down to diode 1 at (22,5). Every hole in columns 1 and 10 has a Pico pin 2.5 mm away: keep those joints small. Column 10 above row 10 stays empty (switch fins rows 12–17, LED hole). Underside wires cross in the bare lanes under the Pico, never over a stub. Source of truth: band/PARTS.md, “Strip map”.</p>
+</body></html>

@@ -37,7 +37,7 @@ the next build (and the claw) starts from numbers instead of guesses. The CAD re
 | micro-USB cable plug | the cable in hand | overmold 19.9 long × 10.7 wide × 7.5 tall; metal shell 7.5 × 6.85 × 1.9 | wall hole 9.0 × 3.6 rounded r1.0; the receptacle nose sits 0.8 inside the hole |
 | perf strip | ELEGOO 4 × 6 cm double-sided perf, snapped | 10 columns × 22 rows, 57.0 × 29.9 × 1.6 (M); solder stubs 1.5 below | Pico on rows 1–20 (USB at the row-1 end), rows 21–22 free. Standoff holes drilled Ø2.2 at columns 1 & 10, rows 2 & 21 = ±24.13 × ±11.43 from the board centre. All four used. Nip both USB-end corners ~2 mm at 45° |
 | LiPo cell | EEMB 803048, 1200 mAh, JST-PH plug, own protection board under the tape lip | 48.1 × 29.65 × 8.3 (M); tape lip 3.7 thick; leads out of the lip end | ring pocket + 0.7/side and 2 mm longer at the lip end, lead notch 10 wide; sits on 1.5 mm foam; **check the JST polarity with the meter before the first plug-in, one supplier's red landed on the wrong pin** |
-| charger board | AITRIP TP4057 1 A Type-C with protection (Amazon 20-pack) | board 16.8 × 12.1; 18.35 long with the USB-C shell; 4.2 tall with it (M) | pads B+ B− / OUT+ OUT− / IN+ IN−. Cell on B+/B− (through a PH2.0 pigtail so it stays pluggable). OUT+ → switch, OUT− is the ground (protection FET in it), IN+ ← Qi + through a 1N5817, IN− ← Qi −; the Pico's USB never reaches it. PROG 1 kΩ = 1 A; 2 kΩ = ~500 mA (optional). Lies flat, USB-C toward the triceps wall, pads toward the middle wall; the Qi board rests on the cradle's four bracket tops |
+| charger board | AITRIP TP4057 1 A Type-C with protection (Amazon 20-pack) | board 16.8 × 12.1; 18.35 long with the USB-C shell; 4.2 tall with it (M) | pads B+ B− / OUT+ OUT− / IN+ IN−. Cell on B+/B− (through a PH2.0 pigtail so it stays pluggable). OUT+ → switch, OUT− is the ground (protection FET in it), IN+ ← Qi + through a 1N5817 and ← Pico VBUS through another 1N5817 (both stripes toward the board), IN− ← Qi −. PROG 1 kΩ = 1 A; 2 kΩ = ~500 mA (optional). Lies flat, USB-C toward the triceps wall, pads toward the middle wall; the Qi board rests on the cradle's four bracket tops |
 | (retired) SunFounder Li-po charger for Pico | from the Kepler kit | 20 × 7, pads VBUS / VSYS / GND, PH2.0 socket | LTC4054 + one B5819 diode, no protection, no boost. Its diode died after a reversed cell plug-in. Not used |
 | (claw) 2S–4S boost charger | CN3302 board, Type-C, jumpers 2S / 1 A | | for the claw's 2S pack only. **Never on a 1S cell** (it outputs 8.4 V) |
 | slide switch | SS12D00 style, 3 pins | body 8.6 × 3.7 × 3.6, nub 1.5 × 1.5 × 3.0, travel 2, pins 3.5 below (?) | pocket 9.2 × 4.3, slot 6 × 3 (G); glued between two 0.7 mm fins on the chest wall, nub through the wall |
@@ -56,7 +56,7 @@ the next build (and the claw) starts from numbers instead of guesses. The CAD re
 | wire | 30 AWG (inside the box), 26–28 AWG silicone for cables | | 30 AWG wire-wrap is too thin for the PH insulation tabs |
 | M2 heat-set inserts | 3.5 OD × 4 long, brass | | 4 in the band: 2 box lid bosses, 2 plate posts. None in the forearm parts |
 | screws | M2 × 4 / 6 / 8 / 12 pan; M3 × 5 / 6 | | M2×6 lid and cover screws; M2×4 lid of the module and IMU; M2×12 module clamp; M3×5 board A, M3×6 board B |
-| transistor / diodes / resistors | S8050 NPN (E B C, flat face toward you); 1N4007 (motor); 1N5817 × 2 (cell → VSYS, Qi + → charger IN+); 1 k, 470 Ω, 100 k × 2 | | S8550 is the PNP twin, do not use it in the low-side switch |
+| transistor / diodes / resistors | S8050 NPN (E B C, flat face toward you); 1N4007 (motor); 1N5817 × 3 (cell → VSYS, Qi + → charger IN+, Pico VBUS → charger IN+); 1 k, 470 Ω, 100 k × 2 | | S8550 is the PNP twin, do not use it in the low-side switch |
 
 ## Body and strap numbers
 
@@ -117,6 +117,7 @@ away: keep those joints small. Standing parts only on column 1; column 10 stays 
 | divider ground | R2 bottom stub (10,10) | pin 33 stub (8,9) | 10, underside |
 | LED supply | 470 Ω far stub (21,4) | pin 36 stub (5,9) | 45, underside |
 | LED ground | LED short-leg stub (22,8) | pin 23 stub (18,9) | 12, underside |
+| VBUS → charger | pin 40 stub (1,9) | 1N5817 (stripe toward the charger) → charger IN+, meeting the Qi diode there | 60 |
 | light bar GND | bar −X pad | pin 8 stub (8,2) | 60 |
 | light bar +5V | bar −X pad | pin 36 stub (5,9), with the LED supply | 60 |
 | light bar DIN | bar −X pad | pin 21 stub (20,9) = GP16 | 60 |
@@ -124,9 +125,9 @@ away: keep those joints small. Standing parts only on column 1; column 10 stays 
 | trunk A pin 2, GND | PH6 header | pin 8 stub (8,2), with the bar GND | 60 |
 | trunk A pin 3, EMG1 | PH6 header | pin 31 stub (10,9) = GP26 | 60 |
 | trunk A pin 4, EMG2 | PH6 header | pin 32 stub (9,9) = GP27 | 60 |
-| trunk A pin 5, BTN | PH6 header | pin 19 stub (19,2) = GP14 | 60 |
-| trunk A pin 6, MOTOR | PH6 header | S8050 C stub (15,1) | 60 |
-| trunk B SDA / SCL / INT / RST | PH4 header | pins 6, 7, 9, 10 stubs = (6,2) (7,2) (9,2) (10,2) | 60 |
+| trunk A pin 5, MOT+ | PH6 header | (5,10), the 3V3 point, with trunk A's 3V3 | 60 |
+| trunk A pin 6, MOT− | PH6 header | S8050 C stub (15,1) | 60 |
+| trunk B SDA / SCL / INT / BTN | PH4 header | pins 6, 7, 9, 10 stubs = (6,2) (7,2) (9,2) (10,2) | 60 |
 | cord TX / RX / GND | PH3 header | pins 1, 2, 18 stubs = (1,2) (2,2) (18,2) | 60 |
 
-Pins 36 and 8 each take two wires: tin the two ends together, then one joint on the stub.
+Pins 36 and 8 and the 3V3 point (5,10) each take two wires: tin the two ends together, then one joint on the stub. Diagram of both sides: [hardware/strip_map.html](hardware/strip_map.html), rebuilt by python band/hardware/cad/strip_map_svg.py.
