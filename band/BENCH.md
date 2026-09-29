@@ -74,10 +74,10 @@ every 150 ms and runs a self-test on the button. Add parts in this order and wat
 | ------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
 | **button**          | GP14 ↔ one leg, GND ↔ diagonal leg                                                         | `BTN 1` while pressed; tap = buzz attempt + pixel chase (nothing yet, that's fine) |
 | **WS2812 (3 px)**   | +5V pad → 3V3 (pin 36), GND → GND, DIN → GP16                                              | self-test colours R G B W at boot; then pixels 0/1 meter the EMG                   |
-| **motor circuit**   | GP15 → 1k → base; E → GND; 3V3 → motor → C; 1N4007 across the motor, stripe to 3V3         | tap the button: a 60 ms buzz. If it hums weakly, the transistor legs are swapped   |
+| **motor circuit**   | GP13 → 1k → base; E → GND; 3V3 → motor → C; 1N4007 across the motor, stripe to 3V3         | tap the button: a 60 ms buzz. If it hums weakly, the transistor legs are swapped   |
 | **green LED**       | 3V3 → 470 Ω → long leg; short leg → GND                                                    | on whenever the Pico is on (no code involved)                                      |
 | **battery divider** | switch output (before the 1N5817) → 100k → GP28 → 100k → GND                                                           | `BAT 3.9x V` matches the meter on the cell within 0.05 V                           |
-| **BNO08x**          | 3V3→VIN, GND→GND, GP4→SDA, GP5→SCL, GP6→INT, GP7→RST, PS0/PS1/AD0→GND                      | `IMU ok 0x4b`                                                                      |
+| **BNO08x**          | 3V3→VCC, GND→GND, GP4→SDA, GP5→SCL, GP6→INT, GP7→RST, PS0 + PS1 + AD0 → GND, CS left open  | `IMU ok 0x4b`                                                                      |
 | **SEN0240 #1**      | signal board: + → 3V3, − → GND, S → GP26; 3.5 mm cable to the plate; plate on your forearm | `flex=` sits ~0.02 at rest, rises to 0.2–0.5 when you make a fist                  |
 | **SEN0240 #2**      | same on GP27                                                                               | `ext=` rises when you spread your fingers hard                                     |
 
@@ -119,7 +119,8 @@ and reach the box through the trunk (stage 8).
 - The Pico on its headers, rows 1–20, USB face flush with the row-1 end.
 - Green LED standing in rows 21–22, third column in on the chest side, 1 mm off the board, long leg toward its 470 Ω,
   which lies flat beside it toward the centre. The lid's hole lands over the dome.
-- The divider pair (100 k × 2), the motor driver (1 k / S8050 / 1N4007), diode 1 (1N5817).
+- The divider pair (100 k × 2), the motor driver (1 k / S8050), diode 1 (1N5817). The motor's 1N4007 is NOT on the
+  strip: it sits across the motor's own tabs in the forearm module. Exact holes for everything: PARTS.md, "Strip map".
 - Tall parts (anything on end, up to 4.5 mm) only on the two outer rows beside the Pico: rib side anywhere from
   20 mm before the strip centre to the free rows; chest side except under the switch (8 ± 6 mm from the strip centre)
   and under the LED (18 ± 5 mm). The CAD checks exactly these zones.
@@ -131,7 +132,7 @@ and reach the box through the trunk (stage 8).
 
 1. Pico headers, then the star ground blob at row 22, outer columns.
 2. 470 Ω, then the LED (standing, 1 mm off the board).
-3. The 100 k pair (top end to the switch's output side, not to the cell), 1 k, S8050, 1N4007, diode 1.
+3. The 100 k pair (top end to the switch's output side, not to the cell), 1 k, S8050, diode 1, at the holes in PARTS.md.
 4. Flying leads off the strip, 60 mm each: switch (2), charger OUT+ / OUT− (2), light bar GND / 3V3 / GP16 (3). The
    Qi receiver's two wires never reach the strip: + → 1N5817 → charger IN+, − → charger IN−.
 5. Wall sockets: clip each socket's pins to 2 mm, solder 60 mm leads on, and solder those leads to the strip:

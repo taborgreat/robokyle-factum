@@ -19,7 +19,7 @@ import neopixel
 # ---------------------------------------------------------------- PINOUT.md
 PIN_EMG1, PIN_EMG2, PIN_VBAT = 26, 27, 28
 PIN_SDA, PIN_SCL, PIN_IMU_INT, PIN_IMU_RST = 4, 5, 6, 7
-PIN_BTN, PIN_MOTOR, PIN_WS2812 = 14, 15, 16
+PIN_BTN, PIN_MOTOR, PIN_WS2812 = 14, 13, 16
 N_PIXELS = 3
 
 # optional Wi-Fi UDP stream (fill in to test level 1 of the build order)

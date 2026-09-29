@@ -29,8 +29,9 @@ lies on its own facet and nothing wastes height.
   to the PH6. Board A's three wires use the same passage from the other side. Everything is screwed: 2 x **M3x5** per board A
   (M3x6 only with a washer under the head - the post is 2.8 tall and the thread hole stops 0.4 above the strap), 2 x M3x6
   board B, 2 x M2x4 the IMU. Button: clip two legs flush and the other two to 1.5 mm, solder the wires sideways, drop it in its
-  pocket cap-up; the lid's cap hole holds it. Motor: leads first up its tab slot into the tunnel and out the wall
-  hole, then peel its pad and press it onto the pocket floor, tab toward the button.
+  pocket cap-up; the lid's cap hole holds it. Motor: solder the 1N4007 across its two tabs first, standing up along the tab slot, stripe on the lead that will be
+   3V3 (trunk A pin 1); leads up the tab slot into the tunnel and out the wall hole, then peel its pad and press it onto
+   the pocket floor, tab toward the button.
 
 The two jack windows and the trunk window are open at the top: the module's end walls stop at the lid's parting
 line, and the lid's skirt closes each notch when it is on. That is by design (a closed window would leave a 1 mm

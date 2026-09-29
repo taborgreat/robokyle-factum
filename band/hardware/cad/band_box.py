@@ -359,7 +359,7 @@ def service_volumes(P):
     # strip: tall parts (transistor, diodes, resistors on end) up to 4.5 mm on the two outer rows beside the Pico.
     # Rib side: from 20 mm before the strip centre (the -X rows hold the charger wires' joints) to the free rows.
     # Chest side: same, minus the switch's and the LED's shadows - keep those spots for low parts.
-    S["svc_strip_margin_rib"] = on_row(_box(43.0, 4.0, 4.5, 1.5, -12.7, s["t"]), "B", x_strip, 0, W_STRIP)
+    S["svc_strip_margin_rib"] = on_row(_box(43.0, 4.0, 6.5, 1.5, -12.7, s["t"]), "B", x_strip, 0, W_STRIP)   # 6.5: a standing TO-92 (S8050) lives here
     chest = _box(43.0, 4.0, 4.5, 1.5, 12.7, s["t"])
     chest -= _box(SW_D["l"] + 3.0, 6.0, 6.0, SW_X, 12.7, s["t"] - 0.5)
     chest -= _box(8.0, 6.0, 6.0, LED_X, 12.7, s["t"] - 0.5)                            # the +X standoff screw head is here

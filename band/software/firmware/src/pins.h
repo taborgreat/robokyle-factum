@@ -8,7 +8,7 @@
 #define PIN_IMU_INT     6   // BNO08x H_INTN (active low)
 #define PIN_IMU_RST     7   // BNO08x reset (active low); harmless if RST is tied to 3V3 instead
 #define PIN_BUTTON      14  // to GND, internal pull-up
-#define PIN_MOTOR       15  // 1k -> S8050 base (low-side switch for the coin motor)
+#define PIN_MOTOR       13  // 1k -> S8050 base (low-side switch for the coin motor); GP13 = pin 17, strip hole (17,2), next to the 1k at (17,1)
 #define PIN_WS2812      16  // 3-pixel WS2812B bar, PIO
 #define PIN_EMG1        26  // ADC0 flexor
 #define PIN_EMG2        27  // ADC1 extensor
