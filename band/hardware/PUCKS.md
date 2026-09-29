@@ -35,7 +35,9 @@ lies on its own facet and nothing wastes height.
 
 The two jack windows and the trunk window are open at the top: the module's end walls stop at the lid's parting
 line, and the lid's skirt closes each notch when it is on. That is by design (a closed window would leave a 1 mm
-bridge of wall above it, which does not print).
+bridge of wall above it, which does not print). Behind the skirt a 0.8 mm lip continues the end wall up to the
+lid; the skirt stops 0.15 mm above the parting step, so the wall tops alone carry the lid and the four screws
+pull it flat (the old seat had the skirt and the wall tops fighting, and the crest screws bowed the lid).
 
 ## Strap prep (hot nail: sealed holes)
 
@@ -56,13 +58,16 @@ bridge of wall above it, which does not print).
    2 mm, drop both into the elbow-wall pocket (PH6 below = trunk A, PH4 above = trunk B), hot glue on top. (2b)
    Motor leads and button wires down the rib tunnel and out the wall hole to the sockets, motor into its pocket,
    button into its pocket.
-   Screws: the two ridge bosses are drilled through - M2x12 from the skin side (backer + strap + 9.5 mm of boss)
-   and M2x4 from the top for the lid; no screw spans the whole height. (3) Board A into bay A
+   Inserts first, six M2 heat-set: one in the top of each crest boss (the lid), one in the underside of each crest
+   boss from the strap face (the clamp), one in the top of each side ear (the lid). Set every insert 0.2 mm below
+   the plastic face. The bosses are blind from both ends with solid plastic between: no screw ever spans the
+   body. (3) Board A into bay A
    on its posts (jack end to the wrist wall), wire its Gravity pins, pass the three wires through the rib passage into bay B.
    (4) Board B over the IMU on its tall posts, wire it. (5) Backer under the strap with the strap between its rails,
-   module on top, 2 x **M2x12 from the skin side** into the module's bosses (they pass beside the strap, not through
-   it; the floor squeezes the strap 0.2 mm against the backer); lid on, 2 x M2x4. To wash: two screws out, slide
-   the module off the strap.
+   module on top, 2 x **M2x8 from the skin side** into the inserts under the crest bosses (they pass beside the
+   strap, not through it; the floor squeezes the strap 0.2 mm against the backer); lid on, 4 x M2x6: two on
+   the crest, two on the side ears, the ear screws going in square to their facet. To wash: the two M2x8 out,
+   slide the module off the strap.
 
 ## Assumed - check against the parts
 

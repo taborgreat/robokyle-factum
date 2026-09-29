@@ -25,6 +25,9 @@ btn_event_t button_poll(void);      // one event per gesture, decoded in io_tick
 void led_set(rgb_t c);
 void led_blink(rgb_t c, uint16_t on_ms, uint16_t off_ms);
 void led_pixel(uint8_t i, rgb_t c);  // direct write (used by the live EMG meter in calibration)
+void led_pixels(const rgb_t *c);     // all pixels in one write
+void led_override(bool on);          // on: the feedback layer owns the bar (blink patterns pause); off: the mode's pattern comes back
+bool vbus_present(void);             // 5 V on the Pico's USB (WL_GPIO2 on the W boards)
 
 // haptics: 1 short = change, 1 long = set, 2 short = cancel/mode, 2 s = ESTOP
 void buzz(uint16_t ms);

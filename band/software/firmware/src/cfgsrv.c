@@ -54,10 +54,10 @@ static void status_json(char *b, int n) {
 }
 
 static void config_json(char *b, int n) {
-  int o = snprintf(b, n, "{\"band_id\":\"%s\",\"factum_ip\":\"%s\",\"factum_port\":%d,\"hand_ip\":\"%s\",\"hand_port\":%d,"
+  int o = snprintf(b, n, "{\"band_id\":\"%s\",\"factum_host\":\"%s\",\"factum_port\":%d,\"factum_path\":\"%s\",\"factum_http_port\":%d,\"hand_ip\":\"%s\",\"hand_port\":%d,"
                    "\"ap_ssid\":\"%s\",\"flex_on\":%.3f,\"flex_off\":%.3f,\"ext_on\":%.3f,\"ext_off\":%.3f,\"flex_max\":%.3f,"
                    "\"force_limit\":%.2f,\"mouse_gain\":%.3f,\"mouse_deadzone\":%.1f,\"mouse_accel\":%.2f,\"last_mode\":%d,"
-                   "\"bt_slot\":%d,\"wifi\":[", cfg.band_id, cfg.factum_ip, cfg.factum_port, cfg.hand_ip, cfg.hand_port,
+                   "\"bt_slot\":%d,\"wifi\":[", cfg.band_id, cfg.factum_host, cfg.factum_port, cfg.factum_path, cfg.factum_http_port, cfg.hand_ip, cfg.hand_port,
                    cfg.ap_ssid, cfg.flex_on, cfg.flex_off, cfg.ext_on, cfg.ext_off, cfg.flex_max, cfg.force_limit,
                    cfg.mouse_gain, cfg.mouse_deadzone, cfg.mouse_accel, cfg.last_mode, cfg.bt_slot);
   for (int i = 0; i < CFG_N_WIFI && o < n; i++)
@@ -69,12 +69,15 @@ static void merge_config(const char *body) {
   float f; char s[64]; size_t len;
   if (json_get_str(body, "band_id", s, sizeof s)) strncpy(cfg.band_id, s, sizeof cfg.band_id - 1);
   if (json_get_str(body, "factum_key", s, sizeof s)) strncpy(cfg.factum_key, s, sizeof cfg.factum_key - 1);
-  if (json_get_str(body, "factum_ip", s, sizeof s)) strncpy(cfg.factum_ip, s, 15);
+  if (json_get_str(body, "factum_ip", s, sizeof s)) strncpy(cfg.factum_host, s, sizeof cfg.factum_host - 1);      // old key, same field
+  if (json_get_str(body, "factum_host", s, sizeof s)) strncpy(cfg.factum_host, s, sizeof cfg.factum_host - 1);
+  if (json_get_str(body, "factum_path", s, sizeof s)) strncpy(cfg.factum_path, s, sizeof cfg.factum_path - 1);
   if (json_get_str(body, "hand_ip", s, sizeof s)) strncpy(cfg.hand_ip, s, 15);
   if (json_get_str(body, "ap_ssid", s, sizeof s)) strncpy(cfg.ap_ssid, s, CFG_STR - 1);
   if (json_get_str(body, "ap_pass", s, sizeof s)) strncpy(cfg.ap_pass, s, CFG_STR - 1);
   if (json_get_num(body, "factum_port", &f)) cfg.factum_port = (uint16_t)f;
   if (json_get_num(body, "hand_port", &f)) cfg.hand_port = (uint16_t)f;
+  if (json_get_num(body, "factum_http_port", &f)) cfg.factum_http_port = (uint16_t)f;
   if (json_get_num(body, "flex_on", &f)) cfg.flex_on = f;   if (json_get_num(body, "flex_off", &f)) cfg.flex_off = f;
   if (json_get_num(body, "ext_on", &f)) cfg.ext_on = f;     if (json_get_num(body, "ext_off", &f)) cfg.ext_off = f;
   if (json_get_num(body, "flex_max", &f)) cfg.flex_max = f; if (json_get_num(body, "force_limit", &f)) cfg.force_limit = f;

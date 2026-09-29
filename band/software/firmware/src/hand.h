@@ -11,3 +11,7 @@ void hand_keepalive(uint32_t t_ms);      // every 250 ms; the hand opens after 5
 bool hand_link_ok(void);                 // last command was acknowledged
 void hand_service(void);                    // retries the pending command; call every frame
 bool hand_pending(void);
+
+// HAND-FACTUM: the band never addresses the hand; commands are recorded and ride in the Factum frame as "h".
+void hand_set_relay(bool relay);
+const char *hand_last_cmd(void);   // JSON object or "null"

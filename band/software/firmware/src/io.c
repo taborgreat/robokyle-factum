@@ -4,13 +4,14 @@
 #include "hardware/adc.h"
 #include "hardware/pio.h"
 #include "ws2812.pio.h"
+#include "pico/cyw43_arch.h"
 
 static PIO ws_pio; static uint ws_sm;
 static uint32_t now_ms(void) { return to_ms_since_boot(get_absolute_time()); }
 
 // ---------------------------------------------------------------- WS2812
 static rgb_t led_colour, led_shown[N_PIXELS];
-static uint16_t blink_on, blink_off; static bool blink_phase; static uint32_t blink_t;
+static uint16_t blink_on, blink_off; static bool blink_phase; static uint32_t blink_t; static bool led_ovr;
 
 static void ws_write(void) {
   for (int i = 0; i < N_PIXELS; i++) {
@@ -20,14 +21,20 @@ static void ws_write(void) {
 }
 static void show_all(rgb_t c) { for (int i = 0; i < N_PIXELS; i++) led_shown[i] = c; ws_write(); }
 
-void led_set(rgb_t c) { led_colour = c; blink_on = blink_off = 0; show_all(c); }
+void led_set(rgb_t c) { led_colour = c; blink_on = blink_off = 0; if (!led_ovr) show_all(c); }
 void led_blink(rgb_t c, uint16_t on_ms, uint16_t off_ms) {
-  led_colour = c; blink_on = on_ms; blink_off = off_ms; blink_phase = true; blink_t = now_ms(); show_all(c);
+  led_colour = c; blink_on = on_ms; blink_off = off_ms; blink_phase = true; blink_t = now_ms(); if (!led_ovr) show_all(c);
 }
+void led_pixels(const rgb_t *c) { for (int i = 0; i < N_PIXELS; i++) led_shown[i] = c[i]; ws_write(); }
+void led_override(bool on) {
+  led_ovr = on;
+  if (!on) { blink_phase = true; blink_t = now_ms(); show_all(led_colour); }   // hand the bar back to the mode's pattern
+}
+bool vbus_present(void) { return cyw43_arch_gpio_get(CYW43_WL_GPIO_VBUS_PIN); }
 void led_pixel(uint8_t i, rgb_t c) { if (i < N_PIXELS) { led_shown[i] = c; ws_write(); } }
 
 static void led_tick(void) {
-  if (!blink_on) return;
+  if (!blink_on || led_ovr) return;
   uint32_t t = now_ms();
   if (blink_phase && t - blink_t >= blink_on) { blink_phase = false; blink_t = t; show_all(LED_OFF); }
   else if (!blink_phase && t - blink_t >= blink_off) { blink_phase = true; blink_t = t; show_all(led_colour); }

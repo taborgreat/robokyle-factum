@@ -1,10 +1,12 @@
-"""Draw the band's perf strip, both sides, from the as-built map (band/PARTS.md "Strip map"). Writes
-band/hardware/strip_map.html (inline SVG, no dependencies).  python band/hardware/cad/strip_map_svg.py"""
+"""The viewer's Build tab: the band's perf strip both sides (from the as-built map in band/PARTS.md "Strip map"), the
+battery bay, the forearm module and the whole band with its cables, each with a build order. Generated as a fragment
+(inline SVG + its own scoped styles) INTO band/viewer/index.html between the BUILD:START / BUILD:END markers.
+    python band/hardware/cad/strip_map_svg.py"""
 import io, os, math, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from band_sections import battery_section, module_section, system_section, EXTRA_CSS
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-OUT = os.path.join(ROOT, "band", "hardware", "strip_map.html")
+OUT = os.path.join(ROOT, "band", "viewer", "index.html")
 
 P = 30                   # hole pitch, px
 R = 5                    # hole radius
@@ -22,29 +24,30 @@ C = dict(gnd="var(--gnd)", pwr="var(--pwr)", sig="var(--sig)", chg="var(--chg)",
 
 # parts on the top: (kind, holes, label, colour)
 PARTS = [
-    ("led",  [(21, 8), (22, 8)], "LED  + row 21 / − row 22", C["led"]),
+    ("led",  [(22, 8), (21, 8)], "LED  + row 22 / − row 21 (as soldered)", C["led"]),
     ("res",  [(21, 4), (21, 6)], "470 Ω", C["part"]),
     ("dio",  [(22, 2), (22, 5)], "1N5817 diode 1, stripe at column 2", C["part"]),
     ("res",  [(4, 10), (7, 10)], "R1 100k", C["part"]),
-    ("res",  [(7, 10), (10, 10)], "R2 100k", C["part"]),
+    ("res",  [(8, 10), (12, 10)], "R2 100k", C["part"]),
     ("to92", [(13, 1), (14, 1), (15, 1)], "S8050  E B C (flat face outward)", C["part"]),
-    ("res",  [(14, 1), (17, 1)], "1k", C["part"]),
+    ("res",  [(14, 1), (18, 1)], "1k", C["part"]),
 ]
 # underside solder bridges (runs of adjacent holes)
 BRIDGES = [
-    ([(21, 6), (21, 7), (21, 8)], "470 → LED +"),
+    ([(21, 6), (21, 7), (22, 7), (22, 8)], "470 → LED + (L-shaped run)"),
     ([(13, 1), (13, 2)], "E → GND"),
-    ([(17, 1), (17, 2)], "1 k → GP13"),
+    ([(18, 1), (17, 1), (17, 2)], "1 k → GP13 (up one, then across; NOT across at row 18, that is ground)"),
+    ([(7, 10), (8, 10)], "divider midpoint: R1 bottom → R2 top"),
     ([(7, 10), (7, 9)], "divider mid → GP28"),
+    ([(12, 10), (13, 10), (13, 9)], "R2 bottom → GND (down one, across one)"),
     ([(5, 9), (5, 10)], "3V3 → 3V3 point"),
 ]
 # underside wires between two stubs: (from, to, label, colour)
 UWIRES = [
     ((22, 2), (2, 9), "VSYS  55 mm", C["pwr"]),
     ((22, 5), (4, 10), "divider tap  50 mm", C["sw"]),
-    ((10, 10), (8, 9), "divider GND  10 mm", C["gnd"]),
     ((21, 4), (5, 9), "LED supply  45 mm", C["pwr"]),
-    ((22, 8), (18, 9), "LED GND  12 mm", C["gnd"]),
+    ((21, 8), (18, 9), "LED GND  12 mm", C["gnd"]),
 ]
 # leads leaving the board: (stub hole, side 'L'/'R', text, colour)
 LEADS = [
@@ -64,7 +67,7 @@ LEADS = [
     ((9, 9), "R", "trunk A EMG2  60", C["ta"]),
     ((10, 9), "R", "trunk A EMG1  60", C["ta"]),
     ((20, 9), "R", "light bar DIN  60", C["bar"]),
-    ((22, 5), "R", "switch outer  60", C["sw"]),
+    ((22, 5), "R", "switch outer  30", C["sw"]),
 ]
 
 def xy(r, c, mirror):
@@ -208,47 +211,51 @@ def svg(mirror, title):
             + "\n".join(body) + "</svg></figure>")
 
 CSS = """
-:root{--bg:#f6f4ef;--ink:#1d1f24;--mute:#6b6f7a;--line:#cfcac0;--board:#e9dfc7;--pico:#d7e6d6;--hole:#fff;--hole-line:#8a8478;
+.build{--mute:var(--muted);--board:#e9dfc7;--pico:#d7e6d6;--hole:#fff;--hole-line:#8a8478;
 --used:#3b3f4a;--gnd:#222;--pwr:#c0392b;--sig:#1f5fbf;--chg:#7d3c98;--sw:#1d6fa5;--bar:#0f7f7a;--ta:#2e7d32;--tb:#b26a00;--cord:#5d6d7e;--part:#4a4a4a;--led:#2e9e44;--screw:#b03a2e}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171b;--ink:#e8e6e1;--mute:#9a9ea8;--line:#3a3d45;--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .build{--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
 --used:#e8e6e1;--gnd:#e8e6e1;--pwr:#ff6b5b;--sig:#6fa6ff;--chg:#c58ee0;--sw:#5fb3ec;--bar:#3fd0c9;--ta:#6fcf74;--tb:#f0a93a;--cord:#aab7c4;--part:#d0d0d0;--led:#5fd67a;--screw:#ff7b6b}}
-:root[data-theme=dark]{--bg:#15171b;--ink:#e8e6e1;--mute:#9a9ea8;--line:#3a3d45;--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
+:root[data-theme=dark] .build{--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
 --used:#e8e6e1;--gnd:#e8e6e1;--pwr:#ff6b5b;--sig:#6fa6ff;--chg:#c58ee0;--sw:#5fb3ec;--bar:#3fd0c9;--ta:#6fcf74;--tb:#f0a93a;--cord:#aab7c4;--part:#d0d0d0;--led:#5fd67a;--screw:#ff7b6b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "IBM Plex Sans",system-ui,sans-serif;padding:24px 16px 48px}
-h1{font-size:22px;margin:0 0 4px;letter-spacing:.01em}h2{font-size:18px;margin:28px 0 4px}h3{font-size:15px;margin:16px 0 4px}ol{margin:4px 0 0;padding-left:22px}ol li{margin:3px 0}ul{margin:2px 0 0;padding-left:18px}p.sub{color:var(--mute);margin:0 0 20px;max-width:70ch}
-.wrap{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}figure{margin:0;flex:1 1 520px;min-width:0}
-figcaption{font-weight:600;margin:0 0 6px}svg{width:100%;height:auto;display:block;background:transparent}
-.board{fill:var(--board);stroke:var(--line)}.usb{fill:var(--mute)}.pico{fill:var(--pico);stroke:var(--line)}
-.hole{fill:var(--hole);stroke:var(--hole-line);stroke-width:1}.hole.used{fill:var(--used)}
-.screw{fill:none;stroke:var(--screw);stroke-width:1.5;stroke-dasharray:3 2}
-text{font-family:"IBM Plex Mono",ui-monospace,monospace;fill:var(--ink)}.lab{font-size:11px;fill:var(--mute)}.mid{text-anchor:middle}.end{text-anchor:end}
-.pin{font-size:9.5px}.pin.gnd{fill:var(--mute)}.tiny{font-size:10px}.pico-label{font-size:11px;fill:var(--mute);letter-spacing:.06em}
-.lead{stroke:var(--part);stroke-width:2}.resbody{fill:#d9b56a;stroke:var(--part)}.diobody{fill:#333;stroke:var(--part)}.stripe{fill:#ddd}
-.ledbody{fill:var(--led);opacity:.85}.ghost{opacity:.32;stroke-dasharray:3 2}.arrow{fill:#fff}.plab{font-size:10px;fill:var(--ink);font-weight:500}.to92{fill:#333;stroke:var(--part)}
-.bridge{stroke:var(--used);stroke-width:9;stroke-linecap:round;fill:none;opacity:.85}
-.uwire{fill:none;stroke-width:2.2;stroke-linecap:round}.wlab{font-size:10.5px}.leadline{stroke-width:2;fill:none;stroke-dasharray:4 3}
-.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin:18px 0 0;padding:0;list-style:none;font-size:13px}
-.legend li::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--c)}
-table{border-collapse:collapse;margin-top:22px;font-size:13px}td,th{text-align:left;padding:4px 10px;border-bottom:1px solid var(--line)}th{font-weight:600}
+.build{padding:22px 28px 64px;max-width:1240px;font-size:15px;line-height:1.45;color:var(--ink)}.build *{box-sizing:border-box}
+.build .bhead h2{font:600 26px/1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.02em;text-transform:uppercase;margin:0 0 6px}
+.build section h2{font:600 22px/1.15 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.01em;margin:0 0 4px}
+.build h3{font-size:15px;margin:16px 0 4px}.build ol{margin:4px 0 0;padding-left:22px}.build ol li{margin:3px 0}.build ul{margin:2px 0 0;padding-left:18px}
+.build p.sub{color:var(--mute);margin:0 0 20px;max-width:70ch}
+.build .wrap{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}.build figure{margin:0;flex:1 1 520px;min-width:0}
+.build figcaption{font-weight:600;margin:0 0 6px}.build svg{width:100%;height:auto;display:block;background:transparent}
+.build .board{fill:var(--board);stroke:var(--line)}.build .usb{fill:var(--mute)}.build .pico{fill:var(--pico);stroke:var(--line)}
+.build .hole{fill:var(--hole);stroke:var(--hole-line);stroke-width:1}.build .hole.used{fill:var(--used)}
+.build .screw{fill:none;stroke:var(--screw);stroke-width:1.5;stroke-dasharray:3 2}
+.build text{font-family:"IBM Plex Mono",ui-monospace,monospace;fill:var(--ink)}.build .lab{font-size:11px;fill:var(--mute)}.build .mid{text-anchor:middle}.build .end{text-anchor:end}
+.build .pin{font-size:9.5px}.build .pin.gnd{fill:var(--mute)}.build .tiny{font-size:10px}.build .pico-label{font-size:11px;fill:var(--mute);letter-spacing:.06em}
+.build .lead{stroke:var(--part);stroke-width:2}.build .resbody{fill:#d9b56a;stroke:var(--part)}.build .diobody{fill:#333;stroke:var(--part)}.build .stripe{fill:#ddd}
+.build .ledbody{fill:var(--led);opacity:.85}.build .ghost{opacity:.32;stroke-dasharray:3 2}.build .arrow{fill:#fff}.build .plab{font-size:10px;fill:var(--ink);font-weight:500}.build .to92{fill:#333;stroke:var(--part)}
+.build .bridge{stroke:var(--used);stroke-width:9;stroke-linecap:round;fill:none;opacity:.85}
+.build .uwire{fill:none;stroke-width:2.2;stroke-linecap:round}.build .wlab{font-size:10.5px}.build .leadline{stroke-width:2;fill:none;stroke-dasharray:4 3}
+.build .legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin:18px 0 0;padding:0;list-style:none;font-size:13px}
+.build .legend li::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--c)}
+.build table{border-collapse:collapse;margin-top:22px;font-size:13px}.build td,.build th{text-align:left;padding:4px 10px;border-bottom:1px solid var(--line)}.build th{font-weight:600}
 """
 
 PART_STEPS = [
     ("Pico", "rows 1–20, columns 2 and 9, USB face flush with the row-1 edge. Tack two diagonal pins, check it sits flat and square, solder the other 38, clip all to 1.5 mm. Plug USB in and run the blink before anything else goes on."),
-    ("green LED", "long leg (21,8), short leg (22,8). Hold the flange 1 mm above the board while soldering. Clip."),
-    ("470 Ω", "flat on row 21, legs (21,4) and (21,6). Solder, clip."),
+    ("green LED", "as soldered: LONG leg (anode) in (22,8), SHORT leg in (21,8). It sits the other way from the first plan; the two connections below are swapped to match, nothing to redo."),
+    ("470 Ω", "flat on row 21, legs (21,4) and (21,6). Solder, clip. Its (21,6) end reaches the LED's long leg at (22,8) by the L-shaped solder run in section 2."),
     ("1N5817 diode 1", "flat on row 22, STRIPE end (22,2), plain end (22,5). Solder, clip."),
-    ("R1 100k", "flat on column 10, legs (4,10) and (7,10). Solder (4,10) only for now, clip it."),
-    ("R2 100k", "flat on column 10, legs (7,10) and (10,10). Its top leg goes into (7,10) WITH R1's leg: twist the two together first. Solder (7,10) and (10,10), clip."),
+    ("R1 100k", "flat on column 10, legs (4,10) and (7,10). Solder, clip. Its top (4,10) is the switch-output tap; keep that blob off (4,9)."),
+    ("R2 100k", "flat on column 10, legs (8,10) and (12,10), right below R1. Solder, clip. Keep the (8,10) blob off (8,9), which is ground: the midpoint bridge in section 2 joins (7,10) to (8,10) vertically, not sideways."),
     ("S8050", "standing on column 1, legs E (13,1), B (14,1), C (15,1), flat face away from the Pico, E nearest the USB end. Solder, clip."),
-    ("1 kΩ", "one lead soldered to the transistor's B leg 3 mm above the board (a top-side joint), body lying toward the far end on the outer side of the C leg, other lead into (17,1). Solder (17,1), clip."),
+    ("1 kΩ", "as built: the transistor's base leg was cut short, so the 1 kΩ's lead is soldered to that stub above the board and continues down through (14,1); the other lead is in (18,1). Solder both, clip. (14,1) underneath is the base node: nothing else joins it."),
 ]
 CHECKS = [
-    "LED: diode mode, red on (21,8) stub, black on (22,8) stub: ~2 V and a faint glow. Open = LED backwards.",
-    "470 Ω: ohms, (21,4) stub to (21,8) stub: 470. Open = the (21,6)–(21,8) run is incomplete.",
-    "(22,8) must not touch (21,8): diode mode both ways between them reads open in one direction, not a short.",
+    "LED: diode mode, red on (22,8) stub, black on (21,8) stub: ~2 V and a faint glow (long leg is in row 22).",
+    "470 Ω: ohms, (21,4) stub to (22,8) stub: 470. Open = the (21,6)–(21,7)–(22,7)–(22,8) run is incomplete.",
+    "(21,8) must not touch (22,8) or (22,7): (21,8) is ground, (22,7)/(22,8) are the LED supply; a short there kills the LED and warms the 470.",
     "Diode 1: diode mode, red on (22,5) stub, black on (22,2) stub: ~0.2 V. Swapped = diode in backwards.",
-    "Divider: ohms (4,10) to (10,10): 200 k; (7,9) to either end: 100 k.",
-    "S8050: diode mode, red on B (14,1): ~0.6 V to E and to C. Open both = legs swapped.",
+    "Divider: ohms (4,10) to (12,10): 200 k; (7,9) to either end: 100 k; (12,10) to (13,9) near zero. (8,10) to (8,9) must be open.",
+    "S8050: diode mode, red on (14,1) stub (the base node): ~0.6 V to E (13,1) and to C (15,1). Open both = legs swapped.",
+    "1 kΩ: ohms (17,2) to (14,1): 1 k. (18,1) to (18,2) must be OPEN, that is ground; if it beeps the motor can never drive.",
     "No bridge (13,1)/(13,2) to (14,1): ohms B to GND reads open (not the 1 k).",
     "GND to 3V3 (any GND stub to (5,9)): must not beep.",
 ]
@@ -271,7 +278,7 @@ def build_list():
         o.append(f'<li><strong>{esc(gname)}</strong><ul>')
         for (r, c), t in items:
             o.append(f"<li>{esc(t)} → stub at ({r},{c})</li>")
-        if gname == "charger": o.append("<li>charger OUT+  60 → the switch's middle pin (not the strip)</li>")
+        if gname == "charger": o.append("<li>charger OUT+  110 → the switch's middle pin: through the USB-end notch, along the strip's column-1 edge, past row 22 to the switch (never soldered to the strip)</li>")
         if gname == "VBUS": o.append("<li>the 1N5817 sits in this wire, stripe toward the charger; heat-shrink over it</li>")
         o.append("</ul></li>")
     o.append("</ol><p class=\"sub\">Stubs that take two wires: (5,9) 3V3 takes the LED supply and the light bar +5V; (8,2) GND takes the light bar GND and trunk A GND; (5,10) takes trunk A 3V3 and MOT+. Tin both ends together, then one joint.</p>")
@@ -281,33 +288,39 @@ def build_list():
     return "\n".join(o)
 
 
-def page():
+def fragment():
     legend = [("solder blob / used hole", "--used"), ("ground", "--gnd"), ("battery / 3V3", "--pwr"), ("charger", "--chg"), ("switch, divider tap", "--sw"),
               ("light bar", "--bar"), ("trunk A", "--ta"), ("trunk B", "--tb"), ("hand cord", "--cord"), ("standoff screw", "--screw")]
     li = "".join(f'<li style="--c:var({v})">{esc(k)}</li>' for k, v in legend)
     rows = [
         ("Pico", "rows 1–20, columns 2 and 9", "USB face flush with the row-1 edge"),
-        ("green LED", "+ long leg (21,8), − short leg (22,8)", "flange 1 mm above the board; long leg = anode = toward the 470 Ω"),
-        ("470 Ω", "(21,4) → (21,6)", "underside solder run (21,6)–(21,7)–(21,8)"),
+        ("green LED", "+ long leg (22,8), − short leg (21,8)", "as soldered (the other way from the first plan); the 470 run and the ground wire are swapped to match"),
+        ("470 Ω", "(21,4) → (21,6)", "underside solder run (21,6)–(21,7)–(22,7)–(22,8)"),
         ("1N5817 diode 1", "stripe (22,2), plain (22,5)", "stripe toward column 1 / the middle wall; current flows from the switch side into VSYS"),
-        ("R1 / R2 100 k", "(4,10)→(7,10), (7,10)→(10,10)", "shared hole (7,10); bridge (7,10)–(7,9) = GP28"),
+        ("R1 / R2 100 k", "(4,10)→(7,10), (8,10)→(12,10)", "bridges (7,10)–(8,10) = midpoint, (7,10)–(7,9) = GP28, (12,10)–(13,10)–(13,9) = GND"),
         ("S8050", "E (13,1) B (14,1) C (15,1)", "standing; flat face toward the board edge (away from the Pico); E nearest the USB end; bridge (13,1)–(13,2) = GND"),
-        ("1 kΩ", "B leg → (17,1)", "bridge (17,1)–(17,2) = GP13"),
+        ("1 kΩ", "base stub → through (14,1); other lead (18,1)", "run (18,1)–(17,1)–(17,2) = GP13; (18,1) stays clear of (18,2) GND"),
         ("3V3 point", "bridge (5,9)–(5,10)", "trunk A 3V3 lands on (5,10)"),
     ]
     tr = "".join(f"<tr><td>{esc(a)}</td><td>{esc(b)}</td><td>{esc(c)}</td></tr>" for a, b, c in rows)
-    return f"""<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Band Build Maps</title><link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap">
-<style>{CSS}{EXTRA_CSS}</style></head><body>
-<h1>Band build maps</h1><p class="sub">Four separate sections: the strip (both sides), the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another.</p><section id="strip"><h2>1. The strip, both sides</h2>
+    return f"""<style>{CSS}{EXTRA_CSS}</style>
+<header class="bhead"><h2>Band build maps</h2><p class="sub">Four separate sections: the strip (both sides), the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another. Generated from the tables in band/PARTS.md.</p></header>
+<section id="strip"><h2>1. The strip, both sides</h2>
 <p class="sub">Look down at the top with the USB end at the top: column 1 top-left, column 10 top-right, rows 1–22 from the USB end. Pin 1 (GP0) is at (1,2), pin 40 (VBUS) at (1,9). The bottom view is the board flipped left-to-right, USB still at the top, so column 1 appears on the right. Dark holes carry solder. Lengths in mm.</p>
 <div class="wrap">{svg(False, "TOP — components (nothing else is soldered here)")}{svg(True, "BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)")}</div>
 <ul class="legend">{li}</ul>
 <table><thead><tr><th>part</th><th>holes</th><th>note</th></tr></thead><tbody>{tr}</tbody></table>
 {build_list()}
-</section>{battery_section()}{module_section()}{system_section()}<p class="sub" style="margin-top:18px">The slide switch is not on the strip: it is glued between the two fins on the chest wall (right-hand side here, beside rows 12–17) and reaches the board only through its two wires, charger OUT+ into its middle pin and its outer pin down to diode 1 at (22,5). Every hole in columns 1 and 10 has a Pico pin 2.5 mm away: keep those joints small. Column 10 above row 10 stays empty (switch fins rows 12–17, LED hole). Underside wires cross in the bare lanes under the Pico, never over a stub. Source of truth: band/PARTS.md, “Strip map”.</p>
-</body></html>"""
+</section>{battery_section()}{module_section()}{system_section()}<p class="sub" style="margin-top:18px">The slide switch is not on the strip: it sits on a shelf on the chest wall (right-hand side here) just past row 22, between the LED and the corner lid boss, and reaches the board only through its two wires, charger OUT+ into its middle pin and its outer pin down to diode 1 at (22,5). Every hole in columns 1 and 10 has a Pico pin 2.5 mm away: keep those joints small. Column 10 stays flat (the LED hole is over rows 17–20). Underside wires cross in the bare lanes under the Pico, never over a stub. Source of truth: band/PARTS.md, “Strip map”.</p>"""
 
-io.open(OUT, "w", encoding="utf-8").write(page())
-print("wrote", OUT)
+def inject(html, frag):
+    """Replace whatever sits between the BUILD markers in the viewer page with the fresh fragment."""
+    a = html.index("<!-- BUILD:START"); a = html.index("-->", a) + 3
+    b = html.index("<!-- BUILD:END -->")
+    return html[:a] + "\n" + frag + "\n" + html[b:]
+
+
+if __name__ == "__main__":
+    html = io.open(OUT, encoding="utf-8").read()
+    io.open(OUT, "w", encoding="utf-8").write(inject(html, fragment()))
+    print("wrote the Build tab into", OUT)

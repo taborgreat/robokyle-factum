@@ -10,6 +10,9 @@ static uint32_t last_ok;
 // One pending command: a state change must never be lost behind an in-flight keepalive, and the latest state
 // always wins (open after close cancels the close). Keepalives are only sent when nothing is pending.
 static struct { char path[16]; char body[64]; bool pending; } cmd;
+static bool relay; static char last_cmd[112] = "null";      // HAND-FACTUM: Factum relays; the frame carries the command
+void hand_set_relay(bool r) { relay = r; if (!r) strcpy(last_cmd, "null"); }
+const char *hand_last_cmd(void) { return last_cmd; }
 
 static void done(int status, const char *body, void *arg) { (void)body; (void)arg; if (status == 200) last_ok = to_ms_since_boot(get_absolute_time()); }
 
@@ -18,7 +21,11 @@ static bool post(const char *path, const char *json) {
     char line[128]; snprintf(line, sizeof line, "{\"cmd\":\"%s\",\"a\":%s}", path + 1, json ? json : "{}");
     wire_send_line(line); last_ok = to_ms_since_boot(get_absolute_time()); return true;
   }
-  if (!net_ready()) return false;
+  if (relay) {                                             // no direct path to the hand: Factum forwards it
+    snprintf(last_cmd, sizeof last_cmd, "{\"cmd\":\"%s\",\"a\":%s}", path + 1, json ? json : "{}");
+    last_ok = to_ms_since_boot(get_absolute_time()); return true;
+  }
+  if (!net_ready() || !net_ap_up()) return false;          // over the air the hand is only ever on the band's AP
   return http_post(cfg.hand_ip, cfg.hand_port, path, json, done, NULL);
 }
 

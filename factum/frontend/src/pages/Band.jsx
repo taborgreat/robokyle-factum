@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { get, post } from '../api.js';
 
 const NUM = [['flex_on', 'Flexor ON (V)'], ['flex_off', 'Flexor OFF (V)'], ['ext_on', 'Extensor ON (V)'], ['ext_off', 'Extensor OFF (V)'],
-  ['flex_max', 'Flexor max (V)'], ['force_limit', 'Force limit (0–1)'], ['mouse_gain', 'Mouse gain'], ['mouse_deadzone', 'Mouse dead zone (°/s)'], ['mouse_accel', 'Mouse accel curve']];
-const STR = [['band_id', 'Band id'], ['factum_ip', 'Factum IP'], ['factum_port', 'Factum UDP port'], ['hand_ip', 'Hand IP'], ['hand_port', 'Hand port'], ['ap_ssid', 'Hotspot name']];
+  ['flex_max', 'Flexor max (V)'], ['force_limit', 'Force limit (0–1)'], ['mouse_gain', 'Mouse gain'], ['mouse_deadzone', 'Mouse dead zone (°/s)'], ['mouse_accel', 'Mouse accel curve'],
+  ['feedback', 'Feedback (0 off, 1 lights, 2 lights + buzz)'], ['factum_port', 'Factum UDP port'], ['factum_http_port', 'Factum HTTP port'], ['hand_port', 'Hand port']];
+const STR = [['band_id', 'Band id'], ['factum_host', 'Factum host (name or IP)'], ['factum_path', 'Factum HTTP path prefix'], ['hand_ip', 'Hand IP on the band hotspot (HAND-DIRECT)'], ['ap_ssid', 'Hotspot name']];
 
 export default function Band({ state }) {
   const [cfg, setCfg] = useState(null); const [err, setErr] = useState(''); const [msg, setMsg] = useState('');
@@ -27,7 +28,7 @@ export default function Band({ state }) {
   }, 'Saved to the band');
   const calibrate = phase => run(async () => setCal(await post('/api/band/calibrate', { phase })), phase === 'apply' ? 'Thresholds applied' : `Capturing ${phase} for 10 s — hold it`);
 
-  if (err && !cfg) return <div className="panel"><h2>Band</h2><p className="msg err">{err}</p><p className="msg">Settings can only be changed while the band is in HAND-FACTUM mode on the home network.</p><button className="btn secondary" onClick={load}>Retry</button></div>;
+  if (err && !cfg) return <div className="panel"><h2>Band</h2><p className="msg err">{err}</p><p className="msg">Settings can only be changed while the band is in HAND-FACTUM mode and reachable from this server.</p><button className="btn secondary" onClick={load}>Retry</button></div>;
   if (!cfg) return <div className="panel"><p className="msg">Loading…</p></div>;
   const have = cal.have || 0;
   return (

@@ -10,6 +10,7 @@
 #include "ble_mouse.h"
 #include "wire.h"
 #include "cfgsrv.h"
+#include "feedback.h"
 #include <math.h>
 #include <stdio.h>
 #include "pico/stdlib.h"
@@ -34,6 +35,7 @@ static void enter(band_mode_t m) {
     case MODE_MOUSE: net_stop(); ble_mouse_start(cfg.bt_slot); led_blink(slot_colour(), 100, 900); break;
     default: break;
   }
+  hand_set_relay(m == MODE_HAND_FACTUM);
   buzz_pattern(2);
 }
 
@@ -55,7 +57,8 @@ static void wire_check(void) {
   else if (!w && mode == MODE_HAND_WIRED) enter(wireless_mode);
 }
 
-// hand modes: the band is the only commander; Factum just listens
+// hand modes. HAND-DIRECT / HAND-WIRED: the band commands the hand (AP or cord). HAND-FACTUM: the band only streams;
+// the command it would have sent rides in the frame ("h") for Factum to relay.
 static void hand_tick(effort_t e, imu_t m) {
   uint32_t now = now_ms();
   intent = emg_classify(e);
@@ -72,7 +75,7 @@ static void hand_tick(effort_t e, imu_t m) {
     }
   }
   hand_service();
-  if (now - last_keep >= KEEPALIVE_MS && !http_busy()) { hand_keepalive(now - t0); last_keep = now; }
+  if (mode != MODE_HAND_FACTUM && now - last_keep >= KEEPALIVE_MS && !http_busy()) { hand_keepalive(now - t0); last_keep = now; }   // Factum keeps the hand alive in HAND-FACTUM
   if (mode == MODE_HAND_FACTUM) {                                              // LED follows the link
     bool up = net_ready();
     if (up && !sta_shown) { led_set(LED_GREEN); cfgsrv_start(); sta_shown = true; }
@@ -108,4 +111,5 @@ void modes_tick(void) {
   imu_t m = imu_get(); effort_t e = emg_gate(emg_frame(), m.gx, m.gy, m.gz, m.valid, buzz_busy()); seq++; last_effort = e;
   net_tick(); wire_check();
   if (mode == MODE_MOUSE) mouse_tick(e, m); else hand_tick(e, m);
+  feedback_tick(e, intent, wheel_open(), now_ms());
 }

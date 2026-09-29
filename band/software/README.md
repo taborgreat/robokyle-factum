@@ -65,3 +65,31 @@ rectification, so the slow junction-voltage jumps a sliding dry plate produces a
 passes; the 20 ms effort frame is the mean of the rectified, filtered signal. A gyro jolt above 250 deg/s on the
 BNO08x holds the last trusted effort for 150 ms instead of acting on the plates' movement. Re-run calibration
 after changing either number: the effort scale is not the same as the old |v - 1.5| measure.
+
+## Feedback (what Kyle sees and feels)
+
+`feedback.c` runs after every 20 ms frame. The light bar turns **yellow** while the flexor is above its threshold,
+**blue** for the extensor, **green** when both are, brightness following effort, so the co-contraction he needs to
+open the wheel shows as green the moment he gets it. The motor gives one 30 ms tick on each close or open onset and
+a 90 ms one on a co-contraction; the wheel's own cues are unchanged and win while it is open. With USB in and the
+band idle the bar is a battery gauge (1 to 3 pixels, the top one breathing); amber breathing on one pixel means USB
+is in but the switch is off. `cfg.feedback` = 0 off, 1 bar only, 2 bar + buzz (default). Config version is 4: the
+first boot after flashing reloads defaults, so calibrate again.
+
+## Addresses and who talks to whom
+
+Four ways the band is used, and the band only ever addresses the hand in two of them:
+
+| mode | band talks to | hand talks to |
+|---|---|---|
+| HAND-FACTUM | Factum only: UDP frames to `factum_host`:`factum_port` (5005), estop POST to `factum_path`/estop. Each frame carries `"h"`, the hand command the band would have sent, for Factum to relay | Factum |
+| HAND-DIRECT | the hand, at `hand_ip` on the band's own access point (default 192.168.4.11) | the band's AP "RoboKyle" |
+| HAND-WIRED | the hand over the PH3 cord | the cord |
+| MOUSE | a phone or laptop over BLE | nothing |
+
+There is no "hand on the home network" address. `factum_host` (default `api.factum.org`, a name or an IP) is
+resolved by DNS as soon as Wi-Fi is up, retried every 10 s until it answers; plain HTTP and UDP only, the Pico build
+has no TLS, so the server must expose the band endpoints without HTTPS or a TLS step gets added later. All keys are
+settable from Factum through the config server; `factum_ip` is accepted and lands in `factum_host`. Config version 6.
+Factum's hand adapter (turning `"h"` into POSTs to the hand, plus the keepalive) is backend work still to do; until
+then HAND-FACTUM is streaming and the arcade, and the hand is driven in HAND-DIRECT or over the cord.

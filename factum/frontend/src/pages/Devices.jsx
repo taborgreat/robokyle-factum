@@ -9,11 +9,11 @@ export default function Devices({ state, onChange }) {
     <div className="grid">
       <div className="panel">
         <h2>Where things are</h2>
-        <p className="msg">The band's IP is learned from its frames automatically. Both devices answer on port 80 on the LAN.</p>
+        <p className="msg">These are the addresses Factum itself talks to. The band's IP is learned from its frames automatically; the hand's is wherever the hand reaches this server from. The band never addresses the hand over Wi-Fi: in HAND-FACTUM both devices talk to Factum only, in HAND-DIRECT the hand joins the band's hotspot at 192.168.4.11, otherwise it is the cord.</p>
         <div className="form">
           <div className="row"><label htmlFor="band_ip">Band IP</label><input id="band_ip" value={band} onChange={e => setBand(e.target.value)} placeholder="learned from frames" /></div>
           <div className="row"><label>Band last seen</label><span className="mono">{when(d.band?.lastSeen)}</span></div>
-          <div className="row"><label htmlFor="hand_ip">Hand IP</label><input id="hand_ip" value={hand} onChange={e => setHand(e.target.value)} placeholder="e.g. 192.168.1.11" /></div>
+          <div className="row"><label htmlFor="hand_ip">Hand IP</label><input id="hand_ip" value={hand} onChange={e => setHand(e.target.value)} placeholder="where the hand answers Factum" /></div>
           <div className="row"><label htmlFor="key">Shared key (Factum side only)</label><input id="key" type="password" value={key} onChange={e => setKey(e.target.value)} placeholder={d.keySet ? 'set' : 'factory default'} /></div>
         </div>
         <div className="actions" style={{ marginTop: 10 }}><button className="btn" onClick={save}>Save</button>{msg && <span className="msg ok">{msg}</span>}</div>

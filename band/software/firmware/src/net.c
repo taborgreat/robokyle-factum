@@ -4,6 +4,7 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "pico/cyw43_arch.h"
+#include "lwip/dns.h"
 #include "lwip/udp.h"
 #include "lwip/tcp.h"
 #include "lwip/ip4_addr.h"
@@ -11,6 +12,22 @@
 #include "dhcpserver.h"
 
 static bool chip_up, sta_up, ap_up;
+static char factum_ip_str[16]; static uint32_t dns_t0;
+static void dns_cb(const char *name, const ip_addr_t *a, void *arg) {
+  (void)name; (void)arg;
+  if (a) { strncpy(factum_ip_str, ipaddr_ntoa(a), sizeof factum_ip_str - 1); printf("net: %s -> %s\n", cfg.factum_host, factum_ip_str); }
+}
+static void resolve_factum(void) {                       // literal IP: done; name: ask DNS (answer arrives in dns_cb)
+  ip_addr_t a;
+  if (ipaddr_aton(cfg.factum_host, &a)) { strncpy(factum_ip_str, cfg.factum_host, sizeof factum_ip_str - 1); return; }
+  cyw43_arch_lwip_begin();
+  err_t e = dns_gethostbyname(cfg.factum_host, &a, dns_cb, NULL);
+  cyw43_arch_lwip_end();
+  if (e == ERR_OK) dns_cb(cfg.factum_host, &a, NULL);
+  dns_t0 = to_ms_since_boot(get_absolute_time());
+}
+const char *net_factum_ip(void) { return factum_ip_str; }
+bool net_ap_up(void) { return ap_up; }
 static dhcp_server_t dhcp;
 static char ip_str[16];
 
@@ -52,7 +69,9 @@ void net_tick(void) {
       sta_up = true; joining = false;
       strncpy(ip_str, ip4addr_ntoa(netif_ip4_addr(&cyw43_state.netif[CYW43_ITF_STA])), sizeof ip_str - 1);
       printf("net: %s ip %s\n", cfg.wifi[join_idx].ssid, ip_str);
+      factum_ip_str[0] = 0; resolve_factum();
     }
+    if (!factum_ip_str[0] && now - dns_t0 > 10000) resolve_factum();       // DNS did not answer: ask again every 10 s
     return;
   }
   if (sta_up) { sta_up = false; ip_str[0] = 0; printf("net: link lost\n"); joining = false; }
@@ -134,6 +153,9 @@ static err_t http_connected(void *arg, struct tcp_pcb *pcb, err_t err) {
 }
 
 bool http_post(const char *ip, uint16_t port, const char *path, const char *json, http_done_t done, void *arg) {
+  return http_post_host(ip, port, ip, path, json, done, arg);
+}
+bool http_post_host(const char *ip, uint16_t port, const char *host, const char *path, const char *json, http_done_t done, void *arg) {
   if (h.busy) {
     if (to_ms_since_boot(get_absolute_time()) - h.t0 < 1500) return false;   // still in flight
     cyw43_arch_lwip_begin(); http_finish(-2); cyw43_arch_lwip_end();          // stuck: give up on it
@@ -141,7 +163,7 @@ bool http_post(const char *ip, uint16_t port, const char *path, const char *json
   ip_addr_t dst; if (!ipaddr_aton(ip, &dst)) return false;
   size_t n = json ? strlen(json) : 0;
   snprintf(h.req, HTTP_BUF, "POST %s HTTP/1.1\r\nHost: %s\r\nContent-Type: application/json\r\nContent-Length: %u\r\n"
-           "Connection: close\r\n\r\n%s", path, ip, (unsigned)n, json ? json : "");
+           "Connection: close\r\n\r\n%s", path, host, (unsigned)n, json ? json : "");
   h.done = done; h.arg = arg; h.rlen = 0; h.resp[0] = 0; h.busy = true; h.t0 = to_ms_since_boot(get_absolute_time());
   cyw43_arch_lwip_begin();
   h.pcb = tcp_new_ip_type(IPADDR_TYPE_V4);

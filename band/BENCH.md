@@ -21,7 +21,7 @@ proved yet. Nothing on the Pico until stage 3 says so.
 | GY-BNO08X | orientation | I²C address 0x4A with AD0/SA0 low, 0x4B with it high (datasheet); the bench prints which it finds and the firmware probes both. **Lives in the forearm module, not the box** |
 | SEN0240 × 2 (plate + signal board + 3.5 mm cable) | EMG | boards in the forearm module, plates on their loop band; the Gravity cables are not used |
 | JST-PH kit: 6-pin sockets × 2, 4-pin sockets × 2, 3-pin socket × 1, housings + crimp pins | every connector | box: PH6 + PH4 + PH3 in the walls; module: PH6 + PH4 stacked |
-| 1.5" elastic strap, ≤ 22 mm elastic (loop band), M2 × 4/6/8/12 screws, M3 × 5/6 (the two signal boards), M2 heat-set inserts | mounting | see PUCKS.md |
+| 1.5" elastic strap, ≤ 22 mm elastic (loop band), M2 × 4/6/8 screws, M3 × 5/6 (the two signal boards), 10 M2 heat-set inserts | mounting | see PUCKS.md |
 | Qi receiver + coil + ferrite | wireless charging | last thing you add |
 | Kapton tape (amber) | insulation, heat-proof | around the cell's edges, over solder stubs, holds ferrite to coil and the coil to the cell (nothing sticks to the lid) |
 | (optional, later) foil shield | conductive | only if the EMG trace is noisy: kitchen foil around the twisted EMG1/EMG2/GND trio with a bare wire under it to GND at the box end; **never near the Qi coil** |
@@ -121,7 +121,7 @@ and reach the box through the trunk (stage 8).
 ## 7. Now solder (only after 6 passes)
 
 Diagrams with every hole, wire and build order for the strip, the battery bay, the forearm module and the cables:
-[hardware/strip_map.html](hardware/strip_map.html) (open it in a browser; the generator is hardware/cad/strip_map_svg.py).
+the Build tab of [viewer/index.html](viewer/index.html) (open it in a browser; the generator is hardware/cad/strip_map_svg.py).
 
 ### 7a. What goes on the strip, and where
 
@@ -131,8 +131,7 @@ Diagrams with every hole, wire and build order for the strip, the battery bay, t
 - The divider pair (100 k × 2), the motor driver (1 k / S8050), diode 1 (1N5817). The motor's 1N4007 is NOT on the
   strip: it sits across the motor's own tabs in the forearm module. Exact holes for everything: PARTS.md, "Strip map".
 - Tall parts (anything on end, up to 4.5 mm) only on the two outer rows beside the Pico: rib side anywhere from
-  20 mm before the strip centre to the free rows; chest side except under the switch (8 ± 6 mm from the strip centre)
-  and under the LED (18 ± 5 mm). The CAD checks exactly these zones.
+  20 mm before the strip centre to the free rows; chest side except under the LED (18 ± 5 mm). The CAD checks exactly these zones.
 - Nothing else. The IMU, the EMG boards, the button and the motor are in the forearm module. Nothing is on the lid.
 - Standoffs: the four drilled holes (rows 2 and 21, columns 1 and 10). Nip both USB-end corners of the board ~2 mm
   at 45° for the bay's rounded corners. Clip every lead 1.5 mm under the board.
@@ -142,8 +141,9 @@ Diagrams with every hole, wire and build order for the strip, the battery bay, t
 1. Pico headers, then the star ground blob at row 22, outer columns.
 2. 470 Ω, then the LED (standing, 1 mm off the board).
 3. The 100 k pair (top end to the switch's output side, not to the cell), 1 k, S8050, diode 1, at the holes in PARTS.md.
-4. Flying leads off the strip, 60 mm each: switch (2), charger OUT+ / OUT− (2), light bar GND / 3V3 / GP16 (3), and
-   VBUS (pin 40 stub) → diode 3 → charger IN+. The Qi receiver's two wires never reach the strip: + → diode 2 → charger
+4. Flying leads off the strip: switch return off (22,5) 30 mm; charger OUT− 60; light bar GND / 3V3 / GP16 (3) 60 each;
+   VBUS (pin 40 stub) → diode 3 → charger IN+ 60. Charger OUT+ → switch middle is a 110 mm lead between those two
+   parts that never touches the strip. The Qi receiver's two wires never reach the strip: + → diode 2 → charger
    IN+, − → charger IN−.
 5. Wall sockets: clip each socket's pins to 2 mm, solder 60 mm leads on, and solder those leads to the strip:
    PH6 = trunk A (3V3 GND EMG1 EMG2 MOT+ MOT−), PH4 = trunk B (SDA SCL INT BTN), PH3 = hand cord (TX RX GND).
@@ -168,8 +168,10 @@ Diagrams with every hole, wire and build order for the strip, the battery bay, t
    it lifts straight off.
 7. **Trunk B (PH4) and hand cord (PH3) sockets** into the strip-side end-wall pockets, hot glue.
 8. **Strip** onto its four standoffs, four M2×4.
-9. **Switch**, already on its two leads, glued between the two fins on the chest wall, nub through the slot. Check it
-   still throws before the glue sets.
+9. **Switch**, already on its two leads, down onto its shelf on the chest wall past the strip's +X end (ends between
+   the two fins, nub through the slot), a dab of glue. Its OUT+ lead comes from the charger through the USB-end notch
+   and along the strip's middle-wall edge; its return drops to (22,5) right beside it. Check it still throws before
+   the glue sets.
 10. **Light bar** into the middle-wall pocket, LEDs up, leads through the USB-end notch.
 11. **Lid**: two M2×6 into the inserts. Both screws go in square to the strip-side facet, leaning toward the chest,
     not vertical.

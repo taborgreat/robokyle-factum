@@ -57,6 +57,6 @@ def main(ref: str, name: str):
 
 if __name__ == "__main__":
     main(*sys.argv[1:3])
-    # keep band/software/viewer/index.html current with print/
+    # keep band/viewer/index.html current with print/
     import runpy
-    runpy.run_path(str(ROOT / "band" / "software" / "viewer" / "build_viewer.py"), run_name="__main__")
+    runpy.run_path(str(ROOT / "band" / "viewer" / "build_viewer.py"), run_name="__main__")

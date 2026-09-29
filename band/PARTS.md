@@ -23,7 +23,8 @@ the next build (and the claw) starts from numbers instead of guesses. The CAD re
 | minimum wall next to a hole | 1.5 mm | |
 | horizontal bridge over a window | avoid; open the window up to the lid's parting line instead | 1 mm bridges printed as dangling threads (P) |
 | solid gap between two features | ≥ 1.0 mm or merge them | 0.3 mm air slivers print as ragged blobs (P) |
-| lid seat | wall tops meet the lid underside AND the skirt sits on the parting step, both at nominal | any designed gap (0.2 was tried under the walls, then under the skirt) shows as a line of light (P) |
+| lid seat, band box | wall tops meet the lid underside AND the skirt sits on the parting step, both at nominal | any designed gap (0.2 was tried under the walls, then under the skirt) shows as a line of light (P) |
+| lid seat, forearm module | wall tops carry the lid; the end skirts stop 0.15 above the parting step behind a 0.8 mm inner lip; four lid screws | the over-constrained seat plus crest-only screws bowed the lid and lifted the facets' outer edges (P) |
 | skirt zone | built per row frame so it leans with the walls | a floor-width box missed the outer half of every end wall (P) |
 | blind hole under a mating face | cut the hole 20 mm past the surface, never end it at the nominal top | a hole ending 0.2 under a face that later grows to meet it leaves a skinned mouth (P) |
 | two tilted half-boxes forming a tent | overlap them past the centre by more than the lean shifts them at crest height | 12 mm of overlap left a 2 mm slot along the module lid's crest; 30 poked out below the walls; 16 is right (P) |
@@ -40,7 +41,7 @@ the next build (and the claw) starts from numbers instead of guesses. The CAD re
 | charger board | AITRIP TP4057 1 A Type-C with protection (Amazon 20-pack) | board 16.8 × 12.1; 18.35 long with the USB-C shell; 4.2 tall with it (M) | pads B+ B− / OUT+ OUT− / IN+ IN−. Cell on B+/B− (through a PH2.0 pigtail so it stays pluggable). OUT+ → switch, OUT− is the ground (protection FET in it), IN+ ← Qi + through a 1N5817 and ← Pico VBUS through another 1N5817 (both stripes toward the board), IN− ← Qi −. PROG 1 kΩ = 1 A; 2 kΩ = ~500 mA (optional). Lies flat, USB-C toward the triceps wall, pads toward the middle wall; the Qi board rests on the cradle's four bracket tops |
 | (retired) SunFounder Li-po charger for Pico | from the Kepler kit | 20 × 7, pads VBUS / VSYS / GND, PH2.0 socket | LTC4054 + one B5819 diode, no protection, no boost. Its diode died after a reversed cell plug-in. Not used |
 | (claw) 2S–4S boost charger | CN3302 board, Type-C, jumpers 2S / 1 A | | for the claw's 2S pack only. **Never on a 1S cell** (it outputs 8.4 V) |
-| slide switch | SS12D00 style, 3 pins | body 8.6 × 3.7 × 3.6, nub 1.5 × 1.5 × 3.0, travel 2, pins 3.5 below (?) | pocket 9.2 × 4.3, slot 6 × 3 (G); glued between two 0.7 mm fins on the chest wall, nub through the wall |
+| slide switch | SS12D00 style, 3 pins | body 8.6 × 3.7 × 3.6, nub 1.5 × 1.5 × 3.0, travel 2, pins 3.5 below (?) | slot 6 × 3 (G); on a shelf on the chest wall just past the strip's +X end (between the LED and the corner lid boss), ends between two fins, nub through the wall; its pins point into the bay over free floor, nothing under them |
 | tactile button | 12 × 12 with square yellow cap | body 12 × 12 × 7.3, cap 12 × 12 × 4 r1.5, legs at 12.5 × 5.0 pitch, 3.5 below | cap hole 12.6; two legs clipped flush, two to 1.5 mm, wires soldered sideways; lives in the forearm module's rib |
 | green LED | 5 mm | dome 5.0, flange 5.8 × 1.0, body 8.7, legs clipped to standoff + strip + 1.5 | soldered into the strip at rows 21–22, third column in on the chest side; 470 Ω from 3V3 |
 | WS2812B strip | 60/m, 10 mm wide FPC | pitch 16.67, LED 5 × 5 × 1.6 on 1.0 FPC | 3 pixels, lies in the middle-wall pocket, powered from 3V3, GP16 |
@@ -54,8 +55,8 @@ the next build (and the claw) starts from numbers instead of guesses. The CAD re
 | JST-PH housings (the crimped-contact side, on the cables) | same kit, PHR-n | 3p 8.0, 4p 10.0, 6p 14.0 wide × 4.75 tall (M 2026-09-25) | wall windows 8.8 / 10.8 / 14.8 × 5.6 |
 | crimp contacts | SPH-002T-P0.5S, loose | for 24–30 AWG, insulation 0.9–1.5 | Engineer PA-09: 1.4 slot conductor, 1.9 slot insulation; strip 2.5, no tinning |
 | wire | 30 AWG (inside the box), 26–28 AWG silicone for cables | | 30 AWG wire-wrap is too thin for the PH insulation tabs |
-| M2 heat-set inserts | 3.5 OD × 4 long, brass | | 4 in the band: 2 box lid bosses, 2 plate posts. None in the forearm parts |
-| screws | M2 × 4 / 6 / 8 / 12 pan; M3 × 5 / 6 | | M2×6 lid and cover screws; M2×4 lid of the module and IMU; M2×12 module clamp; M3×5 board A, M3×6 board B |
+| M2 heat-set inserts | 3.5 OD × 4 long, brass | | 10: 2 box lid bosses, 2 plate posts, 6 in the forearm module (crest bosses top and bottom, side ears). Set 0.2 below the face |
+| screws | M2 × 4 / 6 / 8 pan; M3 × 5 / 6 | | M2×6 box lid, module lid (4) and cover screws; M2×4 strip and IMU; M2×8 module clamp; M3×5 board A, M3×6 board B |
 | transistor / diodes / resistors | S8050 NPN (E B C, flat face toward you); 1N4007 (motor); 1N5817 × 3 (cell → VSYS, Qi + → charger IN+, Pico VBUS → charger IN+); 1 k, 470 Ω, 100 k × 2 | | S8550 is the PNP twin, do not use it in the low-side switch |
 
 ## Body and strap numbers
@@ -67,15 +68,15 @@ the next build (and the claw) starts from numbers instead of guesses. The CAD re
 | main strap | 1.5 in (38.1) elastic nylon, 1.5 thick | module clamp screws sit just outside it, 45 mm apart |
 | electrode loop band | ≤ 22 mm elastic, sewn into a snug loop | threads through the cover's 24 × 3 slots |
 | plate | sewn to the sleeve through radial eyelets; posts rise 2.9 into floor bosses; M2×6 from inside | inserts in the plate posts, entered from the post top (inside), nothing on the skin side |
-| module backer | 2.4 thick, two rails for the strap, 26 sewing eyelets | clamp screws M2×12 from the skin side, heads sunk in counterbores; no inserts |
+| module backer | 2.4 thick, two rails for the strap, 26 sewing eyelets | clamp screws M2×8 from the skin side, heads sunk in counterbores; the inserts are in the module's bosses |
 
 ## Which way every fastener goes (nothing metal on the skin side except two sunk heads)
 
 - Band box lid: 2 × M2×6 from the top into inserts in the box's bosses (both screws go in square to the strip-side facet, leaning toward the chest).
 - Box to plate: 2 × M2×6 from inside the battery bay, down into inserts in the plate's post tops.
 - Strip: 4 × M2×4 into thread-formed holes in the floor standoffs.
-- Forearm module lid: 2 × M2×4 from the top into the ridge bosses.
-- Module to backer: 2 × M2×12 from the skin side up through the backer into the ridge bosses (thread-formed, 9.5 mm engagement); the heads sit in Ø4.2 × 1.4 counterbores on the backer's skin face, 0.1 below it. Use pan heads (1.3 tall), not socket caps (2.0 tall, would stand proud).
+- Forearm module lid: 4 × M2×6 into inserts: two vertical on the crest bosses, two square to the facets on the side ears.
+- Module to backer: 2 × M2×8 from the skin side up through the backer into inserts in the crest bosses' undersides (4 mm of brass, 1.5 mm strap gap); the heads sit in Ø4.2 × 1.4 counterbores on the backer's skin face, 0.1 below it. Use pan heads (1.3 tall), not socket caps (2.0 tall, would stand proud). The bosses are blind from both ends; nothing goes through.
 - Boards in the module: M3 into the posts from above; IMU: M2×4.
 - Electrode cover: 4 × M2×6 from the outside into the frame's bosses; the frame's skin side is plain plastic.
 
@@ -84,39 +85,39 @@ the next build (and the claw) starts from numbers instead of guesses. The CAD re
 **How to read a hole.** Look down at the top of the strip with the USB end at the top (away from you). Column 1
 is top-left, column 10 top-right, rows 1 to 22 from the USB end. The Pico's pin 1 (GP0) is at (1,2) and its pin
 40 (VBUS) at (1,9): pins 1–20 run down column 2 (pin = row), pins 40–21 run down column 9 (pin = 41 − row).
-The lid's LED hole is over column 8, so in the box the **right-hand side (columns 9–10) faces the chest wall** with
-the switch fins, and the left-hand side (columns 1–2) faces the middle wall, where the charger, trunk A and light
+The lid's LED hole is over column 8, so in the box the **right-hand side (columns 9–10) faces the chest wall** (the
+switch sits on that wall just past row 22), and the left-hand side (columns 1–2) faces the middle wall, where the charger, trunk A and light
 bar wires come through the notch. Holes are written (row, column).
 
 Rules: parts go in from the top and are soldered underneath, leads clipped to 1.5 mm. Wires never get a hole: tin
 the wire and lay it along the stub of its pin or part leg on the underside, one joint. Underside wires cross in the
 bare lanes (columns 3–8 under the Pico), never over a stub. Every hole in columns 1 and 10 has a Pico pin 2.5 mm
-away: keep those joints small. Standing parts only on column 1; column 10 stays flat (switch rows 12–17, LED rows 17–20).
+away: keep those joints small. Standing parts only on column 1 (6.5 mm of room); column 10 has 4.5 mm, none under the LED hole (rows 17–20).
 
 | part | holes | notes |
 |---|---|---|
 | Pico | rows 1–20, columns 2 and 9 | USB face flush with the row-1 edge; header body flat on the strip |
-| green LED | long leg (21,8), short leg (22,8) | flange 1 mm above the board |
-| 470 Ω | (21,4) → (21,6), flat on top | underside solder run (21,6)→(21,7)→(21,8) to the LED's long leg |
+| green LED | long leg (22,8), short leg (21,8), as soldered | flange 1 mm above the board; the resistor run and the ground wire are swapped to match this |
+| 470 Ω | (21,4) → (21,6), flat on top | underside solder run (21,6)→(21,7)→(22,7)→(22,8) to the LED's long leg |
 | diode 1, 1N5817 | stripe end (22,2), plain end (22,5), flat on top | stripe toward column 1 |
 | R1 100 k (divider top) | (4,10) → (7,10), flat on top | (4,10) is the switch-output tap |
-| R2 100 k (divider bottom) | (7,10) → (10,10), flat on top | its top leg shares hole (7,10) with R1's leg: twist the two legs together |
+| R2 100 k (divider bottom) | (8,10) → (12,10), flat on top, right below R1 | underside bridge (7,10)↔(8,10) joins it to R1 (the midpoint) |
 | divider midpoint | underside bridge (7,10)↔(7,9) | (7,9) is GP28 |
+| divider ground | underside solder run (12,10)→(13,10)→(13,9) | (13,9) is a GND pin; no wire |
 | S8050 | E (13,1), B (14,1), C (15,1), standing | flat face away from the Pico (toward the board's edge); E is the leg nearest the USB end |
 | emitter to ground | underside bridge (13,1)↔(13,2) | (13,2) is a GND pin |
-| 1 kΩ | one lead soldered to the base leg 3 mm above the board, body lying toward the far end on the outboard side of the C leg, other lead in (17,1) | underside bridge (17,1)↔(17,2): (17,2) is GP13, the motor pin |
+| 1 kΩ | as built: soldered to the shortened base leg above the board and continuing down through (14,1); other lead in (18,1) | underside solder run (18,1)→(17,1)→(17,2): (17,2) is GP13, the motor pin. (18,1) must not touch (18,2), which is ground |
 | 3V3 point | underside bridge (5,9)↔(5,10) | (5,9) is 3V3; (5,10) sits under R1's body and is free underneath |
 
 | wire | from | to | length |
 |---|---|---|---|
 | charger OUT− | charger | pin 3 stub (3,2) | 60 |
-| charger OUT+ | charger | switch middle | 60 (never touches the strip) |
-| switch outer | switch | diode 1 plain-end stub (22,5) | 60 |
+| charger OUT+ | charger | switch middle | 110: up through the USB-end notch, along the strip's middle-wall edge (beside column 1, over bare board), past the strip's +X end and up to the switch. Never soldered to the strip, never over the Pico |
+| switch outer | switch | diode 1 plain-end stub (22,5) | 30 (the switch is 7 mm past row 22) |
 | VSYS | diode 1 stripe stub (22,2) | pin 39 stub (2,9) | 60, underside, diagonal under the Pico |
 | divider tap | diode 1 plain stub (22,5) | R1 top stub (4,10) | 50, underside |
-| divider ground | R2 bottom stub (10,10) | pin 33 stub (8,9) | 10, underside |
 | LED supply | 470 Ω far stub (21,4) | pin 36 stub (5,9) | 45, underside |
-| LED ground | LED short-leg stub (22,8) | pin 23 stub (18,9) | 12, underside |
+| LED ground | LED short-leg stub (21,8) | pin 23 stub (18,9) | 12, underside |
 | VBUS → charger | pin 40 stub (1,9) | 1N5817 (stripe toward the charger) → charger IN+, meeting the Qi diode there | 60 |
 | light bar GND | bar −X pad | pin 8 stub (8,2) | 60 |
 | light bar +5V | bar −X pad | pin 36 stub (5,9), with the LED supply | 60 |
@@ -130,4 +131,4 @@ away: keep those joints small. Standing parts only on column 1; column 10 stays 
 | trunk B SDA / SCL / INT / BTN | PH4 header | pins 6, 7, 9, 10 stubs = (6,2) (7,2) (9,2) (10,2) | 60 |
 | cord TX / RX / GND | PH3 header | pins 1, 2, 18 stubs = (1,2) (2,2) (18,2) | 60 |
 
-Pins 36 and 8 and the 3V3 point (5,10) each take two wires: tin the two ends together, then one joint on the stub. Diagram of both sides: [hardware/strip_map.html](hardware/strip_map.html), rebuilt by python band/hardware/cad/strip_map_svg.py.
+Pins 36 and 8 and the 3V3 point (5,10) each take two wires: tin the two ends together, then one joint on the stub. Diagram of both sides: the Build tab of [viewer/index.html](viewer/index.html), rebuilt by python band/hardware/cad/strip_map_svg.py.

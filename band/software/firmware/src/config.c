@@ -26,12 +26,14 @@ void config_defaults(config_t *c) {
   // Ship with Tabor's and Kyle's networks here; everything else is set from Factum.
   strcpy(c->wifi[0].ssid, "TABOR_WIFI"); strcpy(c->wifi[0].pass, "password");
   strcpy(c->wifi[1].ssid, "KYLE_WIFI");  strcpy(c->wifi[1].pass, "password");
-  strcpy(c->factum_ip, "192.168.1.10"); c->factum_port = 5005;
-  strcpy(c->hand_ip, "192.168.1.11");   c->hand_port = 80;
+  strcpy(c->factum_host, "api.factum.org"); c->factum_port = 5005;
+  strcpy(c->factum_path, "/band"); c->factum_http_port = 80;
+  strcpy(c->hand_ip, "192.168.4.11");   c->hand_port = 80;     // the hand joins the band's AP and takes .11
   strcpy(c->ap_ssid, "RoboKyle"); strcpy(c->ap_pass, "robokyle");
   c->flex_on = 0.30f; c->flex_off = 0.18f; c->ext_on = 0.30f; c->ext_off = 0.18f;
   c->flex_max = 0.90f; c->force_limit = 0.6f;
   c->mouse_gain = 0.08f; c->mouse_deadzone = 3.0f; c->mouse_accel = 1.4f;
+  c->feedback = 2;
   c->last_mode = 0; c->bt_slot = 0;
 }
 

@@ -12,8 +12,10 @@ The skin is a cylinder of radius R_FA about the line y = 0, z = -R_FA.
                     BUTTON (sunk in a pocket, cap through the lid's flat crest) and the COIN MOTOR (in a well down
                     onto the strap). Trunk = PH6 over PH4 stacked in bay B's elbow wall; the boards' own 3.5 mm
                     jacks through the wrist wall; the BNO08x under board B
-  module_lid        tent-shaped cap; press-fit end skirts + 2 x M2x4
-  module_backer     curved plate under the strap; 2 x M2x12 from the skin side clamp backer+strap+module
+  module_lid        tent-shaped cap; end skirts over an inner lip + 4 x M2x6 into heat-set inserts (two on the
+                    crest, two on the side ears)
+  module_backer     curved plate under the strap; 2 x M2x8 from the skin side into inserts in the crest bosses'
+                    undersides clamp backer+strap+module
 
 Every cable is plug-to-plug: electrode plate -> 3.5 mm cable -> module; module -> two PH4-PH4 trunk cables -> band.
 Strap prep: 2.5 mm holes at the screw positions (hot nail), one 8.5 x 14 notch from the wrist edge per electrode
@@ -69,7 +71,14 @@ IN_H = STANDOFF["B"] + g["t"] + g["grav_h"] + 0.5                              #
 SOCK_STACK = (6, 4)                            # trunk sockets stacked in ONE pocket in bay B's elbow wall: PH6 below
                                                # (3V3 GND EMG1 EMG2 BTN MOTOR), PH4 above (SDA SCL INT RST); housings glued
 SKIRT, SKIRT_T, SKIRT_CLR = 3.0, 1.0, 0.25
-BOSS_D, BOSS_HOLE = 5.5, 2.0
+SKIRT_GAP = 0.15                               # the skirt stops this far above the parting step: the WALL TOPS carry the lid
+LIP_T = 0.8                                    # inner lip on the end walls above the parting line, behind the skirt (no light path)
+LIP_IN = SKIRT_T + SKIRT_CLR + LIP_T           # inset of the lip's inner face from the outer surface
+BOSS_D, BOSS_HOLE = 5.5, 2.0                   # crest bosses; BOSS_HOLE = M2 thread-forming (IMU posts)
+BOSS_SHORT = 0.1                               # boss/ear tops this far under the lid (set the inserts 0.2 below the face)
+INSERT_D, INSERT_L, BORE_L = M2["insert_hole_d"], 4.6, 2.0    # M2 heat-set pocket + the screw-tip bore under it
+EAR_D = 6.0                                    # side ears: leaning bosses on the middle of each long wall, inserts on top
+EAR_U = ROW_W / 2 + EAR_D / 2                  # ear axis: tangent to the bay's inner face (1.3 mm of plastic bay-side of the insert)
 M3 = DIM["m3"]
 POST_D = 6.5                                   # signal-board posts take M3 (2026-09-25 print: M2 heads nearly fall through the 3.0 holes)
 BOARD_SHIFT = -0.5                             # boards sit 0.5 further from the wrist wall: the jack-end hole distance is a caliper
@@ -237,6 +246,24 @@ def skirt_band_cut():
     return ((outer_form() - outer_form(inset=SKIRT_T + SKIRT_CLR)) - tent(PARTING, PARTING)) & end_zone()
 
 
+def end_lip():
+    """Inner lip on both end walls, in the skirt zone: LIP_T thick, inset SKIRT_T + SKIRT_CLR from the outer surface
+    above the parting line (the skirt's clearance), merging into the wall's inner face for 3 mm below it. It stands on
+    the end wall above the parting step and reaches the lid, so the end walls carry the lid too, and it is the
+    light baffle behind the SKIRT_GAP. The windows are cut through it afterwards like through the wall."""
+    lip = (outer_form(inset=WALL) - outer_form(inset=LIP_IN)) & end_zone() & tent(R_IN, R_IN)
+    lip -= tent(PARTING - 3.0, PARTING - 3.0)
+    lip -= (outer_form(inset=WALL) - outer_form(inset=SKIRT_T + SKIRT_CLR)) - tent(PARTING, PARTING)   # the skirt's 0.25 of air
+    return lip
+
+
+def ear(k, sg, w_top):
+    """Side ear of row k on its outer long wall (sg = -1 for A, +1 for B): a boss along the row's w axis (leaning
+    with the wall), tangent to the bay's inner face, from the strap up to w_top in the row frame."""
+    col = on_row(Cylinder(EAR_D / 2, 120, align=(Align.CENTER, Align.CENTER, Align.MIN)), k, 0, sg * EAR_U, -60)
+    return (col & tent(w_top, w_top)) - arm_cyl(R + STRAP_T)
+
+
 # ---------------------------------------------------------------- placements
 def placements():
     P = {}
@@ -325,13 +352,28 @@ def sock_pocket_stack(sizes):
 
 
 def module():
-    body = rounded_outer() & tent(R_IN, R_IN)                          # wall tops touch the lid (bosses stay 0.2 short)
+    body = rounded_outer() & tent(R_IN, R_IN)                          # wall tops touch the lid (bosses stay BOSS_SHORT short)
     body -= skirt_band_cut()
     body -= cavities()
-    # clamp bosses on the ridge (vertical), through 2.0 holes: M2x12 from the backer, M2x4 from the lid
+    # inner lip on the end walls: LIP_T thick, from 3 mm below the parting line up to the lid, standing 0.85 mm
+    # into the bay above everything in it. The skirt laps it, so the SKIRT_GAP under the skirt shows no light.
+    body += end_lip()
+    # crest bosses (vertical, on the rib's ends): an M2 insert pocket from the top for the lid's M2x6 and another
+    # from the strap face for the clamp's M2x8, solid between (2026-09-29: the old through hole read as one
+    # 20 mm screw). Bore under each insert takes the screw tip.
+    z_top = crest_z(R_IN - BOSS_SHORT)
     for sx in (-1, 1):
-        body += Cylinder(BOSS_D / 2, 200).moved(Location((sx * BOSS_X, 0, 0))) & outer_form() & tent(R_IN - 0.2, R_IN - 0.2)
-        body -= Cylinder(BOSS_HOLE / 2, 200).moved(Location((sx * BOSS_X, 0, 0)))
+        body += Cylinder(BOSS_D / 2, 200).moved(Location((sx * BOSS_X, 0, 0))) & outer_form() & tent(R_IN - BOSS_SHORT, R_IN - BOSS_SHORT)
+        body -= Cylinder(INSERT_D / 2, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((sx * BOSS_X, 0, z_top - INSERT_L)))
+        body -= Cylinder(M2["clear_d"] / 2, BORE_L + 0.01, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((sx * BOSS_X, 0, z_top - INSERT_L - BORE_L)))
+        body -= Cylinder(INSERT_D / 2, INSERT_L + 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((sx * BOSS_X, 0, STRAP_T - 1.0)))   # from the strap face
+        body -= Cylinder(M2["clear_d"] / 2, BORE_L + 0.01, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(Location((sx * BOSS_X, 0, STRAP_T + INSERT_L)))
+    # side ears: one leaning boss on the middle of each long wall (the facets' outer edges lifted with only the
+    # crest screwed; the bays are full and the walls lean out 32 deg, so nothing can hold that edge from inside)
+    for k, sg in (("A", -1), ("B", 1)):
+        body += ear(k, sg, R_IN - BOSS_SHORT)
+        body -= on_row(Cylinder(INSERT_D / 2, 30, align=(Align.CENTER, Align.CENTER, Align.MIN)), k, 0, sg * EAR_U, R_IN - BOSS_SHORT - INSERT_L)
+        body -= on_row(Cylinder(M2["clear_d"] / 2, BORE_L + 0.01, align=(Align.CENTER, Align.CENTER, Align.MIN)), k, 0, sg * EAR_U, R_IN - BOSS_SHORT - INSERT_L - BORE_L)
     body -= skirt_band_cut()
     # the trunk: PH6 + PH4 stacked in ONE pocket in bay B's elbow wall (opening faces -X)
     blk, cut = sock_pocket_stack(SOCK_STACK)
@@ -397,13 +439,17 @@ def module():
 
 def module_lid():
     cap = rounded_outer() - tent(R_IN, R_IN)
-    skirt = ((rounded_outer() - tent(PARTING, PARTING)) & tent(R_IN, R_IN) & end_zone()) - outer_form(inset=SKIRT_T)   # sits on the parting step; wall tops touch the cap too
+    for k, sg in (("A", -1), ("B", 1)):
+        cap += ear(k, sg, R_OUT) - tent(R_IN, R_IN)                            # the cap runs out over each ear
+    skirt = ((rounded_outer() - tent(PARTING + SKIRT_GAP, PARTING + SKIRT_GAP)) & tent(R_IN, R_IN) & end_zone()) - outer_form(inset=SKIRT_T)   # SKIRT_GAP above the step: the wall tops carry the lid
     cap += skirt
     for k in ("A", "B"):                                                        # jack windows continue through the skirt
         win = extrude(RectangleRounded(5.5 + 1.0, g["jack_w"] + 1.0, 1.0), amount=WALL + 4).rotate(Axis.Y, 90)
         cap -= on_row(win, k, X0 + IN_L + WALL / 2 - (WALL + 4) / 2, 0, W_BOARD[k] + g["t"] + 5.5 / 2)
     for sx in (-1, 1):
         cap -= Cylinder(M2["clear_d"] / 2, 200).moved(Location((sx * BOSS_X, 0, 0)))
+    for k, sg in (("A", -1), ("B", 1)):                                       # ear screws go in square to their facet
+        cap -= on_row(Cylinder(M2["clear_d"] / 2, 40), k, 0, sg * EAR_U, R_IN)
     cap -= Box(BTN_D["cap_hole"], BTN_D["cap_hole"], 200).moved(Location((0, 0, 0)))       # button cap through the flat crest
     return cap
 

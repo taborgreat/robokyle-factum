@@ -8,7 +8,7 @@ pico_sdk_init()
 
 add_executable(emg_band
   src/main.c src/config.c src/io.c src/emg.c src/imu.c src/net.c src/cfgsrv.c src/hand.c src/factum.c
-  src/wheel.c src/wire.c src/ble_mouse.c src/modes.c src/json.c
+  src/wheel.c src/wire.c src/ble_mouse.c src/modes.c src/json.c src/feedback.c
   lib/sh2/sh2.c lib/sh2/sh2_SensorValue.c lib/sh2/sh2_util.c lib/sh2/shtp.c lib/sh2/euler.c
   lib/dhcpserver/dhcpserver.c
 )

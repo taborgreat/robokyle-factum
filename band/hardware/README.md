@@ -22,7 +22,7 @@ Set `PYTHONUTF8=1` in the shell: agentcad's JSON writer trips on the Windows con
 - `arm_model.py` — stand-in forearm for the viewer's whole-arm view.
 - `check_box.py` — intersects every part with the box, lid and envelope; run after every change.
 - `publish.py` — copies a version's STL into `print/`, records the mesh bounding box in `print/MANIFEST.md` and
-  rebuilds the viewer (`band/software/viewer/build_viewer.py`).
+  rebuilds the viewer (`band/viewer/build_viewer.py`).
 
 ## Workflow
 ```

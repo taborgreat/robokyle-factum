@@ -1,5 +1,5 @@
-"""Extra sections for band/hardware/strip_map.html: the battery bay, the forearm module and the whole band with its
-cables. Port-to-port block diagrams (not to scale) plus a build order for each. Imported by strip_map_svg.py."""
+"""Extra sections for the viewer's Build tab (band/viewer/index.html): the battery bay, the forearm module and the whole
+band with its cables. Port-to-port block diagrams (not to scale) plus a build order for each. Imported by strip_map_svg.py."""
 import math
 
 def esc(s): return s.replace("&", "&amp;").replace("<", "&lt;")
@@ -52,14 +52,14 @@ def battery_section():
     s.node("cell", 20, 150, 130, 80, "LiPo cell", [("red +", "r", 0.35), ("black −", "r", 0.7)], sub="EEMB 1200 mAh")
     s.node("pig", 200, 150, 90, 80, "PH2 pigtail", [("in +", "l", 0.35), ("in −", "l", 0.7), ("B+", "r", 0.35), ("B−", "r", 0.7)], cls="node small", sub="header + 30 mm")
     s.node("chg", 360, 110, 190, 190, "Charger board", [("B+", "l", 0.25), ("B−", "l", 0.4), ("IN+", "l", 0.7), ("IN−", "l", 0.85), ("OUT+", "r", 0.25), ("OUT−", "r", 0.5)], sub="AITRIP TP4057, protection on OUT−")
-    s.node("sw", 640, 60, 130, 70, "Slide switch", [("middle", "l", 0.5), ("outer A", "r", 0.35), ("outer B", "r", 0.7)], sub="glued between the chest-wall fins")
+    s.node("sw", 640, 60, 130, 70, "Slide switch", [("middle", "l", 0.5), ("outer A", "r", 0.35), ("outer B", "r", 0.7)], sub="on its chest-wall shelf past the strip's end")
     s.node("strip", 820, 40, 120, 250, "Strip", [("(22,5) D1 plain", "l", 0.2), ("(3,2) GND", "l", 0.5), ("(1,9) VBUS", "l", 0.8)], sub="see the map above")
     s.node("qi", 360, 360, 190, 80, "Qi receiver board", [("out +", "r", 0.35), ("out −", "r", 0.7), ("coil", "l", 0.5)], sub="on the cradle's bracket tops")
     s.node("coil", 60, 360, 200, 80, "Qi coil + ferrite", [("leads", "r", 0.5)], sub="on the cell, ferrite DOWN, Kapton band")
     s.wire(("cell", "red +"), ("pig", "in +"), "", C["pwr"]); s.wire(("cell", "black −"), ("pig", "in −"), "", C["gnd"])
     s.wire(("pig", "B+"), ("chg", "B+"), "", C["pwr"]); s.wire(("pig", "B−"), ("chg", "B−"), "", C["gnd"])
-    s.wire(("chg", "OUT+"), ("sw", "middle"), "60 mm", C["sw"], bend=600)
-    s.wire(("sw", "outer A"), ("strip", "(22,5) D1 plain"), "60 mm", C["sw"], bend=795)
+    s.wire(("chg", "OUT+"), ("sw", "middle"), "110 mm", C["sw"], bend=600)
+    s.wire(("sw", "outer A"), ("strip", "(22,5) D1 plain"), "30 mm", C["sw"], bend=795)
     s.wire(("chg", "OUT−"), ("strip", "(3,2) GND"), "60 mm, ground", C["gnd"], bend=700, lab_dy=-6)
     s.wire(("coil", "leads"), ("qi", "coil"), "", C["bar"])
     s.diode(("qi", "out +"), ("chg", "IN+"), "diode 2, 1N5817", C["bar"], bend=600)
@@ -71,9 +71,9 @@ def battery_section():
         "<strong>Charger leads</strong>, 60 mm, from the top, soldered underneath: OUT+, OUT−, IN+, IN−. Leave the board's own USB-C empty.",
         "<strong>Qi receiver</strong>: splice diode 2 into its + output wire, stripe toward the charger, heat-shrink; + → IN+, − → IN−. Coil: ferrite sheet on the side that faces the cell.",
         "<strong>Diode 3</strong> in the strip's VBUS lead (from stub (1,9)), stripe toward the charger, joins IN+ with diode 2's wire: twist, tin, one joint on the IN+ pad.",
-        "<strong>Switch</strong>: OUT+ to its middle pin; its outer pin to the strip's diode 1 plain stub (22,5); the second outer pin stays empty.",
+        "<strong>Switch</strong>: OUT+ to its middle pin (110 mm: through the USB-end notch, along the strip's middle-wall edge, past row 22); its outer pin to the strip's diode 1 plain stub (22,5), 30 mm; the second outer pin stays empty.",
         "<strong>Bench proof before the box</strong> (BENCH stage 1 + 3): OUT+ to OUT− reads the cell; IN− ↔ OUT− beeps, B− ↔ OUT− does not; switch off + coil on the pad = red LED, Pico dark; switch on = Pico runs; USB in = Pico runs and red LED.",
-        "<strong>Into the box, in this order</strong>: box onto the plate (2 × M2×6 from inside) → trunk A header into the battery-bay end-wall pocket, leads behind the ring → charger into its cradle, USB-C toward the triceps wall, pads toward the middle wall, cell leads back through the ring's notch → Kapton over it → Qi board on the four bracket tops → cell into the ring, lip toward the charger → ferrite + coil on the cell, Kapton band → strip-side headers → strip → switch between its fins → light bar → lid.",
+        "<strong>Into the box, in this order</strong>: box onto the plate (2 × M2×6 from inside) → trunk A header into the battery-bay end-wall pocket, leads behind the ring → charger into its cradle, USB-C toward the triceps wall, pads toward the middle wall, cell leads back through the ring's notch → Kapton over it → Qi board on the four bracket tops → cell into the ring, lip toward the charger → ferrite + coil on the cell, Kapton band → strip-side headers → strip → switch onto its shelf → light bar → lid.",
     ]
     return ('<section id="battery"><h2>2. Battery bay: cell, charger, switch, Qi</h2>'
             '<p class="sub">Port to port. Nothing here touches the strip except three wires: the switch return into (22,5), ground into (3,2), and the VBUS lead out of (1,9).</p>'
@@ -116,7 +116,7 @@ def module_section():
         "<strong>Board A</strong> (flexor, EMG1): three wires on its Gravity pins under the board (− → PH6 2, + → PH6 1, S → PH6 3), pass them through the rib passage into bay B, screw the board to its posts, jack end to the wrist wall, 2 × M3×5.",
         "<strong>Board B</strong> (extensor, EMG2): same, − → PH6 2, + → PH6 1, S → PH6 4; it sits over the IMU on the tall posts, 2 × M3×6.",
         "<strong>Header pins with many wires</strong>: PH6 pin 1 takes three (board A +, board B +, IMU VCC), pin 2 takes four (board A −, board B −, IMU GND, button). Twist and tin each group, then one joint on the pin.",
-        "<strong>Close</strong>: backer under the strap with the strap between its rails, module on top, 2 × M2×12 from the skin side (pan heads), lid on, 2 × M2×4. Bench: plug the trunk into the box, run the stage-4 script; IMU ok and both EMG columns move.",
+        "<strong>Close</strong>: backer under the strap with the strap between its rails, module on top, 2 × M2×8 from the skin side into the inserts under the crest bosses (pan heads), lid on, 4 × M2×6 (crest and side ears). Bench: plug the trunk into the box, run the stage-4 script; IMU ok and both EMG columns move.",
         "<strong>Electrode frames</strong>: plate into the frame bars down, loop band down through one cover slot and up the other, cover on, 4 × M2×6; 3.5 mm cable to the matching jack (flexor → board A, extensor → board B).",
     ]
     return ('<section id="module"><h2>3. Forearm module: boards, IMU, button, motor, trunk headers</h2>'
@@ -150,8 +150,8 @@ def system_section():
             + s.svg("Band, forearm module, electrode frames, claw: connectors and cables") + "<h3>Cables to make</h3>" + ol(steps) + "</section>")
 
 EXTRA_CSS = """
-section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
-.node{fill:var(--pico);stroke:var(--line);stroke-width:1.2}.node.small{fill:var(--board)}.node.dashed{fill:none;stroke-dasharray:6 4}
-.ntitle{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;font-weight:600}.nsub{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:10.5px;fill:var(--mute)}
-.port{fill:var(--bg);stroke:var(--ink);stroke-width:1.4}.pname{font-size:10px}.swire{fill:none;stroke-width:2;stroke-linejoin:round}.note{font-size:11px;fill:var(--mute);font-family:"IBM Plex Sans",system-ui,sans-serif}
+.build section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
+.build .node{fill:var(--pico);stroke:var(--line);stroke-width:1.2}.build .node.small{fill:var(--board)}.build .node.dashed{fill:none;stroke-dasharray:6 4}
+.build .ntitle{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;font-weight:600}.build .nsub{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:10.5px;fill:var(--mute)}
+.build .port{fill:var(--bg);stroke:var(--ink);stroke-width:1.4}.build .pname{font-size:10px}.build .swire{fill:none;stroke-width:2;stroke-linejoin:round}.build .note{font-size:11px;fill:var(--mute);font-family:"IBM Plex Sans",system-ui,sans-serif}
 """

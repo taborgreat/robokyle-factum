@@ -51,7 +51,10 @@ N_PIX = 3                      # WS2812 pixels on the crest (4 would run into th
 BTN_ZONE = 0.0                 # (kept for the summary: the button lives in the forearm module now)
 BAR_GAP = 2.2                  # air between the bar's top (the LEDs) and the lid's inner ridge apex
 SLIT_L, SLIT_W, SLIT_T = 8.0, 3.0, 0.8   # one thinned slit-window per pixel; SLIT_T = plastic left over the LED
-SW_X, SW_W = 8.0, 11.0         # switch along the chest wall; body bottom height above the arm
+SW_X = s["l"] / 2 + 6.8        # switch centre 6.8 past the strip's +X end on the chest wall: past the LED, short of the corner
+                               # lid boss, NOTHING under its pins (2026-09-29 print: beside the Pico its pins hit the header
+                               # pin tops and its wires would have lain over the Pico)
+SW_W = 11.0                    # body bottom height above the arm
 SW_INSET = 1.0                 # nub base this far inside the wall's inner face
 CHG_U = -3.5                   # charger toward the triceps wall: its -u end 2.5 off that wall (bay corner round), +u end clear of the -X plate post
 CHG_SHIFT = 0.0                # charger sits CLR off the -X end wall (its -u end is 2.9 off the outer wall, past the corner round)
@@ -322,7 +325,8 @@ def placements():
     y_r, _, z_b = bar_pose()
     P["ws2812"] = ws2812_segment(N_PIX).moved(Location((0, y_r, z_b - 0.6)))    # lying on its pocket floor in the middle wall
     # switch: nub toward +u through the chest wall; origin at the nub base; body 1 mm inside the wall so the
-    # nub tip is flush with the outer surface (and 0.6 recessed inside the finger notch)
+    # nub tip is flush with the outer surface (and 0.6 recessed inside the finger notch). It sits past the strip's
+    # +X end, so its pins point into the bay over free floor.
     sw = slide_switch().rotate(Axis.X, -90).moved(Location((0, -SW_D["h"], 0)))
     P["switch"] = on_row(sw, "B", x_strip + SW_X, SW_U, SW_W + SW_D["w"] / 2)
     for k, bank in (("A", TRUNK_A), ("B", ROW_B_SOCKETS)):
@@ -358,10 +362,9 @@ def service_volumes(P):
             S[f"svc_sock_{k}{i}"] = on_row(z, k, X0 + IN_L, u, R_FLOOR)
     # strip: tall parts (transistor, diodes, resistors on end) up to 4.5 mm on the two outer rows beside the Pico.
     # Rib side: from 20 mm before the strip centre (the -X rows hold the charger wires' joints) to the free rows.
-    # Chest side: same, minus the switch's and the LED's shadows - keep those spots for low parts.
+    # Chest side: same, minus the LED's shadow - keep that spot for low parts (the switch is off the strip now).
     S["svc_strip_margin_rib"] = on_row(_box(43.0, 4.0, 6.5, 1.5, -12.7, s["t"]), "B", x_strip, 0, W_STRIP)   # 6.5: a standing TO-92 (S8050) lives here
     chest = _box(43.0, 4.0, 4.5, 1.5, 12.7, s["t"])
-    chest -= _box(SW_D["l"] + 3.0, 6.0, 6.0, SW_X, 12.7, s["t"] - 0.5)
     chest -= _box(8.0, 6.0, 6.0, LED_X, 12.7, s["t"] - 0.5)                            # the +X standoff screw head is here
     S["svc_strip_margin_chest"] = on_row(chest, "B", x_strip, 0, W_STRIP)
     # LED: 470 R + its two solder joints on the strip beside it (chest column, rows 19-20)
@@ -372,7 +375,7 @@ def service_volumes(P):
         z0 = R_FLOOR + PLATE_POST_UP + POST_GAP + POST_FLANGE_T + 0.05                         # (lid off for this step)
         S[f"svc_plate_screw_{'L' if sx < 0 else 'R'}"] = Cylinder(2.0, R_IN["A"] - 0.3 - z0, align=(Align.CENTER, Align.CENTER, Align.MIN)).moved(
             Location((x, Y_POST, z0)))
-    # switch: solder blobs + three wires on its pin tips (the pins point into the bay, just past the Pico's can)
+    # switch: solder blobs + three wires on its pin tips (the pins point into the bay over the free end-zone floor)
     S["svc_switch_wires"] = on_row(_box(SW_D["l"], 2.5, 2.5, SW_X, SW_U - SW_D["h"] - SW_D["pin_below"] + 0.5, SW_W + SW_D["w"] / 2 - 0.2), "B", x_strip, 0, 0)
     # WS2812 bar leads: three wires off the bar's -X end dropping into the -X rib notch
     y_r, _, z_b = bar_pose()
@@ -494,17 +497,22 @@ def box():
     # openings
     P = placements()
     body -= usb_cuts()
-    body -= nub_slot()
-    # switch mount (print 2026-09-24: the 3 mm ledge drooped and hung over the perf's outer hole column). Now two
-    # fins on the chest wall, 1 mm into the bay - clear of every perf hole - each with a 1 mm foot the switch's ends
-    # rest on. Body glued between the fins, nub through the slot.
-    u_fin = ROW_W["B"] / 2 - 0.7 + 0.8                          # fins stand 0.7 into the bay (the strip still drops past them), 0.9 into the wall
+    # switch cradle, past the strip's +X end (2026-09-29: beside the Pico the pins hit its header pin tops and the
+    # wires would have crossed the board). A shelf from the floor up to the body's bottom, running on into the
+    # corner lid boss; two end fins the body drops between (0.3 play); and the 1 mm gap behind the body filled,
+    # so the wall is 2.7 thick there. Body in from above, nub through the slot, a dab of glue. Pins point into
+    # the bay over free floor: the wires are soldered in the open.
+    x_sw = x_strip + SW_X
+    u_in = SW_U - SW_D["h"] - 0.3                                       # shelf edge 0.3 past the body's inner face
+    u_wall = ROW_W["B"] / 2 + 1.0                                       # 1 mm into the wall (clipped back by the cavity)
+    x0 = x_sw - SW_D["l"] / 2 - 0.3 - 1.2
+    xr = IN_L / 2 - 3.5                                                 # the corner lid boss's axis
+    cradle = _box(xr - x0, u_wall - u_in, SW_W - R_FLOOR, (x0 + xr) / 2, (u_in + u_wall) / 2, 0)                     # shelf
     for sx in (-1, 1):
-        xf = x_strip + SW_X + sx * (SW_D["l"] / 2 + 0.5 + 0.6)
-        body += on_row(Box(1.2, 1.6, R_IN["B"] - 0.2 - (W_STRIP + s["t"] + 0.5), align=(Align.CENTER, Align.CENTER, Align.MIN)),
-                       "B", xf, u_fin, W_STRIP + s["t"] + 0.5) & cavity("B")
-        body += on_row(Box(1.5, 1.6, 1.0, align=(Align.CENTER, Align.CENTER, Align.MIN)),
-                       "B", xf - sx * 1.35, u_fin, SW_W - 1.0) & cavity("B")                   # foot under the switch end
+        cradle += _box(1.2, u_wall - u_in, 2.5, x_sw + sx * (SW_D["l"] / 2 + 0.3 + 0.6), (u_in + u_wall) / 2, SW_W - R_FLOOR)   # end fins
+    cradle += _box(SW_D["l"] + 3.0, u_wall - (SW_U + 0.3), R_IN["B"] - 0.2 - R_FLOOR, x_sw, (SW_U + 0.3 + u_wall) / 2, 0)    # wall fill behind the body
+    body += on_row(cradle, "B", 0, 0, R_FLOOR) & cavity("B")
+    body -= nub_slot()
     body -= nub_notch()
     # +X notch through the middle wall: the trunk wires cross from the row A sockets to the strip; also the
     # screwdriver path to the +X plate post

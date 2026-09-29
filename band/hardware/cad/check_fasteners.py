@@ -54,11 +54,17 @@ mod, mlid, bk, fr = solid_of(fa.module()), solid_of(fa.module_lid()), solid_of(f
 print("FOREARM MODULE")
 for sx in (-1, 1):
     x = sx * fa.BOSS_X
-    top = fa.crest_z(fa.R_IN - 0.2) if hasattr(fa, "crest_z") else fa.R_IN
+    top = fa.crest_z(fa.R_IN - fa.BOSS_SHORT)
     pl = lambda du, dv, d, x=x, top=top: Sphere(S).moved(Location((x + du, dv, top - d)))
-    bad += not probe_axis("clamp boss %s (2.0 through, from the top)" % ("-X" if sx < 0 else "+X"), mod, pl, (0.5, 5.0, 12.0), 1.0 + 0.6)
-    plb = lambda du, dv, d, x=x: Sphere(S).moved(Location((x + du, dv, fa.R_FLOOR - fa.FLOOR_T + d)))
-    bad += not probe_axis("clamp boss %s (from the strap face)" % ("-X" if sx < 0 else "+X"), mod, plb, (0.5, 3.0, 8.0), 1.0 + 0.6)
+    bad += not probe_axis("crest boss %s: lid insert 3.4 x 4.6 + bore, from the top" % ("-X" if sx < 0 else "+X"), mod, pl, (0.6, 2.0, 4.2, 5.5, 6.3), 1.7 + 0.5)
+    plb = lambda du, dv, d, x=x: Sphere(S).moved(Location((x + du, dv, fa.STRAP_T + d)))
+    bad += not probe_axis("crest boss %s: clamp insert 3.4 x 4.6 + bore, from the strap face" % ("-X" if sx < 0 else "+X"), mod, plb, (0.6, 2.0, 4.2, 5.5, 6.3), 1.7 + 0.5)
+    plm = lambda du, dv, d, x=x: Sphere(S).moved(Location((x + du, dv, fa.STRAP_T + 6.6 + 1.0 + d)))
+    bad += not (hit(mod, plm(0, 0, 0)) and hit(mod, plm(0, 0, 3.0)))          # solid between the two pockets
+    print(("  OK  " if hit(mod, plm(0, 0, 0)) and hit(mod, plm(0, 0, 3.0)) else "  BAD ") + "crest boss %s: solid core between the pockets" % ("-X" if sx < 0 else "+X"))
+for k, sg in (("A", -1), ("B", 1)):
+    pl = lambda du, dv, d, k=k, sg=sg: fa.on_row(Sphere(S).moved(Location((du, sg * fa.EAR_U + dv, 0))), k, 0, 0, fa.R_IN - fa.BOSS_SHORT - d)
+    bad += not probe_axis("side ear %s: lid insert 3.4 x 4.6 + bore (row frame)" % k, mod, pl, (0.6, 2.0, 4.2, 5.5, 6.3), 1.7 + 0.5)
 g = fa.g
 for k in "AB":
     so = fa.STANDOFF[k]
@@ -75,7 +81,10 @@ print("FOREARM LID")
 for sx in (-1, 1):
     x = sx * fa.BOSS_X
     pl = lambda du, dv, d, x=x: Sphere(S).moved(Location((x + du, dv, fa.crest_z(fa.R_OUT) + 0.4 - d)))
-    bad += not probe_axis("clamp screw clearance %s" % ("-X" if sx < 0 else "+X"), mlid, pl, (0.8, 1.6, 2.0), 1.15 + 0.6)
+    bad += not probe_axis("crest screw clearance %s" % ("-X" if sx < 0 else "+X"), mlid, pl, (0.8, 1.6, 2.0), 1.15 + 0.6)
+for k, sg in (("A", -1), ("B", 1)):
+    pl = lambda du, dv, d, k=k, sg=sg: fa.on_row(Sphere(S).moved(Location((du, sg * fa.EAR_U + dv, 0))), k, 0, 0, fa.R_OUT + 0.4 - d)
+    bad += not probe_axis("ear screw clearance %s (row frame)" % k, mlid, pl, (0.8, 1.6, 2.0), 1.15 + 0.6)
 print("FOREARM BACKER")
 for sx in (-1, 1):
     x = sx * fa.BOSS_X

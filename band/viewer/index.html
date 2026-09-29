@@ -1,36 +1,145 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Band Build Maps</title><link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;600&display=swap">
+<title>Robo Kyle Viewer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-:root{--bg:#f6f4ef;--ink:#1d1f24;--mute:#6b6f7a;--line:#cfcac0;--board:#e9dfc7;--pico:#d7e6d6;--hole:#fff;--hole-line:#8a8478;
---used:#3b3f4a;--gnd:#222;--pwr:#c0392b;--sig:#1f5fbf;--chg:#7d3c98;--sw:#1d6fa5;--bar:#0f7f7a;--ta:#2e7d32;--tb:#b26a00;--cord:#5d6d7e;--part:#4a4a4a;--led:#2e9e44;--screw:#b03a2e}
-@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#15171b;--ink:#e8e6e1;--mute:#9a9ea8;--line:#3a3d45;--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
---used:#e8e6e1;--gnd:#e8e6e1;--pwr:#ff6b5b;--sig:#6fa6ff;--chg:#c58ee0;--sw:#5fb3ec;--bar:#3fd0c9;--ta:#6fcf74;--tb:#f0a93a;--cord:#aab7c4;--part:#d0d0d0;--led:#5fd67a;--screw:#ff7b6b}}
-:root[data-theme=dark]{--bg:#15171b;--ink:#e8e6e1;--mute:#9a9ea8;--line:#3a3d45;--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
---used:#e8e6e1;--gnd:#e8e6e1;--pwr:#ff6b5b;--sig:#6fa6ff;--chg:#c58ee0;--sw:#5fb3ec;--bar:#3fd0c9;--ta:#6fcf74;--tb:#f0a93a;--cord:#aab7c4;--part:#d0d0d0;--led:#5fd67a;--screw:#ff7b6b}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 "IBM Plex Sans",system-ui,sans-serif;padding:24px 16px 48px}
-h1{font-size:22px;margin:0 0 4px;letter-spacing:.01em}h2{font-size:18px;margin:28px 0 4px}h3{font-size:15px;margin:16px 0 4px}ol{margin:4px 0 0;padding-left:22px}ol li{margin:3px 0}ul{margin:2px 0 0;padding-left:18px}p.sub{color:var(--mute);margin:0 0 20px;max-width:70ch}
-.wrap{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}figure{margin:0;flex:1 1 520px;min-width:0}
-figcaption{font-weight:600;margin:0 0 6px}svg{width:100%;height:auto;display:block;background:transparent}
-.board{fill:var(--board);stroke:var(--line)}.usb{fill:var(--mute)}.pico{fill:var(--pico);stroke:var(--line)}
-.hole{fill:var(--hole);stroke:var(--hole-line);stroke-width:1}.hole.used{fill:var(--used)}
-.screw{fill:none;stroke:var(--screw);stroke-width:1.5;stroke-dasharray:3 2}
-text{font-family:"IBM Plex Mono",ui-monospace,monospace;fill:var(--ink)}.lab{font-size:11px;fill:var(--mute)}.mid{text-anchor:middle}.end{text-anchor:end}
-.pin{font-size:9.5px}.pin.gnd{fill:var(--mute)}.tiny{font-size:10px}.pico-label{font-size:11px;fill:var(--mute);letter-spacing:.06em}
-.lead{stroke:var(--part);stroke-width:2}.resbody{fill:#d9b56a;stroke:var(--part)}.diobody{fill:#333;stroke:var(--part)}.stripe{fill:#ddd}
-.ledbody{fill:var(--led);opacity:.85}.ghost{opacity:.32;stroke-dasharray:3 2}.arrow{fill:#fff}.plab{font-size:10px;fill:var(--ink);font-weight:500}.to92{fill:#333;stroke:var(--part)}
-.bridge{stroke:var(--used);stroke-width:9;stroke-linecap:round;fill:none;opacity:.85}
-.uwire{fill:none;stroke-width:2.2;stroke-linecap:round}.wlab{font-size:10.5px}.leadline{stroke-width:2;fill:none;stroke-dasharray:4 3}
-.legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin:18px 0 0;padding:0;list-style:none;font-size:13px}
-.legend li::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--c)}
-table{border-collapse:collapse;margin-top:22px;font-size:13px}td,th{text-align:left;padding:4px 10px;border-bottom:1px solid var(--line)}th{font-weight:600}
+  :root {
+    --bg: #eef1f4; --panel: #ffffff; --ink: #1b2128; --muted: #5b6672; --line: #d5dbe2;
+    --accent: #154733; --accent-ink: #ffffff; --duck: #c99700;
+    --printed: #9fb6c8; --elec: #2e8b57; --wire: #e0a800; --plug: #d9662b; --hover: #154733; --skin: #d9b59a;
+    --canvas: #e4e8ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #14181c; --panel: #1c2127; --ink: #e6eaee; --muted: #98a3ae; --line: #2c343c;
+      --accent: #7fd1a0; --accent-ink: #0f1a14; --duck: #f0c419;
+      --printed: #8aa3b8; --elec: #4fb57a; --wire: #f2c14e; --plug: #ef8a4f; --hover: #7fd1a0; --skin: #a67c5b;
+      --canvas: #0f1215;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #14181c; --panel: #1c2127; --ink: #e6eaee; --muted: #98a3ae; --line: #2c343c;
+    --accent: #7fd1a0; --accent-ink: #0f1a14; --duck: #f0c419;
+    --printed: #8aa3b8; --elec: #4fb57a; --wire: #f2c14e; --plug: #ef8a4f; --hover: #7fd1a0; --skin: #a67c5b;
+    --canvas: #0f1215;
+  }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.45 "IBM Plex Sans", system-ui, sans-serif; }
+  .app { display: grid; grid-template-columns: 300px 1fr; height: 100%; }
+  aside { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; padding: 14px 16px 24px; display: flex; flex-direction: column; gap: 14px; }
+  h1 { font: 600 24px/1 "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: .02em; margin: 0; text-transform: uppercase; }
+  h1 small { display: block; font: 400 12px/1.3 "IBM Plex Sans", sans-serif; color: var(--muted); text-transform: none; letter-spacing: 0; margin-top: 4px; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabs button { flex: 1 1 auto; font: 600 14px "Barlow Condensed", sans-serif; letter-spacing: .04em; text-transform: uppercase; padding: 7px 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 4px; cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .tabs button:focus-visible, .views button:focus-visible, input:focus-visible { outline: 2px solid var(--duck); outline-offset: 2px; }
+  fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 4px; }
+  legend { font: 600 12px "Barlow Condensed", sans-serif; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); padding: 0; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+  legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  label.row { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 8px; padding: 3px 4px; border-radius: 3px; cursor: pointer; }
+  label.row:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+  label.row input { margin: 0; accent-color: var(--accent); }
+  label.row .nm { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12.5px; }
+  label.row .v { color: var(--muted); font-family: "IBM Plex Mono", monospace; font-size: 11px; font-variant-numeric: tabular-nums; }
+  .ctl { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; align-items: center; }
+  .ctl label { color: var(--muted); font-size: 12.5px; }
+  .ctl output { font-family: "IBM Plex Mono", monospace; font-size: 12px; font-variant-numeric: tabular-nums; }
+  input[type=range] { width: 100%; grid-column: 1 / -1; accent-color: var(--accent); }
+  .views { display: flex; gap: 6px; }
+  .views button { flex: 1; padding: 6px 0; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 4px; cursor: pointer; font: 500 12.5px "IBM Plex Sans", sans-serif; }
+  .views button:hover { border-color: var(--accent); }
+  .grp { display: flex; gap: 6px; }
+  .grp button { font-size: 12px; padding: 4px 8px; border: 1px solid var(--line); background: transparent; color: var(--muted); border-radius: 3px; cursor: pointer; }
+  main { position: relative; background: var(--canvas); min-height: 320px; }
+  canvas { display: block; width: 100%; height: 100%; }
+  .status { position: absolute; left: 12px; bottom: 10px; font: 500 12px "IBM Plex Mono", monospace; color: var(--muted); background: color-mix(in srgb, var(--panel) 85%, transparent); padding: 4px 8px; border-radius: 3px; pointer-events: none; }
+  .status b { color: var(--ink); font-weight: 500; }
+  .hint { color: var(--muted); font-size: 12px; margin: 0; }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+  .toggle input { accent-color: var(--accent); margin: 0; }
+  /* Build tab: the soldering and assembly maps take main's place; their own styles are generated with them */
+  .toc { display: none; flex-direction: column; gap: 4px; }
+  .toc a { color: var(--ink); text-decoration: none; padding: 5px 8px; border-radius: 3px; border: 1px solid var(--line); font-size: 13px; }
+  .toc a:hover { border-color: var(--accent); }
+  #build { display: none; }
+  .build-mode #build { display: block; }
+  .build-mode .toc { display: flex; }
+  .build-mode .ctl, .build-mode .views, .build-mode #groups, .build-mode #note, .build-mode canvas, .build-mode .status { display: none; }
+  .build-mode main { overflow-y: auto; background: var(--bg); scroll-behavior: smooth; }
+  @media (max-width: 720px) {
+    .app { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    aside { border-right: 0; border-bottom: 1px solid var(--line); max-height: 46vh; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
 
-section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
-.node{fill:var(--pico);stroke:var(--line);stroke-width:1.2}.node.small{fill:var(--board)}.node.dashed{fill:none;stroke-dasharray:6 4}
-.ntitle{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;font-weight:600}.nsub{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:10.5px;fill:var(--mute)}
-.port{fill:var(--bg);stroke:var(--ink);stroke-width:1.4}.pname{font-size:10px}.swire{fill:none;stroke-width:2;stroke-linejoin:round}.note{font-size:11px;fill:var(--mute);font-family:"IBM Plex Sans",system-ui,sans-serif}
-</style></head><body>
-<h1>Band build maps</h1><p class="sub">Four separate sections: the strip (both sides), the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another.</p><section id="strip"><h2>1. The strip, both sides</h2>
+<div class="app">
+  <aside>
+    <h1>Robo Kyle<small id="sub">band box · forearm module · electrode · whole arm</small></h1>
+    <div class="tabs" role="tablist" id="tabs">
+      <button id="tab-band" aria-pressed="true" data-asm="band">Band box</button>
+      <button id="tab-fa" aria-pressed="false" data-asm="fa">Forearm module</button>
+      <button id="tab-el" aria-pressed="false" data-asm="el">Electrode</button>
+      <button id="tab-arm" aria-pressed="false" data-asm="arm">Whole arm</button>
+      <button id="tab-build" aria-pressed="false" data-asm="build">Build</button>
+    </div>
+    <nav id="toc" class="toc" aria-label="Build sections">
+      <a href="#strip">1 · The strip, both sides</a>
+      <a href="#battery">2 · Battery bay: cell, charger, switch, Qi</a>
+      <a href="#module">3 · Forearm module</a>
+      <a href="#system">4 · The whole band and its cables</a>
+    </nav>
+    <div class="ctl">
+      <label for="lift">Lift the lid</label><output id="liftv" for="lift">0 mm</output>
+      <input type="range" id="lift" min="0" max="45" value="0" step="1">
+      <label for="xray">Printed parts see-through</label>
+      <input type="checkbox" id="xray" class="toggle-in">
+    </div>
+    <div class="views">
+      <button id="v-iso">Iso</button><button id="v-top">Top</button><button id="v-end">Elbow end</button><button id="v-under">Under</button>
+    </div>
+    <div id="groups"></div>
+    <p class="hint" id="note"></p>
+  </aside>
+  <main>
+    <canvas id="c"></canvas>
+    <div class="status" id="status">loading…</div>
+    <div id="build" class="build">
+<!-- BUILD:START generated by band/hardware/cad/strip_map_svg.py from the PARTS.md tables; do not edit by hand -->
+<style>
+.build{--mute:var(--muted);--board:#e9dfc7;--pico:#d7e6d6;--hole:#fff;--hole-line:#8a8478;
+--used:#3b3f4a;--gnd:#222;--pwr:#c0392b;--sig:#1f5fbf;--chg:#7d3c98;--sw:#1d6fa5;--bar:#0f7f7a;--ta:#2e7d32;--tb:#b26a00;--cord:#5d6d7e;--part:#4a4a4a;--led:#2e9e44;--screw:#b03a2e}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) .build{--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
+--used:#e8e6e1;--gnd:#e8e6e1;--pwr:#ff6b5b;--sig:#6fa6ff;--chg:#c58ee0;--sw:#5fb3ec;--bar:#3fd0c9;--ta:#6fcf74;--tb:#f0a93a;--cord:#aab7c4;--part:#d0d0d0;--led:#5fd67a;--screw:#ff7b6b}}
+:root[data-theme=dark] .build{--board:#3d3524;--pico:#233127;--hole:#0e0f12;--hole-line:#7a7468;
+--used:#e8e6e1;--gnd:#e8e6e1;--pwr:#ff6b5b;--sig:#6fa6ff;--chg:#c58ee0;--sw:#5fb3ec;--bar:#3fd0c9;--ta:#6fcf74;--tb:#f0a93a;--cord:#aab7c4;--part:#d0d0d0;--led:#5fd67a;--screw:#ff7b6b}
+.build{padding:22px 28px 64px;max-width:1240px;font-size:15px;line-height:1.45;color:var(--ink)}.build *{box-sizing:border-box}
+.build .bhead h2{font:600 26px/1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.02em;text-transform:uppercase;margin:0 0 6px}
+.build section h2{font:600 22px/1.15 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.01em;margin:0 0 4px}
+.build h3{font-size:15px;margin:16px 0 4px}.build ol{margin:4px 0 0;padding-left:22px}.build ol li{margin:3px 0}.build ul{margin:2px 0 0;padding-left:18px}
+.build p.sub{color:var(--mute);margin:0 0 20px;max-width:70ch}
+.build .wrap{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}.build figure{margin:0;flex:1 1 520px;min-width:0}
+.build figcaption{font-weight:600;margin:0 0 6px}.build svg{width:100%;height:auto;display:block;background:transparent}
+.build .board{fill:var(--board);stroke:var(--line)}.build .usb{fill:var(--mute)}.build .pico{fill:var(--pico);stroke:var(--line)}
+.build .hole{fill:var(--hole);stroke:var(--hole-line);stroke-width:1}.build .hole.used{fill:var(--used)}
+.build .screw{fill:none;stroke:var(--screw);stroke-width:1.5;stroke-dasharray:3 2}
+.build text{font-family:"IBM Plex Mono",ui-monospace,monospace;fill:var(--ink)}.build .lab{font-size:11px;fill:var(--mute)}.build .mid{text-anchor:middle}.build .end{text-anchor:end}
+.build .pin{font-size:9.5px}.build .pin.gnd{fill:var(--mute)}.build .tiny{font-size:10px}.build .pico-label{font-size:11px;fill:var(--mute);letter-spacing:.06em}
+.build .lead{stroke:var(--part);stroke-width:2}.build .resbody{fill:#d9b56a;stroke:var(--part)}.build .diobody{fill:#333;stroke:var(--part)}.build .stripe{fill:#ddd}
+.build .ledbody{fill:var(--led);opacity:.85}.build .ghost{opacity:.32;stroke-dasharray:3 2}.build .arrow{fill:#fff}.build .plab{font-size:10px;fill:var(--ink);font-weight:500}.build .to92{fill:#333;stroke:var(--part)}
+.build .bridge{stroke:var(--used);stroke-width:9;stroke-linecap:round;fill:none;opacity:.85}
+.build .uwire{fill:none;stroke-width:2.2;stroke-linecap:round}.build .wlab{font-size:10.5px}.build .leadline{stroke-width:2;fill:none;stroke-dasharray:4 3}
+.build .legend{display:flex;flex-wrap:wrap;gap:10px 18px;margin:18px 0 0;padding:0;list-style:none;font-size:13px}
+.build .legend li::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--c)}
+.build table{border-collapse:collapse;margin-top:22px;font-size:13px}.build td,.build th{text-align:left;padding:4px 10px;border-bottom:1px solid var(--line)}.build th{font-weight:600}
+
+.build section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
+.build .node{fill:var(--pico);stroke:var(--line);stroke-width:1.2}.build .node.small{fill:var(--board)}.build .node.dashed{fill:none;stroke-dasharray:6 4}
+.build .ntitle{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;font-weight:600}.build .nsub{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:10.5px;fill:var(--mute)}
+.build .port{fill:var(--bg);stroke:var(--ink);stroke-width:1.4}.build .pname{font-size:10px}.build .swire{fill:none;stroke-width:2;stroke-linejoin:round}.build .note{font-size:11px;fill:var(--mute);font-family:"IBM Plex Sans",system-ui,sans-serif}
+</style>
+<header class="bhead"><h2>Band build maps</h2><p class="sub">Four separate sections: the strip (both sides), the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another. Generated from the tables in band/PARTS.md.</p></header>
+<section id="strip"><h2>1. The strip, both sides</h2>
 <p class="sub">Look down at the top with the USB end at the top: column 1 top-left, column 10 top-right, rows 1–22 from the USB end. Pin 1 (GP0) is at (1,2), pin 40 (VBUS) at (1,9). The bottom view is the board flipped left-to-right, USB still at the top, so column 1 appears on the right. Dark holes carry solder. Lengths in mm.</p>
 <div class="wrap"><figure><figcaption>TOP — components (nothing else is soldered here)</figcaption><svg viewBox="0 0 950 756" role="img" aria-label="TOP — components (nothing else is soldered here)"><rect x="318" y="50" width="314" height="670" rx="4" class="board"/>
 <rect x="458.0" y="36" width="34" height="16" rx="2" class="usb"/><text x="475.0" y="47" class="tiny mid">USB</text>
@@ -187,7 +296,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="550" cy="280" r="5" class="hole"/>
 <circle cx="580" cy="280" r="5" class="hole used"/>
 <text x="570" y="283.5" class="pin gnd end">GND</text>
-<circle cx="610" cy="280" r="5" class="hole"/>
+<circle cx="610" cy="280" r="5" class="hole used"/>
 <circle cx="340" cy="310" r="5" class="hole"/>
 <circle cx="370" cy="310" r="5" class="hole used"/>
 <text x="380" y="313.5" class="pin  ">GP6</text>
@@ -211,7 +320,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="550" cy="340" r="5" class="hole"/>
 <circle cx="580" cy="340" r="5" class="hole used"/>
 <text x="570" y="343.5" class="pin  end">GP26</text>
-<circle cx="610" cy="340" r="5" class="hole used"/>
+<circle cx="610" cy="340" r="5" class="hole"/>
 <circle cx="340" cy="370" r="5" class="hole"/>
 <circle cx="370" cy="370" r="5" class="hole used"/>
 <text x="380" y="373.5" class="pin  ">GP8</text>
@@ -235,7 +344,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="550" cy="400" r="5" class="hole"/>
 <circle cx="580" cy="400" r="5" class="hole used"/>
 <text x="570" y="403.5" class="pin  end">GP22</text>
-<circle cx="610" cy="400" r="5" class="hole"/>
+<circle cx="610" cy="400" r="5" class="hole used"/>
 <circle cx="340" cy="430" r="5" class="hole used"/>
 <circle cx="370" cy="430" r="5" class="hole used"/>
 <text x="380" y="433.5" class="pin gnd ">GND</text>
@@ -247,7 +356,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="550" cy="430" r="5" class="hole"/>
 <circle cx="580" cy="430" r="5" class="hole used"/>
 <text x="570" y="433.5" class="pin gnd end">GND</text>
-<circle cx="610" cy="430" r="5" class="hole"/>
+<circle cx="610" cy="430" r="5" class="hole used"/>
 <circle cx="340" cy="460" r="5" class="hole used"/>
 <circle cx="370" cy="460" r="5" class="hole used"/>
 <text x="380" y="463.5" class="pin  ">GP10</text>
@@ -296,7 +405,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="580" cy="550" r="5" class="hole used"/>
 <text x="570" y="553.5" class="pin  end">GP18</text>
 <circle cx="610" cy="550" r="5" class="hole"/>
-<circle cx="340" cy="580" r="5" class="hole"/>
+<circle cx="340" cy="580" r="5" class="hole used"/>
 <circle cx="370" cy="580" r="5" class="hole used"/>
 <text x="380" y="583.5" class="pin gnd ">GND</text>
 <circle cx="400" cy="580" r="5" class="hole"/>
@@ -350,14 +459,14 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="430" cy="700" r="5" class="hole"/>
 <circle cx="460" cy="700" r="5" class="hole used"/>
 <circle cx="490" cy="700" r="5" class="hole"/>
-<circle cx="520" cy="700" r="5" class="hole"/>
+<circle cx="520" cy="700" r="5" class="hole used"/>
 <circle cx="550" cy="700" r="5" class="hole used"/>
 <circle cx="580" cy="700" r="5" class="hole"/>
 <circle cx="610" cy="700" r="5" class="hole"/>
 <circle cx="550.0" cy="685.0" r="13" class="ledbody"/>
-<text x="567" y="674" class="tiny">+ long leg</text>
-<text x="567" y="704" class="tiny">− short leg</text>
-<text x="550.0" y="651" class="plab mid">green LED</text>
+<text x="567" y="704" class="tiny">+ long leg</text>
+<text x="567" y="674" class="tiny">− short leg</text>
+<text x="550.0" y="681" class="plab mid">green LED</text>
 <line x1="430" y1="670" x2="490" y2="670" class="lead"/>
 <rect x="443.2" y="664.0" width="33.6" height="12" rx="3" class="resbody" transform="rotate(0.0 460.0 670.0)"/>
 <text x="460.0" y="658.0" class="plab mid">470 Ω</text>
@@ -370,17 +479,17 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <line x1="610" y1="160" x2="610" y2="250" class="lead"/>
 <rect x="584.8" y="199.0" width="50.400000000000006" height="12" rx="3" class="resbody" transform="rotate(90.0 610.0 205.0)"/>
 <text x="594.0" y="205.0" class="plab mid" transform="rotate(-90 594.0 205.0)">R1 100k</text>
-<line x1="610" y1="250" x2="610" y2="340" class="lead"/>
-<rect x="584.8" y="289.0" width="50.400000000000006" height="12" rx="3" class="resbody" transform="rotate(90.0 610.0 295.0)"/>
-<text x="594.0" y="295.0" class="plab mid" transform="rotate(-90 594.0 295.0)">R2 100k</text>
+<line x1="610" y1="280" x2="610" y2="400" class="lead"/>
+<rect x="576.4" y="334.0" width="67.2" height="12" rx="3" class="resbody" transform="rotate(90.0 610.0 340.0)"/>
+<text x="594.0" y="340.0" class="plab mid" transform="rotate(-90 594.0 340.0)">R2 100k</text>
 <path d="M331,418 v84 a14,42.0 0 0 0 0,-84 z" class="to92"/>
 <text x="324" y="434" class="tiny end">E</text>
 <text x="324" y="464" class="tiny end">B</text>
 <text x="324" y="494" class="tiny end">C</text>
 <text x="362" y="460.0" class="plab mid" transform="rotate(-90 362 460.0)">S8050  flat face out</text>
-<line x1="340" y1="460" x2="340" y2="550" class="lead"/>
-<rect x="314.8" y="499.0" width="50.400000000000006" height="12" rx="3" class="resbody" transform="rotate(90.0 340.0 505.0)"/>
-<text x="356.0" y="505.0" class="plab mid" transform="rotate(-90 356.0 505.0)">1k</text>
+<line x1="340" y1="460" x2="340" y2="580" class="lead"/>
+<rect x="306.4" y="514.0" width="67.2" height="12" rx="3" class="resbody" transform="rotate(90.0 340.0 520.0)"/>
+<text x="356.0" y="520.0" class="plab mid" transform="rotate(-90 356.0 520.0)">1k</text>
 <path d="M370,70 L290,70" class="leadline" style="stroke:var(--cord)"/>
 <circle cx="290" cy="70" r="3" style="fill:var(--cord)"/>
 <text x="282" y="74" class="wlab end" style="fill:var(--cord)">cord TX  60</text>
@@ -431,7 +540,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <text x="668" y="644" class="wlab " style="fill:var(--bar)">light bar DIN  60</text>
 <path d="M460,700 L660,700" class="leadline" style="stroke:var(--sw)"/>
 <circle cx="660" cy="700" r="3" style="fill:var(--sw)"/>
-<text x="668" y="704" class="wlab " style="fill:var(--sw)">switch outer  60</text></svg></figure><figure><figcaption>BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)</figcaption><svg viewBox="0 0 950 756" role="img" aria-label="BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)"><rect x="318" y="50" width="314" height="670" rx="4" class="board"/>
+<text x="668" y="704" class="wlab " style="fill:var(--sw)">switch outer  30</text></svg></figure><figure><figcaption>BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)</figcaption><svg viewBox="0 0 950 756" role="img" aria-label="BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)"><rect x="318" y="50" width="314" height="670" rx="4" class="board"/>
 <rect x="458.0" y="36" width="34" height="16" rx="2" class="usb"/><text x="475.0" y="47" class="tiny mid">USB</text>
 <rect x="358" y="58" width="234" height="594" rx="5" class="pico"/>
 <text x="475.0" y="355.0" class="pico-label mid" transform="rotate(-90 475.0 355.0)">Pico 2 W  ·  seen from below</text>
@@ -586,7 +695,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="400" cy="280" r="5" class="hole"/>
 <circle cx="370" cy="280" r="5" class="hole used"/>
 <text x="380" y="283.5" class="pin gnd ">GND</text>
-<circle cx="340" cy="280" r="5" class="hole"/>
+<circle cx="340" cy="280" r="5" class="hole used"/>
 <circle cx="610" cy="310" r="5" class="hole"/>
 <circle cx="580" cy="310" r="5" class="hole used"/>
 <text x="570" y="313.5" class="pin  end">GP6</text>
@@ -610,7 +719,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="400" cy="340" r="5" class="hole"/>
 <circle cx="370" cy="340" r="5" class="hole used"/>
 <text x="380" y="343.5" class="pin  ">GP26</text>
-<circle cx="340" cy="340" r="5" class="hole used"/>
+<circle cx="340" cy="340" r="5" class="hole"/>
 <circle cx="610" cy="370" r="5" class="hole"/>
 <circle cx="580" cy="370" r="5" class="hole used"/>
 <text x="570" y="373.5" class="pin  end">GP8</text>
@@ -634,7 +743,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="400" cy="400" r="5" class="hole"/>
 <circle cx="370" cy="400" r="5" class="hole used"/>
 <text x="380" y="403.5" class="pin  ">GP22</text>
-<circle cx="340" cy="400" r="5" class="hole"/>
+<circle cx="340" cy="400" r="5" class="hole used"/>
 <circle cx="610" cy="430" r="5" class="hole used"/>
 <circle cx="580" cy="430" r="5" class="hole used"/>
 <text x="570" y="433.5" class="pin gnd end">GND</text>
@@ -646,7 +755,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="400" cy="430" r="5" class="hole"/>
 <circle cx="370" cy="430" r="5" class="hole used"/>
 <text x="380" y="433.5" class="pin gnd ">GND</text>
-<circle cx="340" cy="430" r="5" class="hole"/>
+<circle cx="340" cy="430" r="5" class="hole used"/>
 <circle cx="610" cy="460" r="5" class="hole used"/>
 <circle cx="580" cy="460" r="5" class="hole used"/>
 <text x="570" y="463.5" class="pin  end">GP10</text>
@@ -695,7 +804,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="370" cy="550" r="5" class="hole used"/>
 <text x="380" y="553.5" class="pin  ">GP18</text>
 <circle cx="340" cy="550" r="5" class="hole"/>
-<circle cx="610" cy="580" r="5" class="hole"/>
+<circle cx="610" cy="580" r="5" class="hole used"/>
 <circle cx="580" cy="580" r="5" class="hole used"/>
 <text x="570" y="583.5" class="pin gnd end">GND</text>
 <circle cx="550" cy="580" r="5" class="hole"/>
@@ -749,29 +858,29 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="520" cy="700" r="5" class="hole"/>
 <circle cx="490" cy="700" r="5" class="hole used"/>
 <circle cx="460" cy="700" r="5" class="hole"/>
-<circle cx="430" cy="700" r="5" class="hole"/>
+<circle cx="430" cy="700" r="5" class="hole used"/>
 <circle cx="400" cy="700" r="5" class="hole used"/>
 <circle cx="370" cy="700" r="5" class="hole"/>
 <circle cx="340" cy="700" r="5" class="hole"/>
-<path d="M460,670 L430,670 L400,670" class="bridge"/>
+<path d="M460,670 L430,670 L430,700 L400,700" class="bridge"/>
 <path d="M610,430 L580,430" class="bridge"/>
-<path d="M610,550 L580,550" class="bridge"/>
+<path d="M610,580 L610,550 L580,550" class="bridge"/>
+<path d="M340,250 L340,280" class="bridge"/>
 <path d="M340,250 L370,250" class="bridge"/>
+<path d="M340,400 L340,430 L370,430" class="bridge"/>
 <path d="M370,190 L340,190" class="bridge"/>
 <path d="M580,700 Q493.0,400.0 370,100" class="uwire" style="stroke:var(--pwr)"/>
 <text x="497.0" y="403.0" class="wlab" style="fill:var(--pwr)">VSYS  55 mm</text>
 <path d="M490,700 Q433.0,430.0 340,160" class="uwire" style="stroke:var(--sw)"/>
 <text x="437.0" y="433.0" class="wlab" style="fill:var(--sw)">divider tap  50 mm</text>
-<path d="M340,340 Q373.0,310.0 370,280" class="uwire" style="stroke:var(--gnd)"/>
-<text x="377.0" y="313.0" class="wlab" style="fill:var(--gnd)">divider GND  10 mm</text>
 <path d="M520,670 Q463.0,430.0 370,190" class="uwire" style="stroke:var(--pwr)"/>
 <text x="467.0" y="433.0" class="wlab" style="fill:var(--pwr)">LED supply  45 mm</text>
-<path d="M400,700 Q403.0,640.0 370,580" class="uwire" style="stroke:var(--gnd)"/>
-<text x="407.0" y="643.0" class="wlab" style="fill:var(--gnd)">LED GND  12 mm</text>
+<path d="M400,670 Q403.0,625.0 370,580" class="uwire" style="stroke:var(--gnd)"/>
+<text x="407.0" y="628.0" class="wlab" style="fill:var(--gnd)">LED GND  12 mm</text>
 <circle cx="400.0" cy="685.0" r="13" class="ledbody ghost"/>
-<text x="383" y="674" class="tiny end">+ long leg</text>
-<text x="383" y="704" class="tiny end">− short leg</text>
-<text x="400.0" y="651" class="plab mid">green LED</text>
+<text x="383" y="704" class="tiny end">+ long leg</text>
+<text x="383" y="674" class="tiny end">− short leg</text>
+<text x="400.0" y="681" class="plab mid">green LED</text>
 <line x1="520" y1="670" x2="460" y2="670" class="lead ghost"/>
 <rect x="473.2" y="664.0" width="33.6" height="12" rx="3" class="resbody ghost" transform="rotate(180.0 490.0 670.0)"/>
 <text x="490.0" y="658.0" class="plab mid">470 Ω</text>
@@ -784,17 +893,17 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <line x1="340" y1="160" x2="340" y2="250" class="lead ghost"/>
 <rect x="314.8" y="199.0" width="50.400000000000006" height="12" rx="3" class="resbody ghost" transform="rotate(90.0 340.0 205.0)"/>
 <text x="356.0" y="205.0" class="plab mid" transform="rotate(-90 356.0 205.0)">R1 100k</text>
-<line x1="340" y1="250" x2="340" y2="340" class="lead ghost"/>
-<rect x="314.8" y="289.0" width="50.400000000000006" height="12" rx="3" class="resbody ghost" transform="rotate(90.0 340.0 295.0)"/>
-<text x="356.0" y="295.0" class="plab mid" transform="rotate(-90 356.0 295.0)">R2 100k</text>
+<line x1="340" y1="280" x2="340" y2="400" class="lead ghost"/>
+<rect x="306.4" y="334.0" width="67.2" height="12" rx="3" class="resbody ghost" transform="rotate(90.0 340.0 340.0)"/>
+<text x="356.0" y="340.0" class="plab mid" transform="rotate(-90 356.0 340.0)">R2 100k</text>
 <path d="M619,418 v84 a14,42.0 0 0 1 0,-84 z" class="to92 ghost"/>
 <text x="626" y="434" class="tiny">E</text>
 <text x="626" y="464" class="tiny">B</text>
 <text x="626" y="494" class="tiny">C</text>
 <text x="588" y="460.0" class="plab mid" transform="rotate(-90 588 460.0)">S8050  flat face out</text>
-<line x1="610" y1="460" x2="610" y2="550" class="lead ghost"/>
-<rect x="584.8" y="499.0" width="50.400000000000006" height="12" rx="3" class="resbody ghost" transform="rotate(90.0 610.0 505.0)"/>
-<text x="594.0" y="505.0" class="plab mid" transform="rotate(-90 594.0 505.0)">1k</text>
+<line x1="610" y1="460" x2="610" y2="580" class="lead ghost"/>
+<rect x="576.4" y="514.0" width="67.2" height="12" rx="3" class="resbody ghost" transform="rotate(90.0 610.0 520.0)"/>
+<text x="594.0" y="520.0" class="plab mid" transform="rotate(-90 594.0 520.0)">1k</text>
 <path d="M370,70 L290,70" class="leadline" style="stroke:var(--chg)"/>
 <circle cx="290" cy="70" r="3" style="fill:var(--chg)"/>
 <text x="282" y="74" class="wlab end" style="fill:var(--chg)">VBUS → 1N5817 → charger IN+  60</text>
@@ -815,7 +924,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <text x="282" y="644" class="wlab end" style="fill:var(--bar)">light bar DIN  60</text>
 <path d="M490,700 L290,700" class="leadline" style="stroke:var(--sw)"/>
 <circle cx="290" cy="700" r="3" style="fill:var(--sw)"/>
-<text x="282" y="704" class="wlab end" style="fill:var(--sw)">switch outer  60</text>
+<text x="282" y="704" class="wlab end" style="fill:var(--sw)">switch outer  30</text>
 <path d="M580,70 L660,70" class="leadline" style="stroke:var(--cord)"/>
 <circle cx="660" cy="70" r="3" style="fill:var(--cord)"/>
 <text x="668" y="74" class="wlab " style="fill:var(--cord)">cord TX  60</text>
@@ -847,36 +956,37 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <circle cx="660" cy="580" r="3" style="fill:var(--cord)"/>
 <text x="668" y="584" class="wlab " style="fill:var(--cord)">cord GND  60</text></svg></figure></div>
 <ul class="legend"><li style="--c:var(--used)">solder blob / used hole</li><li style="--c:var(--gnd)">ground</li><li style="--c:var(--pwr)">battery / 3V3</li><li style="--c:var(--chg)">charger</li><li style="--c:var(--sw)">switch, divider tap</li><li style="--c:var(--bar)">light bar</li><li style="--c:var(--ta)">trunk A</li><li style="--c:var(--tb)">trunk B</li><li style="--c:var(--cord)">hand cord</li><li style="--c:var(--screw)">standoff screw</li></ul>
-<table><thead><tr><th>part</th><th>holes</th><th>note</th></tr></thead><tbody><tr><td>Pico</td><td>rows 1–20, columns 2 and 9</td><td>USB face flush with the row-1 edge</td></tr><tr><td>green LED</td><td>+ long leg (21,8), − short leg (22,8)</td><td>flange 1 mm above the board; long leg = anode = toward the 470 Ω</td></tr><tr><td>470 Ω</td><td>(21,4) → (21,6)</td><td>underside solder run (21,6)–(21,7)–(21,8)</td></tr><tr><td>1N5817 diode 1</td><td>stripe (22,2), plain (22,5)</td><td>stripe toward column 1 / the middle wall; current flows from the switch side into VSYS</td></tr><tr><td>R1 / R2 100 k</td><td>(4,10)→(7,10), (7,10)→(10,10)</td><td>shared hole (7,10); bridge (7,10)–(7,9) = GP28</td></tr><tr><td>S8050</td><td>E (13,1) B (14,1) C (15,1)</td><td>standing; flat face toward the board edge (away from the Pico); E nearest the USB end; bridge (13,1)–(13,2) = GND</td></tr><tr><td>1 kΩ</td><td>B leg → (17,1)</td><td>bridge (17,1)–(17,2) = GP13</td></tr><tr><td>3V3 point</td><td>bridge (5,9)–(5,10)</td><td>trunk A 3V3 lands on (5,10)</td></tr></tbody></table>
+<table><thead><tr><th>part</th><th>holes</th><th>note</th></tr></thead><tbody><tr><td>Pico</td><td>rows 1–20, columns 2 and 9</td><td>USB face flush with the row-1 edge</td></tr><tr><td>green LED</td><td>+ long leg (22,8), − short leg (21,8)</td><td>as soldered (the other way from the first plan); the 470 run and the ground wire are swapped to match</td></tr><tr><td>470 Ω</td><td>(21,4) → (21,6)</td><td>underside solder run (21,6)–(21,7)–(22,7)–(22,8)</td></tr><tr><td>1N5817 diode 1</td><td>stripe (22,2), plain (22,5)</td><td>stripe toward column 1 / the middle wall; current flows from the switch side into VSYS</td></tr><tr><td>R1 / R2 100 k</td><td>(4,10)→(7,10), (8,10)→(12,10)</td><td>bridges (7,10)–(8,10) = midpoint, (7,10)–(7,9) = GP28, (12,10)–(13,10)–(13,9) = GND</td></tr><tr><td>S8050</td><td>E (13,1) B (14,1) C (15,1)</td><td>standing; flat face toward the board edge (away from the Pico); E nearest the USB end; bridge (13,1)–(13,2) = GND</td></tr><tr><td>1 kΩ</td><td>base stub → through (14,1); other lead (18,1)</td><td>run (18,1)–(17,1)–(17,2) = GP13; (18,1) stays clear of (18,2) GND</td></tr><tr><td>3V3 point</td><td>bridge (5,9)–(5,10)</td><td>trunk A 3V3 lands on (5,10)</td></tr></tbody></table>
 <h3>Build order</h3><p class="sub">Everything in the drawing, in the order to do it. Parts from the top, all solder underneath, leads clipped to 1.5 mm. Wires are tinned and laid along a stub, one joint each.</p>
 <h3>1. Parts</h3><ol>
 <li><strong>Pico</strong>: rows 1–20, columns 2 and 9, USB face flush with the row-1 edge. Tack two diagonal pins, check it sits flat and square, solder the other 38, clip all to 1.5 mm. Plug USB in and run the blink before anything else goes on.</li>
-<li><strong>green LED</strong>: long leg (21,8), short leg (22,8). Hold the flange 1 mm above the board while soldering. Clip.</li>
-<li><strong>470 Ω</strong>: flat on row 21, legs (21,4) and (21,6). Solder, clip.</li>
+<li><strong>green LED</strong>: as soldered: LONG leg (anode) in (22,8), SHORT leg in (21,8). It sits the other way from the first plan; the two connections below are swapped to match, nothing to redo.</li>
+<li><strong>470 Ω</strong>: flat on row 21, legs (21,4) and (21,6). Solder, clip. Its (21,6) end reaches the LED's long leg at (22,8) by the L-shaped solder run in section 2.</li>
 <li><strong>1N5817 diode 1</strong>: flat on row 22, STRIPE end (22,2), plain end (22,5). Solder, clip.</li>
-<li><strong>R1 100k</strong>: flat on column 10, legs (4,10) and (7,10). Solder (4,10) only for now, clip it.</li>
-<li><strong>R2 100k</strong>: flat on column 10, legs (7,10) and (10,10). Its top leg goes into (7,10) WITH R1's leg: twist the two together first. Solder (7,10) and (10,10), clip.</li>
+<li><strong>R1 100k</strong>: flat on column 10, legs (4,10) and (7,10). Solder, clip. Its top (4,10) is the switch-output tap; keep that blob off (4,9).</li>
+<li><strong>R2 100k</strong>: flat on column 10, legs (8,10) and (12,10), right below R1. Solder, clip. Keep the (8,10) blob off (8,9), which is ground: the midpoint bridge in section 2 joins (7,10) to (8,10) vertically, not sideways.</li>
 <li><strong>S8050</strong>: standing on column 1, legs E (13,1), B (14,1), C (15,1), flat face away from the Pico, E nearest the USB end. Solder, clip.</li>
-<li><strong>1 kΩ</strong>: one lead soldered to the transistor's B leg 3 mm above the board (a top-side joint), body lying toward the far end on the outer side of the C leg, other lead into (17,1). Solder (17,1), clip.</li>
+<li><strong>1 kΩ</strong>: as built: the transistor's base leg was cut short, so the 1 kΩ's lead is soldered to that stub above the board and continues down through (14,1); the other lead is in (18,1). Solder both, clip. (14,1) underneath is the base node: nothing else joins it.</li>
 </ol><h3>2. Solder bridges underneath</h3><ol>
-<li>470 → LED +: one run of solder across (21,6) – (21,7) – (21,8)</li>
+<li>470 → LED + (L-shaped run): one run of solder across (21,6) – (21,7) – (22,7) – (22,8)</li>
 <li>E → GND: one run of solder across (13,1) – (13,2)</li>
-<li>1 k → GP13: one run of solder across (17,1) – (17,2)</li>
+<li>1 k → GP13 (up one, then across; NOT across at row 18, that is ground): one run of solder across (18,1) – (17,1) – (17,2)</li>
+<li>divider midpoint: R1 bottom → R2 top: one run of solder across (7,10) – (8,10)</li>
 <li>divider mid → GP28: one run of solder across (7,10) – (7,9)</li>
+<li>R2 bottom → GND (down one, across one): one run of solder across (12,10) – (13,10) – (13,9)</li>
 <li>3V3 → 3V3 point: one run of solder across (5,9) – (5,10)</li>
 </ol><h3>3. Wires that stay under the board</h3><ol>
 <li>VSYS  55 mm: from the stub at (22,2) to the stub at (2,9), routed in the bare lanes, never over another stub.</li>
 <li>divider tap  50 mm: from the stub at (22,5) to the stub at (4,10), routed in the bare lanes, never over another stub.</li>
-<li>divider GND  10 mm: from the stub at (10,10) to the stub at (8,9), routed in the bare lanes, never over another stub.</li>
 <li>LED supply  45 mm: from the stub at (21,4) to the stub at (5,9), routed in the bare lanes, never over another stub.</li>
-<li>LED GND  12 mm: from the stub at (22,8) to the stub at (18,9), routed in the bare lanes, never over another stub.</li>
+<li>LED GND  12 mm: from the stub at (21,8) to the stub at (18,9), routed in the bare lanes, never over another stub.</li>
 </ol><h3>4. Leads leaving the board (tin, lay along the stub, one joint)</h3><ol>
 <li><strong>charger</strong><ul>
 <li>charger OUT−  60 → stub at (3,2)</li>
-<li>charger OUT+  60 → the switch's middle pin (not the strip)</li>
+<li>charger OUT+  110 → the switch's middle pin: through the USB-end notch, along the strip's column-1 edge, past row 22 to the switch (never soldered to the strip)</li>
 </ul></li>
 <li><strong>switch</strong><ul>
-<li>switch outer  60 → stub at (22,5)</li>
+<li>switch outer  30 → stub at (22,5)</li>
 </ul></li>
 <li><strong>light bar</strong><ul>
 <li>light bar GND  60  +  trunk A GND  60 → stub at (8,2)</li>
@@ -906,12 +1016,13 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 </ul></li>
 </ol><p class="sub">Stubs that take two wires: (5,9) 3V3 takes the LED supply and the light bar +5V; (8,2) GND takes the light bar GND and trunk A GND; (5,10) takes trunk A 3V3 and MOT+. Tin both ends together, then one joint.</p>
 <h3>5. Meter checks before it goes in the box</h3><ol>
-<li>LED: diode mode, red on (21,8) stub, black on (22,8) stub: ~2 V and a faint glow. Open = LED backwards.</li>
-<li>470 Ω: ohms, (21,4) stub to (21,8) stub: 470. Open = the (21,6)–(21,8) run is incomplete.</li>
-<li>(22,8) must not touch (21,8): diode mode both ways between them reads open in one direction, not a short.</li>
+<li>LED: diode mode, red on (22,8) stub, black on (21,8) stub: ~2 V and a faint glow (long leg is in row 22).</li>
+<li>470 Ω: ohms, (21,4) stub to (22,8) stub: 470. Open = the (21,6)–(21,7)–(22,7)–(22,8) run is incomplete.</li>
+<li>(21,8) must not touch (22,8) or (22,7): (21,8) is ground, (22,7)/(22,8) are the LED supply; a short there kills the LED and warms the 470.</li>
 <li>Diode 1: diode mode, red on (22,5) stub, black on (22,2) stub: ~0.2 V. Swapped = diode in backwards.</li>
-<li>Divider: ohms (4,10) to (10,10): 200 k; (7,9) to either end: 100 k.</li>
-<li>S8050: diode mode, red on B (14,1): ~0.6 V to E and to C. Open both = legs swapped.</li>
+<li>Divider: ohms (4,10) to (12,10): 200 k; (7,9) to either end: 100 k; (12,10) to (13,9) near zero. (8,10) to (8,9) must be open.</li>
+<li>S8050: diode mode, red on (14,1) stub (the base node): ~0.6 V to E (13,1) and to C (15,1). Open both = legs swapped.</li>
+<li>1 kΩ: ohms (17,2) to (14,1): 1 k. (18,1) to (18,2) must be OPEN, that is ground; if it beeps the motor can never drive.</li>
 <li>No bridge (13,1)/(13,2) to (14,1): ohms B to GND reads open (not the 1 k).</li>
 <li>GND to 3V3 (any GND stub to (5,9)): must not beep.</li>
 </ol><p class="sub">Then Kapton over the solder side (standoff holes clear), and the bench script once more with everything dangling.</p>
@@ -950,7 +1061,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <text x="544" y="209.0" class="pname end">OUT−</text>
 <rect x="640" y="60" width="130" height="70" rx="6" class="node"/>
 <text x="705.0" y="76" class="ntitle mid">Slide switch</text>
-<text x="705.0" y="89" class="nsub mid">glued between the chest-wall fins</text>
+<text x="705.0" y="89" class="nsub mid">on its chest-wall shelf past the strip's end</text>
 <circle cx="640" cy="95.0" r="3.2" class="port"/>
 <text x="646" y="99.0" class="pname">middle</text>
 <circle cx="770" cy="84.5" r="3.2" class="port"/>
@@ -985,9 +1096,9 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <path d="M290,178.0 L325.0,178.0 L325.0,157.5 L360,157.5" class="swire" style="stroke:var(--pwr)"/>
 <path d="M290,206.0 L325.0,206.0 L325.0,186.0 L360,186.0" class="swire" style="stroke:var(--gnd)"/>
 <path d="M550,157.5 L600,157.5 L600,95.0 L640,95.0" class="swire" style="stroke:var(--sw)"/>
-<text x="600" y="121.25" class="wlab mid" style="fill:var(--sw)">60 mm</text>
+<text x="600" y="121.25" class="wlab mid" style="fill:var(--sw)">110 mm</text>
 <path d="M770,84.5 L795,84.5 L795,90.0 L820,90.0" class="swire" style="stroke:var(--sw)"/>
-<text x="795" y="82.25" class="wlab mid" style="fill:var(--sw)">60 mm</text>
+<text x="795" y="82.25" class="wlab mid" style="fill:var(--sw)">30 mm</text>
 <path d="M550,205.0 L700,205.0 L700,165.0 L820,165.0" class="swire" style="stroke:var(--gnd)"/>
 <text x="700" y="179.0" class="wlab mid" style="fill:var(--gnd)">60 mm, ground</text>
 <path d="M260,400.0 L310.0,400.0 L310.0,400.0 L360,400.0" class="swire" style="stroke:var(--bar)"/>
@@ -1002,7 +1113,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <rect x="733" y="246.5" width="14" height="4" class="stripe"/>
 <path d="M736,237.5 L744,237.5 L740,244.5 z" class="arrow"/>
 <text x="751" y="245.5" class="wlab" style="fill:var(--chg)">diode 3, 1N5817</text>
-<text x="20" y="30" class="note">Cell → charger → switch → strip.  IN+ has two diode feeds (pad and USB); the switch alone owns the battery.</text></svg></figure><h3>Build order</h3><ol><li><strong>Pigtail</strong>: 2-pin PH header, red 30 mm to B+, black 30 mm to B−, wires in from the top, soldered underneath. Meter the cell's plug to find plus before the first plug-in; red must land on B+.</li><li><strong>Charger leads</strong>, 60 mm, from the top, soldered underneath: OUT+, OUT−, IN+, IN−. Leave the board's own USB-C empty.</li><li><strong>Qi receiver</strong>: splice diode 2 into its + output wire, stripe toward the charger, heat-shrink; + → IN+, − → IN−. Coil: ferrite sheet on the side that faces the cell.</li><li><strong>Diode 3</strong> in the strip's VBUS lead (from stub (1,9)), stripe toward the charger, joins IN+ with diode 2's wire: twist, tin, one joint on the IN+ pad.</li><li><strong>Switch</strong>: OUT+ to its middle pin; its outer pin to the strip's diode 1 plain stub (22,5); the second outer pin stays empty.</li><li><strong>Bench proof before the box</strong> (BENCH stage 1 + 3): OUT+ to OUT− reads the cell; IN− ↔ OUT− beeps, B− ↔ OUT− does not; switch off + coil on the pad = red LED, Pico dark; switch on = Pico runs; USB in = Pico runs and red LED.</li><li><strong>Into the box, in this order</strong>: box onto the plate (2 × M2×6 from inside) → trunk A header into the battery-bay end-wall pocket, leads behind the ring → charger into its cradle, USB-C toward the triceps wall, pads toward the middle wall, cell leads back through the ring's notch → Kapton over it → Qi board on the four bracket tops → cell into the ring, lip toward the charger → ferrite + coil on the cell, Kapton band → strip-side headers → strip → switch between its fins → light bar → lid.</li></ol></section><section id="module"><h2>3. Forearm module: boards, IMU, button, motor, trunk headers</h2><p class="sub">Port to port. Everything inside the module ends on the two stacked headers; the trunk cables carry it to the box.</p><figure><figcaption>Forearm module wiring (block diagram, not to scale)</figcaption><svg viewBox="0 0 960 620" role="img" aria-label="Forearm module wiring (block diagram, not to scale)"><rect x="20" y="60" width="150" height="250" rx="6" class="node"/>
+<text x="20" y="30" class="note">Cell → charger → switch → strip.  IN+ has two diode feeds (pad and USB); the switch alone owns the battery.</text></svg></figure><h3>Build order</h3><ol><li><strong>Pigtail</strong>: 2-pin PH header, red 30 mm to B+, black 30 mm to B−, wires in from the top, soldered underneath. Meter the cell's plug to find plus before the first plug-in; red must land on B+.</li><li><strong>Charger leads</strong>, 60 mm, from the top, soldered underneath: OUT+, OUT−, IN+, IN−. Leave the board's own USB-C empty.</li><li><strong>Qi receiver</strong>: splice diode 2 into its + output wire, stripe toward the charger, heat-shrink; + → IN+, − → IN−. Coil: ferrite sheet on the side that faces the cell.</li><li><strong>Diode 3</strong> in the strip's VBUS lead (from stub (1,9)), stripe toward the charger, joins IN+ with diode 2's wire: twist, tin, one joint on the IN+ pad.</li><li><strong>Switch</strong>: OUT+ to its middle pin (110 mm: through the USB-end notch, along the strip's middle-wall edge, past row 22); its outer pin to the strip's diode 1 plain stub (22,5), 30 mm; the second outer pin stays empty.</li><li><strong>Bench proof before the box</strong> (BENCH stage 1 + 3): OUT+ to OUT− reads the cell; IN− ↔ OUT− beeps, B− ↔ OUT− does not; switch off + coil on the pad = red LED, Pico dark; switch on = Pico runs; USB in = Pico runs and red LED.</li><li><strong>Into the box, in this order</strong>: box onto the plate (2 × M2×6 from inside) → trunk A header into the battery-bay end-wall pocket, leads behind the ring → charger into its cradle, USB-C toward the triceps wall, pads toward the middle wall, cell leads back through the ring's notch → Kapton over it → Qi board on the four bracket tops → cell into the ring, lip toward the charger → ferrite + coil on the cell, Kapton band → strip-side headers → strip → switch onto its shelf → light bar → lid.</li></ol></section><section id="module"><h2>3. Forearm module: boards, IMU, button, motor, trunk headers</h2><p class="sub">Port to port. Everything inside the module ends on the two stacked headers; the trunk cables carry it to the box.</p><figure><figcaption>Forearm module wiring (block diagram, not to scale)</figcaption><svg viewBox="0 0 960 620" role="img" aria-label="Forearm module wiring (block diagram, not to scale)"><rect x="20" y="60" width="150" height="250" rx="6" class="node"/>
 <text x="95.0" y="76" class="ntitle mid">PH6 trunk A</text>
 <text x="95.0" y="89" class="nsub mid">lower in the elbow pocket</text>
 <circle cx="170" cy="90.0" r="3.2" class="port"/>
@@ -1114,7 +1225,7 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <path d="M630,225.0 L700,225.0 L700,225.0 L760,225.0" class="swire" style="stroke:var(--cord)"/>
 <text x="700" y="220.0" class="wlab mid" style="fill:var(--cord)">plate cable</text>
 <text x="200" y="582" class="note">All wires 60 mm: under the boards at the Gravity pins, onto the headers' clipped pins.</text>
-<text x="200" y="598" class="note">The motor has its own pair, MOT+ and MOT−, so its current never rides the boards' 3V3 or GND.</text></svg></figure><h3>Build order</h3><ol><li><strong>IMU</strong>: clip its header to ~2 mm; one short jumper joins PS0, PS1 and AD0 to the board's own GND pin (I²C mode, address 0x4A; the firmware probes both), another joins RST to VCC; leave CS open. Five 60 mm wires on VCC, GND, SDA, SCL, INT. Screw it to its two posts in bay B, header edge toward the rib, 2 × M2×4.</li><li><strong>Headers</strong>: clip the PH6's and PH4's pins to 2 mm, solder a 60 mm lead on every pin, drop both into the elbow-wall pocket, PH6 below (trunk A), PH4 above (trunk B), hot glue on top. Pin 1 is the end with the housing's ramp.</li><li><strong>Motor</strong>: solder the 1N4007 across its two tabs first, standing up along the tab slot, stripe on the tab that will be MOT+ (PH6 pin 5); the other tab is MOT− (PH6 pin 6). Leads up the tab slot into the rib tunnel and out the wall hole into bay B; peel the pad, press it onto the pocket floor, tab toward the button.</li><li><strong>Button</strong>: clip two legs flush and the other two to 1.5 mm; two wires soldered sideways (one leg → PH4 pin 4, the diagonal leg → PH6 pin 2); down the tunnel with the motor leads; drop it in its pocket cap up.</li><li><strong>Board A</strong> (flexor, EMG1): three wires on its Gravity pins under the board (− → PH6 2, + → PH6 1, S → PH6 3), pass them through the rib passage into bay B, screw the board to its posts, jack end to the wrist wall, 2 × M3×5.</li><li><strong>Board B</strong> (extensor, EMG2): same, − → PH6 2, + → PH6 1, S → PH6 4; it sits over the IMU on the tall posts, 2 × M3×6.</li><li><strong>Header pins with many wires</strong>: PH6 pin 1 takes three (board A +, board B +, IMU VCC), pin 2 takes four (board A −, board B −, IMU GND, button). Twist and tin each group, then one joint on the pin.</li><li><strong>Close</strong>: backer under the strap with the strap between its rails, module on top, 2 × M2×12 from the skin side (pan heads), lid on, 2 × M2×4. Bench: plug the trunk into the box, run the stage-4 script; IMU ok and both EMG columns move.</li><li><strong>Electrode frames</strong>: plate into the frame bars down, loop band down through one cover slot and up the other, cover on, 4 × M2×6; 3.5 mm cable to the matching jack (flexor → board A, extensor → board B).</li></ol></section><section id="system"><h2>4. The whole band and its cables</h2><p class="sub">Where each box sits and which plug joins them. The band never receives commands; the cables carry power and signals out to the forearm, and serial to the hand.</p><figure><figcaption>Band, forearm module, electrode frames, claw: connectors and cables</figcaption><svg viewBox="0 0 960 330" role="img" aria-label="Band, forearm module, electrode frames, claw: connectors and cables"><rect x="20" y="60" width="260" height="200" rx="6" class="node"/>
+<text x="200" y="598" class="note">The motor has its own pair, MOT+ and MOT−, so its current never rides the boards' 3V3 or GND.</text></svg></figure><h3>Build order</h3><ol><li><strong>IMU</strong>: clip its header to ~2 mm; one short jumper joins PS0, PS1 and AD0 to the board's own GND pin (I²C mode, address 0x4A; the firmware probes both), another joins RST to VCC; leave CS open. Five 60 mm wires on VCC, GND, SDA, SCL, INT. Screw it to its two posts in bay B, header edge toward the rib, 2 × M2×4.</li><li><strong>Headers</strong>: clip the PH6's and PH4's pins to 2 mm, solder a 60 mm lead on every pin, drop both into the elbow-wall pocket, PH6 below (trunk A), PH4 above (trunk B), hot glue on top. Pin 1 is the end with the housing's ramp.</li><li><strong>Motor</strong>: solder the 1N4007 across its two tabs first, standing up along the tab slot, stripe on the tab that will be MOT+ (PH6 pin 5); the other tab is MOT− (PH6 pin 6). Leads up the tab slot into the rib tunnel and out the wall hole into bay B; peel the pad, press it onto the pocket floor, tab toward the button.</li><li><strong>Button</strong>: clip two legs flush and the other two to 1.5 mm; two wires soldered sideways (one leg → PH4 pin 4, the diagonal leg → PH6 pin 2); down the tunnel with the motor leads; drop it in its pocket cap up.</li><li><strong>Board A</strong> (flexor, EMG1): three wires on its Gravity pins under the board (− → PH6 2, + → PH6 1, S → PH6 3), pass them through the rib passage into bay B, screw the board to its posts, jack end to the wrist wall, 2 × M3×5.</li><li><strong>Board B</strong> (extensor, EMG2): same, − → PH6 2, + → PH6 1, S → PH6 4; it sits over the IMU on the tall posts, 2 × M3×6.</li><li><strong>Header pins with many wires</strong>: PH6 pin 1 takes three (board A +, board B +, IMU VCC), pin 2 takes four (board A −, board B −, IMU GND, button). Twist and tin each group, then one joint on the pin.</li><li><strong>Close</strong>: backer under the strap with the strap between its rails, module on top, 2 × M2×8 from the skin side into the inserts under the crest bosses (pan heads), lid on, 4 × M2×6 (crest and side ears). Bench: plug the trunk into the box, run the stage-4 script; IMU ok and both EMG columns move.</li><li><strong>Electrode frames</strong>: plate into the frame bars down, loop band down through one cover slot and up the other, cover on, 4 × M2×6; 3.5 mm cable to the matching jack (flexor → board A, extensor → board B).</li></ol></section><section id="system"><h2>4. The whole band and its cables</h2><p class="sub">Where each box sits and which plug joins them. The band never receives commands; the cables carry power and signals out to the forearm, and serial to the hand.</p><figure><figcaption>Band, forearm module, electrode frames, claw: connectors and cables</figcaption><svg viewBox="0 0 960 330" role="img" aria-label="Band, forearm module, electrode frames, claw: connectors and cables"><rect x="20" y="60" width="260" height="200" rx="6" class="node"/>
 <text x="150.0" y="76" class="ntitle mid">Band box  (upper arm)</text>
 <text x="150.0" y="89" class="nsub mid">Pico 2 W, cell, charger, switch</text>
 <circle cx="280" cy="110.0" r="3.2" class="port"/>
@@ -1162,5 +1273,238 @@ section{margin-top:44px;padding-top:24px;border-top:2px solid var(--line)}
 <path d="M680,137.5 L740,137.5 L740,155.0 L800,155.0" class="swire" style="stroke:var(--cord)"/>
 <text x="740" y="141.25" class="wlab mid" style="fill:var(--cord)">3.5 mm, the kit's</text>
 <text x="30" y="292" class="note">Plug-to-plug everywhere: headers (pins) in the walls, crimped housings on the cables.</text>
-<text x="30" y="308" class="note">Twist EMG1, EMG2 and GND together in trunk A; braided sleeving over both trunks.</text></svg></figure><h3>Cables to make</h3><ol><li><strong>Trunk A</strong>: PH6 housing at both ends, six wires 25 cm, order 3V3 GND EMG1 EMG2 MOT+ MOT− pin 1 to 6 at both ends (straight through). Twist EMG1, EMG2 and GND together along the run; twist MOT+ with MOT−.</li><li><strong>Trunk B</strong>: PH4 both ends, SDA SCL INT BTN straight through, 25 cm. Glue its module-end housing face-to-face with trunk A's after a first plug-in so the pair sits square in the stacked pocket.</li><li><strong>Hand cord</strong>: PH3 both ends, TX RX GND, <em>crossed</em> (band TX → hand RX). Make it when the claw is ready.</li><li><strong>Plate cables</strong>: the kit's 3.5 mm leads, flexor plate → jack A, extensor plate → jack B.</li><li>Crimp recipe (PA-09): strip 2.5 mm, no tinning, conductor in the 1.4 slot, insulation in the 1.9 slot, tug test, contact in with its lance toward the housing windows until it clicks. Thin wire: double the copper over, heat-shrink under the insulation tabs.</li></ol></section><p class="sub" style="margin-top:18px">The slide switch is not on the strip: it is glued between the two fins on the chest wall (right-hand side here, beside rows 12–17) and reaches the board only through its two wires, charger OUT+ into its middle pin and its outer pin down to diode 1 at (22,5). Every hole in columns 1 and 10 has a Pico pin 2.5 mm away: keep those joints small. Column 10 above row 10 stays empty (switch fins rows 12–17, LED hole). Underside wires cross in the bare lanes under the Pico, never over a stub. Source of truth: band/PARTS.md, “Strip map”.</p>
-</body></html>
+<text x="30" y="308" class="note">Twist EMG1, EMG2 and GND together in trunk A; braided sleeving over both trunks.</text></svg></figure><h3>Cables to make</h3><ol><li><strong>Trunk A</strong>: PH6 housing at both ends, six wires 25 cm, order 3V3 GND EMG1 EMG2 MOT+ MOT− pin 1 to 6 at both ends (straight through). Twist EMG1, EMG2 and GND together along the run; twist MOT+ with MOT−.</li><li><strong>Trunk B</strong>: PH4 both ends, SDA SCL INT BTN straight through, 25 cm. Glue its module-end housing face-to-face with trunk A's after a first plug-in so the pair sits square in the stacked pocket.</li><li><strong>Hand cord</strong>: PH3 both ends, TX RX GND, <em>crossed</em> (band TX → hand RX). Make it when the claw is ready.</li><li><strong>Plate cables</strong>: the kit's 3.5 mm leads, flexor plate → jack A, extensor plate → jack B.</li><li>Crimp recipe (PA-09): strip 2.5 mm, no tinning, conductor in the 1.4 slot, insulation in the 1.9 slot, tug test, contact in with its lance toward the housing windows until it clicks. Thin wire: double the copper over, heat-shrink under the insulation tabs.</li></ol></section><p class="sub" style="margin-top:18px">The slide switch is not on the strip: it sits on a shelf on the chest wall (right-hand side here) just past row 22, between the LED and the corner lid boss, and reaches the board only through its two wires, charger OUT+ into its middle pin and its outer pin down to diode 1 at (22,5). Every hole in columns 1 and 10 has a Pico pin 2.5 mm away: keep those joints small. Column 10 stays flat (the LED hole is over rows 17–20). Underside wires cross in the bare lanes under the Pico, never over a stub. Source of truth: band/PARTS.md, “Strip map”.</p>
+<!-- BUILD:END -->
+    </div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="glb.js"></script>
+<script>
+(() => {
+  // ---------- what to show. Versions are the agentcad build numbers behind print/*.stl (see MANIFEST.md).
+  const V = window.GLB_VERSIONS || {};
+  const ver = f => V[f] ? "v" + V[f] : "";
+  const ASM = {
+    band: {
+      sub: "cuff box on the upper arm · 80.7 × 78.1 mm · " + [ver("band_box.glb"), ver("band_lid.glb"), ver("band_plate.glb")].join(" / "),
+      note: "Yellow = solder, pin stubs, wire bends and plugs a real build needs; the layout check must clear all of it. Nothing is on the lid: the LED stands on the strip, the light bar lies in the middle wall. Sizes are mm.",
+      files: [
+        { f: "band_box.glb",   cat: "printed", label: "box " + ver("band_box.glb") },
+        { f: "band_lid.glb",   cat: "printed", label: "lid " + ver("band_lid.glb"), lid: true },
+        { f: "band_plate.glb", cat: "printed", label: "sewn plate " + ver("band_plate.glb") },
+        { f: "band_parts.glb", split: true },
+      ],
+      lidParts: [],   // nothing rides on the band lid any more (LED on the strip, bar in the middle wall)
+    },
+    fa: {
+      sub: "forearm module on the strap, thumb side · 54.2 × 54.3 mm · " + [ver("fa_module.glb"), ver("fa_lid.glb"), ver("fa_backer.glb")].join(" / "),
+      note: "Both signal boards on their facets, IMU under board B, both trunk sockets stacked in the elbow wall.",
+      files: [
+        { f: "fa_module.glb", cat: "printed", label: "module " + ver("fa_module.glb") },
+        { f: "fa_lid.glb",    cat: "printed", label: "lid " + ver("fa_lid.glb"), lid: true },
+        { f: "fa_backer.glb", cat: "printed", label: "backer " + ver("fa_backer.glb") },
+        { f: "fa_parts.glb",  split: true },
+      ],
+      lidParts: [],
+    },
+    el: {
+      sub: "electrode on its own loop band · 39.6 × 35.3 mm · " + ver("electrode_frame.glb"),
+      note: "The plate sits bars-down in the frame; the cover screws down over it, and the closed 22 mm loop band threads down through one slot, across the plate's back under the cover's pad, and up through the other. Lift raises the cover.",
+      files: [
+        { f: "electrode_frame.glb", cat: "printed", label: "frame " + ver("electrode_frame.glb") },
+        { f: "electrode_cover.glb", cat: "printed", label: "cover " + ver("electrode_cover.glb"), lid: true },
+        { f: "electrode_parts.glb", split: true },
+      ],
+      lidParts: [],
+    },
+    arm: {
+      sub: "everything on a stand-in arm · shoulder left, hand right",
+      note: "Straight arm: r 44 at the band, r 34 at the forearm ring (guesses). Module on the thumb side, extensor electrode on the back of the forearm, flexor inside. Lift moves every lid.",
+      compose: [ ["band", 150, 44, 0], ["fa", 395, 36.4, 0], ["el", 395, 34, 90], ["el", 395, 34, -90] ],
+      files: [ { f: "arm.glb", cat: "arm", label: "arm (stand-in) " + ver("arm.glb") } ],
+      lidParts: [],
+    },
+    build: {
+      sub: "soldering and assembly: the strip both sides, the battery bay, the forearm module, the whole band and its cables",
+      note: "", files: [], lidParts: [],
+    },
+  };
+  const CATS = {
+    arm:     { title: "Arm", css: "--skin" },
+    printed: { title: "Printed", css: "--printed" },
+    elec:    { title: "Electronics", css: "--elec" },
+    plug:    { title: "Plugs & cables", css: "--plug" },
+    svc:     { title: "Wires, solder & keep-clear zones", css: "--wire" },
+  };
+  const catOf = n => n.startsWith("svc_") ? "svc" : (n.startsWith("plug") || n.endsWith("_plug") ? "plug" : "elec");
+  const PRETTY = {
+    // sockets are named per assembly below; these are the shared parts
+    "band:sock_a0": "trunk socket A, PH6 (3V3 GND EMG1 EMG2 BTN MOTOR)", "band:sock_b0": "trunk socket B, PH4 (SDA SCL INT RST) - inner",
+    "band:sock_b1": "hand cord socket, PH3 - outer", "fa:sock_b0": "trunk socket A, PH6 (lower)", "fa:sock_b1": "trunk socket B, PH4 (upper)",
+    strip: "perf strip + Pico 2 W", qi_board: "Qi receiver board", qi_coil: "Qi coil", ws2812: "light bar (3 px)",
+    board_a: "EMG board A (flexor)", board_b: "EMG board B (extensor)", imu: "BNO08x IMU", plate: "electrode plate",
+    plate_plug: "3.5 mm plug", plug_a: "3.5 mm plug A", plug_b: "3.5 mm plug B",
+  };
+  const pretty = (n, asm) => PRETTY[asm + ":" + n] || PRETTY[n] || n.replace(/^svc_/, "").replace(/_/g, " ");
+
+  // ---------- three.js
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const canvas = document.getElementById("c");
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(35, 1, 1, 2000);
+  const controls = new THREE.OrbitControls(camera, canvas);
+  controls.enableDamping = true;
+  scene.add(new THREE.HemisphereLight(0xffffff, 0x8899aa, 0.9));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.7); sun.position.set(80, 140, 60); scene.add(sun);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.3); fill.position.set(-120, 40, -80); scene.add(fill);
+  const root = new THREE.Group(); scene.add(root);
+
+  const loader = new THREE.GLTFLoader();
+  const items = [];           // { name, cat, obj, lid, on }
+  const state = { asm: "band", lift: 0, xray: false, bbox: null };
+
+  function material(cat, xray) {
+    const c = new THREE.Color(css(CATS[cat].css));
+    const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, metalness: 0.05, side: THREE.DoubleSide });
+    if (cat === "svc") { m.transparent = true; m.opacity = 0.55; }
+    if (cat === "arm") { m.roughness = 0.9; m.transparent = true; m.opacity = 0.85; }
+    if (cat === "printed" && xray) { m.transparent = true; m.opacity = 0.3; m.depthWrite = false; }
+    return m;
+  }
+  function paint() {
+    for (const it of items) it.obj.traverse(o => { if (o.isMesh) o.material = material(it.cat, state.xray); });
+  }
+  function applyLift() {
+    for (const it of items) it.obj.position.y = it.lid ? state.lift : 0;
+  }
+  function fitCamera(dir) {
+    const box = new THREE.Box3();
+    for (const it of items) if ((it.cat === "printed" || it.cat === "arm") && !it.lid) box.expandByObject(it.obj);
+    if (box.isEmpty()) return;
+    state.bbox = box;
+    const size = box.getSize(new THREE.Vector3()), ctr = box.getCenter(new THREE.Vector3());
+    const r = size.length() / 2;
+    const d = r / Math.tan((camera.fov * Math.PI / 180) / 2) * 1.15;
+    camera.position.copy(ctr).addScaledVector(dir.clone().normalize(), d);
+    camera.near = d / 100; camera.far = d * 10; camera.updateProjectionMatrix();
+    controls.target.copy(ctr); controls.update();
+  }
+  const VIEWS = { iso: new THREE.Vector3(0.9, 0.8, 1.1), top: new THREE.Vector3(0.001, 1, 0.001), end: new THREE.Vector3(-1, 0.25, 0.001), under: new THREE.Vector3(0.3, -1, 0.3) };
+
+  function load(f) {                       // the GLBs ship inside glb.js (base64), parsed in place
+    const b64 = window.GLB[f]; if (!b64) return Promise.reject(new Error("missing " + f));
+    const bin = atob(b64), buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    return new Promise((res, rej) => loader.parse(buf.buffer, "", g => res(g.scene), rej));
+  }
+  // place one assembly on the arm: shift its arm axis to the origin (+r), turn it around the arm (rot about X),
+  // slide it along the arm (x). Lids still lift along their own local Y inside this group.
+  function placement(x, r, rot) {
+    const g = new THREE.Group();
+    g.position.set(x, 0, 0);
+    g.rotation.x = rot * Math.PI / 180;
+    const inner = new THREE.Group(); inner.position.set(0, r, 0); g.add(inner);
+    root.add(g);
+    return inner;
+  }
+  async function loadAssembly(asm, into, tag) {
+    for (const spec of ASM[asm].files) {
+      let sc;
+      try { sc = await load(spec.f); } catch (e) { document.getElementById("status").textContent = "could not load " + spec.f; continue; }
+      if (!spec.split) {
+        items.push({ name: tag + spec.label, cat: spec.cat, obj: sc, lid: !!spec.lid, on: true });
+        into.add(sc);
+      } else {
+        // one GLB holding every placed part; each named top-level node is one part
+        for (const node of [...sc.children]) {
+          const n = (node.name || "").toLowerCase();
+          if (!n || n.startsWith("=>")) continue;
+          const g = new THREE.Group(); g.name = n; g.add(node);
+          items.push({ name: tag + pretty(n, asm), raw: n, cat: catOf(n), obj: g, lid: ASM[asm].lidParts.includes(n), on: true });
+          into.add(g);
+        }
+      }
+    }
+  }
+  async function show(asm) {
+    state.asm = asm;
+    for (const b of document.querySelectorAll("#tabs button")) b.setAttribute("aria-pressed", String(b.dataset.asm === asm));
+    document.getElementById("sub").textContent = ASM[asm].sub;
+    document.getElementById("note").textContent = ASM[asm].note;
+    document.body.classList.toggle("build-mode", asm === "build");
+    if (asm === "build") return;                       // the maps are static HTML in main; the scene waits behind them
+    document.getElementById("status").textContent = "loading…";
+    while (root.children.length) root.remove(root.children[0]);
+    items.length = 0;
+    await loadAssembly(asm, root, "");
+    for (const [sub, x, r, rot] of ASM[asm].compose || [])
+      await loadAssembly(sub, placement(x, r, rot), rot > 0 ? "ext. " : rot < 0 ? "flex. " : "");
+    paint(); applyLift(); buildList(); fitCamera(VIEWS.iso);
+    document.getElementById("status").innerHTML = `<b>${items.length}</b> objects · drag to orbit, wheel to zoom, right-drag to pan`;
+  }
+  function buildList() {
+    const host = document.getElementById("groups"); host.innerHTML = "";
+    for (const [cat, meta] of Object.entries(CATS)) {
+      const list = items.filter(i => i.cat === cat);
+      if (!list.length) continue;
+      const fs = document.createElement("fieldset");
+      const lg = document.createElement("legend");
+      lg.innerHTML = `<i style="background:var(${meta.css})"></i>${meta.title} <span class="grp"><button type="button" data-all="1">all</button><button type="button" data-all="0">none</button></span>`;
+      lg.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { list.forEach(i => { i.on = b.dataset.all === "1"; i.obj.visible = i.on; }); buildList(); }));
+      fs.appendChild(lg);
+      for (const it of list) {
+        const id = "p_" + (it.raw || it.name).replace(/\W+/g, "_");
+        const l = document.createElement("label"); l.className = "row"; l.htmlFor = id;
+        l.innerHTML = `<input type="checkbox" id="${id}" ${it.on ? "checked" : ""}><span class="nm">${it.name}</span><span class="v">${it.lid ? "on lid" : ""}</span>`;
+        l.querySelector("input").addEventListener("change", e => { it.on = e.target.checked; it.obj.visible = it.on; });
+        l.addEventListener("pointerenter", () => highlight(it, true));
+        l.addEventListener("pointerleave", () => highlight(it, false));
+        fs.appendChild(l);
+      }
+      host.appendChild(fs);
+    }
+  }
+  function highlight(it, on) {
+    it.obj.traverse(o => { if (o.isMesh) o.material.emissive = new THREE.Color(on ? css("--hover") : "#000000"), o.material.emissiveIntensity = on ? 0.35 : 0; });
+  }
+
+  // hover names on the canvas
+  const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+  canvas.addEventListener("pointermove", e => {
+    const r = canvas.getBoundingClientRect();
+    ptr.set(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+    ray.setFromCamera(ptr, camera);
+    const hit = ray.intersectObjects(items.filter(i => i.on).map(i => i.obj), true)[0];
+    const s = document.getElementById("status");
+    if (hit) { let o = hit.object, it = null; while (o && !(it = items.find(i => i.obj === o))) o = o.parent; s.innerHTML = it ? `<b>${it.name}</b>` : ""; }
+    else s.innerHTML = `<b>${items.length}</b> objects · drag to orbit, wheel to zoom, right-drag to pan`;
+  });
+
+  // controls
+  document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => show(b.dataset.asm)));
+  document.querySelectorAll("#toc a").forEach(a => a.addEventListener("click", e => {
+    e.preventDefault(); const t = document.querySelector(a.getAttribute("href")); if (t) t.scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
+  const lift = document.getElementById("lift");
+  lift.addEventListener("input", () => { state.lift = +lift.value; document.getElementById("liftv").textContent = lift.value + " mm"; applyLift(); });
+  document.getElementById("xray").addEventListener("change", e => { state.xray = e.target.checked; paint(); });
+  for (const [k, v] of Object.entries(VIEWS)) document.getElementById("v-" + k).addEventListener("click", () => fitCamera(v));
+  matchMedia("(prefers-color-scheme: dark)").addEventListener("change", paint);
+
+  function resize() {
+    const w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;                                  // hidden behind the Build tab
+    if (canvas.width !== w * renderer.getPixelRatio() || canvas.height !== h * renderer.getPixelRatio()) {
+      renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+    }
+  }
+  (function tick() { resize(); controls.update(); renderer.render(scene, camera); requestAnimationFrame(tick); })();
+  show("band");
+})();
+</script>
