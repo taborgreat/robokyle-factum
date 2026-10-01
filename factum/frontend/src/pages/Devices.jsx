@@ -2,18 +2,19 @@ import React, { useState } from 'react';
 import { put, get } from '../api.js';
 
 export default function Devices({ state, onChange }) {
-  const d = state.devices || {}; const [band, setBand] = useState(d.band?.ip || ''); const [hand, setHand] = useState(d.hand?.ip || ''); const [key, setKey] = useState(''); const [msg, setMsg] = useState(''); const [logs, setLogs] = useState(null);
-  const save = async () => { const body = { band: { ip: band }, hand: { ip: hand } }; if (key) body.key = key; onChange(await put('/api/devices', body)); setKey(''); setMsg('Saved'); };
+  const d = state.devices || {}; const [band, setBand] = useState(d.band?.ip || ''); const [hand, setHand] = useState(d.hand?.ip || ''); const [key, setKey] = useState(''); const [msg, setMsg] = useState(''); const [logs, setLogs] = useState(null); const [relay, setRelay] = useState(d.relay || 'virtual');
+  const save = async () => { const body = { band: { ip: band }, hand: { ip: hand }, relay }; if (key) body.key = key; onChange(await put('/api/devices', body)); setKey(''); setMsg('Saved'); };
   const when = t => t ? new Date(t).toLocaleTimeString() : 'never';
   return (
     <div className="grid">
       <div className="panel">
         <h2>Where things are</h2>
-        <p className="msg">These are the addresses Factum itself talks to. The band's IP is learned from its frames automatically; the hand's is wherever the hand reaches this server from. The band never addresses the hand over Wi-Fi: in HAND-FACTUM both devices talk to Factum only, in HAND-DIRECT the hand joins the band's hotspot at 192.168.4.11, otherwise it is the cord.</p>
+        <p className="msg">These are the addresses Factum itself talks to. The band's IP is learned from its frames automatically; the hand's is wherever the hand reaches this server from. The band never addresses the hand over Wi-Fi: in HAND-FACTUM both devices talk to Factum only and Factum relays the band's hand command to whichever hand is chosen below, in HAND-DIRECT the hand joins the band's hotspot at 192.168.4.11, otherwise it is the cord.</p>
         <div className="form">
           <div className="row"><label htmlFor="band_ip">Band IP</label><input id="band_ip" value={band} onChange={e => setBand(e.target.value)} placeholder="learned from frames" /></div>
           <div className="row"><label>Band last seen</label><span className="mono">{when(d.band?.lastSeen)}</span></div>
-          <div className="row"><label htmlFor="hand_ip">Hand IP</label><input id="hand_ip" value={hand} onChange={e => setHand(e.target.value)} placeholder="where the hand answers Factum" /></div>
+          <div className="row"><label htmlFor="hand_ip">Claw IP</label><input id="hand_ip" value={hand} onChange={e => setHand(e.target.value)} placeholder="where the claw answers Factum (none yet)" /></div>
+          <div className="row"><label htmlFor="relay">Hand commands go to</label><select id="relay" value={relay} onChange={e => setRelay(e.target.value)}><option value="virtual">the virtual Brunel on this server</option><option value="claw">the claw at the IP above</option><option value="both">both</option></select></div>
           <div className="row"><label htmlFor="key">Shared key (Factum side only)</label><input id="key" type="password" value={key} onChange={e => setKey(e.target.value)} placeholder={d.keySet ? 'set' : 'factory default'} /></div>
         </div>
         <div className="actions" style={{ marginTop: 10 }}><button className="btn" onClick={save}>Save</button>{msg && <span className="msg ok">{msg}</span>}</div>

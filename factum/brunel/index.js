@@ -5,10 +5,11 @@ import { createUi } from './src/ui.js';
 
 // Builds a virtual hand and returns a single (req, res) handler: the viewer lives at /
 // and /ui/*, the Brunel Hand API owns every other path. `storePath` is the JSON file
-// standing in for EEPROM (custom gestures); omit it to keep them in memory.
-export function createBrunelHand({ storePath } = {}) {
+// standing in for EEPROM (custom gestures); omit it to keep them in memory. `threeDir` is the host's three.js package
+// directory when this runs inside another server (Factum mounts it at /brunel).
+export function createBrunelHand({ storePath, threeDir } = {}) {
   const hand = new Hand({ store: createStore(storePath) });
-  const ui = createUi(hand);
+  const ui = createUi(hand, { threeDir });
   const api = createApi(hand, { onRequest: ui.logRequest });
 
   return {

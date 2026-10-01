@@ -31,13 +31,24 @@ class H(BaseHTTPRequestHandler):
         self._send(404, {"error": "no such endpoint"})
     def log_message(self, *a): pass
 
+def hand_cmd(t, fist, spread, last):
+    """What the band's HAND-FACTUM frame carries in `h`: the last command it would have posted to a hand."""
+    if fist: return {"cmd": "close", "a": {"force": round(min(1.0, fist / 0.6), 2)}}
+    if spread: return {"cmd": "open", "a": {}}
+    if int(t) % 20 == 10: return {"cmd": "grip", "a": {"name": "pinch", "preview": True}}      # the wheel previewing
+    if int(t) % 20 == 11: return {"cmd": "grip", "a": {"name": "pinch", "preview": False}}     # and settling on pinch
+    if int(t) % 20 == 16: return {"cmd": "grip", "a": {"name": "fist", "preview": False}}
+    return last
+
 def stream():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    h = None
     while True:
         t = time.time() - state["t0"]; state["seq"] += 1
         fist = 0.55 if int(t) % 6 in (2, 3) else 0.0; spread = 0.45 if int(t) % 9 == 6 else 0.0
+        h = hand_cmd(t, fist, spread, h)
         f = {"id": "band1", "seq": state["seq"], "t": int(t * 1000), "c": [round(0.02 + fist + random.gauss(0, .01), 3), round(0.02 + spread + random.gauss(0, .01), 3)],
-             "b": 3.91, "o": [round(20 * math.sin(t / 3), 1), round(10 * math.cos(t / 5), 1), round(5 * math.sin(t / 7), 1)], "i": 1 if fist else 2 if spread else 0}
+             "b": 3.91, "o": [round(20 * math.sin(t / 3), 1), round(10 * math.cos(t / 5), 1), round(5 * math.sin(t / 7), 1)], "i": 1 if fist else 2 if spread else 0, "h": h}
         s.sendto(json.dumps(f).encode(), ("127.0.0.1", 5005)); time.sleep(0.02)
 
 threading.Thread(target=stream, daemon=True).start()

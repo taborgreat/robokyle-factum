@@ -1,5 +1,5 @@
 // UDP frame ingest: every packet from the band is parsed, kept in a ring, logged to a daily JSONL file, and
-// pushed to the live subscribers. Factum is a listener; it never sits in the hand command path.
+// pushed to the live subscribers (the dashboard, and the relay that drives the hand from the frame's `h`).
 import dgram from 'node:dgram';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,6 +23,7 @@ function logFrame(f) {
 }
 
 export function subscribe(fn) { subscribers.add(fn); return () => subscribers.delete(fn); }
+export function noteEstop(f) { stats.estops.unshift({ at: Date.now(), seq: f.seq ?? null, via: f.via || 'udp' }); stats.estops.length = Math.min(stats.estops.length, 20); }
 
 export function start() {
   const sock = dgram.createSocket('udp4');
@@ -31,7 +32,7 @@ export function start() {
     try { f = JSON.parse(msg.toString()); } catch { stats.dropped++; return; }
     f.rx = Date.now(); f.from = rinfo.address;
     learnBandIp(rinfo.address);
-    if (f.estop) { stats.estops.unshift({ at: f.rx, seq: f.seq }); stats.estops.length = Math.min(stats.estops.length, 20); }
+    if (f.estop) noteEstop(f);
     if (stats.lastSeq !== null && typeof f.seq === 'number' && f.seq > stats.lastSeq + 1) stats.dropped += f.seq - stats.lastSeq - 1;
     stats.lastSeq = typeof f.seq === 'number' ? f.seq : stats.lastSeq;
     stats.frames++; stats.lastAt = f.rx;

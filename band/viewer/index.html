@@ -85,9 +85,10 @@
     </div>
     <nav id="toc" class="toc" aria-label="Build sections">
       <a href="#strip">1 · The strip, both sides</a>
-      <a href="#battery">2 · Battery bay: cell, charger, switch, Qi</a>
-      <a href="#module">3 · Forearm module</a>
-      <a href="#system">4 · The whole band and its cables</a>
+      <a href="#sockets">2 · Band box: wall sockets → strip</a>
+      <a href="#battery">3 · Battery bay: cell, charger, switch, Qi</a>
+      <a href="#module">4 · Forearm module</a>
+      <a href="#system">5 · The whole band and its cables</a>
     </nav>
     <div class="ctl">
       <label for="lift">Lift the lid</label><output id="liftv" for="lift">0 mm</output>
@@ -138,7 +139,7 @@
 .build .ntitle{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:13px;font-weight:600}.build .nsub{font-family:"IBM Plex Sans",system-ui,sans-serif;font-size:10.5px;fill:var(--mute)}
 .build .port{fill:var(--bg);stroke:var(--ink);stroke-width:1.4}.build .pname{font-size:10px}.build .swire{fill:none;stroke-width:2;stroke-linejoin:round}.build .note{font-size:11px;fill:var(--mute);font-family:"IBM Plex Sans",system-ui,sans-serif}
 </style>
-<header class="bhead"><h2>Band build maps</h2><p class="sub">Four separate sections: the strip (both sides), the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another. Generated from the tables in band/PARTS.md.</p></header>
+<header class="bhead"><h2>Band build maps</h2><p class="sub">Five separate sections: the strip (both sides), the band box's wall sockets and their leads, the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another. Generated from the tables in band/PARTS.md.</p></header>
 <section id="strip"><h2>1. The strip, both sides</h2>
 <p class="sub">Look down at the top with the USB end at the top: column 1 top-left, column 10 top-right, rows 1–22 from the USB end. Pin 1 (GP0) is at (1,2), pin 40 (VBUS) at (1,9). The bottom view is the board flipped left-to-right, USB still at the top, so column 1 appears on the right. Dark holes carry solder. Lengths in mm.</p>
 <div class="wrap"><figure><figcaption>TOP — components (nothing else is soldered here)</figcaption><svg viewBox="0 0 950 756" role="img" aria-label="TOP — components (nothing else is soldered here)"><rect x="318" y="50" width="314" height="670" rx="4" class="board"/>
@@ -492,52 +493,52 @@
 <text x="356.0" y="520.0" class="plab mid" transform="rotate(-90 356.0 520.0)">1k</text>
 <path d="M370,70 L290,70" class="leadline" style="stroke:var(--cord)"/>
 <circle cx="290" cy="70" r="3" style="fill:var(--cord)"/>
-<text x="282" y="74" class="wlab end" style="fill:var(--cord)">cord TX  60</text>
+<text x="282" y="74" class="wlab end" style="fill:var(--cord)">cord TX  95</text>
 <path d="M370,100 L290,100" class="leadline" style="stroke:var(--cord)"/>
 <circle cx="290" cy="100" r="3" style="fill:var(--cord)"/>
-<text x="282" y="104" class="wlab end" style="fill:var(--cord)">cord RX  60</text>
+<text x="282" y="104" class="wlab end" style="fill:var(--cord)">cord RX  90</text>
 <path d="M370,130 L290,130" class="leadline" style="stroke:var(--chg)"/>
 <circle cx="290" cy="130" r="3" style="fill:var(--chg)"/>
-<text x="282" y="134" class="wlab end" style="fill:var(--chg)">charger OUT−  60</text>
+<text x="282" y="134" class="wlab end" style="fill:var(--chg)">charger OUT−  55</text>
 <path d="M370,220 L290,220" class="leadline" style="stroke:var(--tb)"/>
 <circle cx="290" cy="220" r="3" style="fill:var(--tb)"/>
-<text x="282" y="224" class="wlab end" style="fill:var(--tb)">trunk B SDA  60</text>
+<text x="282" y="224" class="wlab end" style="fill:var(--tb)">trunk B SDA  75</text>
 <path d="M370,250 L290,250" class="leadline" style="stroke:var(--tb)"/>
 <circle cx="290" cy="250" r="3" style="fill:var(--tb)"/>
-<text x="282" y="254" class="wlab end" style="fill:var(--tb)">trunk B SCL  60</text>
+<text x="282" y="254" class="wlab end" style="fill:var(--tb)">trunk B SCL  75</text>
 <path d="M370,280 L290,280" class="leadline" style="stroke:var(--gnd)"/>
 <circle cx="290" cy="280" r="3" style="fill:var(--gnd)"/>
-<text x="282" y="284" class="wlab end" style="fill:var(--gnd)">light bar GND  60  +  trunk A GND  60</text>
+<text x="282" y="284" class="wlab end" style="fill:var(--gnd)">light bar GND  40  +  trunk A GND  105</text>
 <path d="M370,310 L290,310" class="leadline" style="stroke:var(--tb)"/>
 <circle cx="290" cy="310" r="3" style="fill:var(--tb)"/>
-<text x="282" y="314" class="wlab end" style="fill:var(--tb)">trunk B INT  60</text>
+<text x="282" y="314" class="wlab end" style="fill:var(--tb)">trunk B INT  70</text>
 <path d="M370,340 L290,340" class="leadline" style="stroke:var(--tb)"/>
 <circle cx="290" cy="340" r="3" style="fill:var(--tb)"/>
-<text x="282" y="344" class="wlab end" style="fill:var(--tb)">trunk B BTN  60</text>
+<text x="282" y="344" class="wlab end" style="fill:var(--tb)">trunk B BTN  65</text>
 <path d="M340,490 L290,490" class="leadline" style="stroke:var(--ta)"/>
 <circle cx="290" cy="490" r="3" style="fill:var(--ta)"/>
-<text x="282" y="494" class="wlab end" style="fill:var(--ta)">trunk A MOT−  60  (S8050 C leg)</text>
+<text x="282" y="494" class="wlab end" style="fill:var(--ta)">trunk A MOT−  85  (S8050 C leg)</text>
 <path d="M370,580 L290,580" class="leadline" style="stroke:var(--cord)"/>
 <circle cx="290" cy="580" r="3" style="fill:var(--cord)"/>
-<text x="282" y="584" class="wlab end" style="fill:var(--cord)">cord GND  60</text>
+<text x="282" y="584" class="wlab end" style="fill:var(--cord)">cord GND  50</text>
 <path d="M580,70 L660,70" class="leadline" style="stroke:var(--chg)"/>
 <circle cx="660" cy="70" r="3" style="fill:var(--chg)"/>
-<text x="668" y="74" class="wlab " style="fill:var(--chg)">VBUS → 1N5817 → charger IN+  60</text>
+<text x="668" y="74" class="wlab " style="fill:var(--chg)">VBUS → diode 3 → IN+   55 + diode + 15</text>
 <path d="M580,190 L660,190" class="leadline" style="stroke:var(--bar)"/>
 <circle cx="660" cy="190" r="3" style="fill:var(--bar)"/>
-<text x="668" y="194" class="wlab " style="fill:var(--bar)">light bar +5V  60</text>
+<text x="668" y="194" class="wlab " style="fill:var(--bar)">light bar +5V  55</text>
 <path d="M610,203 L660,203" class="leadline" style="stroke:var(--ta)"/>
 <circle cx="660" cy="203" r="3" style="fill:var(--ta)"/>
-<text x="668" y="207" class="wlab " style="fill:var(--ta)">trunk A 3V3 + MOT+  60 each  (3V3 point)</text>
+<text x="668" y="207" class="wlab " style="fill:var(--ta)">trunk A 3V3 + MOT+  135 each  (3V3 point)</text>
 <path d="M580,310 L660,310" class="leadline" style="stroke:var(--ta)"/>
 <circle cx="660" cy="310" r="3" style="fill:var(--ta)"/>
-<text x="668" y="314" class="wlab " style="fill:var(--ta)">trunk A EMG2  60</text>
+<text x="668" y="314" class="wlab " style="fill:var(--ta)">trunk A EMG2  125</text>
 <path d="M580,340 L660,340" class="leadline" style="stroke:var(--ta)"/>
 <circle cx="660" cy="340" r="3" style="fill:var(--ta)"/>
-<text x="668" y="344" class="wlab " style="fill:var(--ta)">trunk A EMG1  60</text>
+<text x="668" y="344" class="wlab " style="fill:var(--ta)">trunk A EMG1  120</text>
 <path d="M580,640 L660,640" class="leadline" style="stroke:var(--bar)"/>
 <circle cx="660" cy="640" r="3" style="fill:var(--bar)"/>
-<text x="668" y="644" class="wlab " style="fill:var(--bar)">light bar DIN  60</text>
+<text x="668" y="644" class="wlab " style="fill:var(--bar)">light bar DIN  90</text>
 <path d="M460,700 L660,700" class="leadline" style="stroke:var(--sw)"/>
 <circle cx="660" cy="700" r="3" style="fill:var(--sw)"/>
 <text x="668" y="704" class="wlab " style="fill:var(--sw)">switch outer  30</text></svg></figure><figure><figcaption>BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)</figcaption><svg viewBox="0 0 950 756" role="img" aria-label="BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)"><rect x="318" y="50" width="314" height="670" rx="4" class="board"/>
@@ -906,55 +907,55 @@
 <text x="594.0" y="520.0" class="plab mid" transform="rotate(-90 594.0 520.0)">1k</text>
 <path d="M370,70 L290,70" class="leadline" style="stroke:var(--chg)"/>
 <circle cx="290" cy="70" r="3" style="fill:var(--chg)"/>
-<text x="282" y="74" class="wlab end" style="fill:var(--chg)">VBUS → 1N5817 → charger IN+  60</text>
+<text x="282" y="74" class="wlab end" style="fill:var(--chg)">VBUS → diode 3 → IN+   55 + diode + 15</text>
 <path d="M370,190 L290,190" class="leadline" style="stroke:var(--bar)"/>
 <circle cx="290" cy="190" r="3" style="fill:var(--bar)"/>
-<text x="282" y="194" class="wlab end" style="fill:var(--bar)">light bar +5V  60</text>
+<text x="282" y="194" class="wlab end" style="fill:var(--bar)">light bar +5V  55</text>
 <path d="M340,203 L290,203" class="leadline" style="stroke:var(--ta)"/>
 <circle cx="290" cy="203" r="3" style="fill:var(--ta)"/>
-<text x="282" y="207" class="wlab end" style="fill:var(--ta)">trunk A 3V3 + MOT+  60 each  (3V3 point)</text>
+<text x="282" y="207" class="wlab end" style="fill:var(--ta)">trunk A 3V3 + MOT+  135 each  (3V3 point)</text>
 <path d="M370,310 L290,310" class="leadline" style="stroke:var(--ta)"/>
 <circle cx="290" cy="310" r="3" style="fill:var(--ta)"/>
-<text x="282" y="314" class="wlab end" style="fill:var(--ta)">trunk A EMG2  60</text>
+<text x="282" y="314" class="wlab end" style="fill:var(--ta)">trunk A EMG2  125</text>
 <path d="M370,340 L290,340" class="leadline" style="stroke:var(--ta)"/>
 <circle cx="290" cy="340" r="3" style="fill:var(--ta)"/>
-<text x="282" y="344" class="wlab end" style="fill:var(--ta)">trunk A EMG1  60</text>
+<text x="282" y="344" class="wlab end" style="fill:var(--ta)">trunk A EMG1  120</text>
 <path d="M370,640 L290,640" class="leadline" style="stroke:var(--bar)"/>
 <circle cx="290" cy="640" r="3" style="fill:var(--bar)"/>
-<text x="282" y="644" class="wlab end" style="fill:var(--bar)">light bar DIN  60</text>
+<text x="282" y="644" class="wlab end" style="fill:var(--bar)">light bar DIN  90</text>
 <path d="M490,700 L290,700" class="leadline" style="stroke:var(--sw)"/>
 <circle cx="290" cy="700" r="3" style="fill:var(--sw)"/>
 <text x="282" y="704" class="wlab end" style="fill:var(--sw)">switch outer  30</text>
 <path d="M580,70 L660,70" class="leadline" style="stroke:var(--cord)"/>
 <circle cx="660" cy="70" r="3" style="fill:var(--cord)"/>
-<text x="668" y="74" class="wlab " style="fill:var(--cord)">cord TX  60</text>
+<text x="668" y="74" class="wlab " style="fill:var(--cord)">cord TX  95</text>
 <path d="M580,100 L660,100" class="leadline" style="stroke:var(--cord)"/>
 <circle cx="660" cy="100" r="3" style="fill:var(--cord)"/>
-<text x="668" y="104" class="wlab " style="fill:var(--cord)">cord RX  60</text>
+<text x="668" y="104" class="wlab " style="fill:var(--cord)">cord RX  90</text>
 <path d="M580,130 L660,130" class="leadline" style="stroke:var(--chg)"/>
 <circle cx="660" cy="130" r="3" style="fill:var(--chg)"/>
-<text x="668" y="134" class="wlab " style="fill:var(--chg)">charger OUT−  60</text>
+<text x="668" y="134" class="wlab " style="fill:var(--chg)">charger OUT−  55</text>
 <path d="M580,220 L660,220" class="leadline" style="stroke:var(--tb)"/>
 <circle cx="660" cy="220" r="3" style="fill:var(--tb)"/>
-<text x="668" y="224" class="wlab " style="fill:var(--tb)">trunk B SDA  60</text>
+<text x="668" y="224" class="wlab " style="fill:var(--tb)">trunk B SDA  75</text>
 <path d="M580,250 L660,250" class="leadline" style="stroke:var(--tb)"/>
 <circle cx="660" cy="250" r="3" style="fill:var(--tb)"/>
-<text x="668" y="254" class="wlab " style="fill:var(--tb)">trunk B SCL  60</text>
+<text x="668" y="254" class="wlab " style="fill:var(--tb)">trunk B SCL  75</text>
 <path d="M580,280 L660,280" class="leadline" style="stroke:var(--gnd)"/>
 <circle cx="660" cy="280" r="3" style="fill:var(--gnd)"/>
-<text x="668" y="284" class="wlab " style="fill:var(--gnd)">light bar GND  60  +  trunk A GND  60</text>
+<text x="668" y="284" class="wlab " style="fill:var(--gnd)">light bar GND  40  +  trunk A GND  105</text>
 <path d="M580,310 L660,310" class="leadline" style="stroke:var(--tb)"/>
 <circle cx="660" cy="310" r="3" style="fill:var(--tb)"/>
-<text x="668" y="314" class="wlab " style="fill:var(--tb)">trunk B INT  60</text>
+<text x="668" y="314" class="wlab " style="fill:var(--tb)">trunk B INT  70</text>
 <path d="M580,340 L660,340" class="leadline" style="stroke:var(--tb)"/>
 <circle cx="660" cy="340" r="3" style="fill:var(--tb)"/>
-<text x="668" y="344" class="wlab " style="fill:var(--tb)">trunk B BTN  60</text>
+<text x="668" y="344" class="wlab " style="fill:var(--tb)">trunk B BTN  65</text>
 <path d="M610,490 L660,490" class="leadline" style="stroke:var(--ta)"/>
 <circle cx="660" cy="490" r="3" style="fill:var(--ta)"/>
-<text x="668" y="494" class="wlab " style="fill:var(--ta)">trunk A MOT−  60  (S8050 C leg)</text>
+<text x="668" y="494" class="wlab " style="fill:var(--ta)">trunk A MOT−  85  (S8050 C leg)</text>
 <path d="M580,580 L660,580" class="leadline" style="stroke:var(--cord)"/>
 <circle cx="660" cy="580" r="3" style="fill:var(--cord)"/>
-<text x="668" y="584" class="wlab " style="fill:var(--cord)">cord GND  60</text></svg></figure></div>
+<text x="668" y="584" class="wlab " style="fill:var(--cord)">cord GND  50</text></svg></figure></div>
 <ul class="legend"><li style="--c:var(--used)">solder blob / used hole</li><li style="--c:var(--gnd)">ground</li><li style="--c:var(--pwr)">battery / 3V3</li><li style="--c:var(--chg)">charger</li><li style="--c:var(--sw)">switch, divider tap</li><li style="--c:var(--bar)">light bar</li><li style="--c:var(--ta)">trunk A</li><li style="--c:var(--tb)">trunk B</li><li style="--c:var(--cord)">hand cord</li><li style="--c:var(--screw)">standoff screw</li></ul>
 <table><thead><tr><th>part</th><th>holes</th><th>note</th></tr></thead><tbody><tr><td>Pico</td><td>rows 1–20, columns 2 and 9</td><td>USB face flush with the row-1 edge</td></tr><tr><td>green LED</td><td>+ long leg (22,8), − short leg (21,8)</td><td>as soldered (the other way from the first plan); the 470 run and the ground wire are swapped to match</td></tr><tr><td>470 Ω</td><td>(21,4) → (21,6)</td><td>underside solder run (21,6)–(21,7)–(22,7)–(22,8)</td></tr><tr><td>1N5817 diode 1</td><td>stripe (22,2), plain (22,5)</td><td>stripe toward column 1 / the middle wall; current flows from the switch side into VSYS</td></tr><tr><td>R1 / R2 100 k</td><td>(4,10)→(7,10), (8,10)→(12,10)</td><td>bridges (7,10)–(8,10) = midpoint, (7,10)–(7,9) = GP28, (12,10)–(13,10)–(13,9) = GND</td></tr><tr><td>S8050</td><td>E (13,1) B (14,1) C (15,1)</td><td>standing; flat face toward the board edge (away from the Pico); E nearest the USB end; bridge (13,1)–(13,2) = GND</td></tr><tr><td>1 kΩ</td><td>base stub → through (14,1); other lead (18,1)</td><td>run (18,1)–(17,1)–(17,2) = GP13; (18,1) stays clear of (18,2) GND</td></tr><tr><td>3V3 point</td><td>bridge (5,9)–(5,10)</td><td>trunk A 3V3 lands on (5,10)</td></tr></tbody></table>
 <h3>Build order</h3><p class="sub">Everything in the drawing, in the order to do it. Parts from the top, all solder underneath, leads clipped to 1.5 mm. Wires are tinned and laid along a stub, one joint each.</p>
@@ -980,39 +981,39 @@
 <li>divider tap  50 mm: from the stub at (22,5) to the stub at (4,10), routed in the bare lanes, never over another stub.</li>
 <li>LED supply  45 mm: from the stub at (21,4) to the stub at (5,9), routed in the bare lanes, never over another stub.</li>
 <li>LED GND  12 mm: from the stub at (21,8) to the stub at (18,9), routed in the bare lanes, never over another stub.</li>
-</ol><h3>4. Leads leaving the board (tin, lay along the stub, one joint)</h3><ol>
+</ol><h3>4. Leads leaving the board (tin, lay along the stub, one joint)</h3><p class="sub">Lengths are cut lengths: the route inside the box plus 15 mm of handling slack. The long ones are long because the sockets sit at the far end of the box from the pins they feed; the trunk A leads also cross the middle wall. Section 2 draws the socket leads pin by pin.</p><ol>
 <li><strong>charger</strong><ul>
-<li>charger OUT−  60 → stub at (3,2)</li>
+<li>charger OUT−  55 → stub at (3,2)</li>
 <li>charger OUT+  110 → the switch's middle pin: through the USB-end notch, along the strip's column-1 edge, past row 22 to the switch (never soldered to the strip)</li>
 </ul></li>
 <li><strong>switch</strong><ul>
 <li>switch outer  30 → stub at (22,5)</li>
 </ul></li>
 <li><strong>light bar</strong><ul>
-<li>light bar GND  60  +  trunk A GND  60 → stub at (8,2)</li>
-<li>light bar +5V  60 → stub at (5,9)</li>
-<li>light bar DIN  60 → stub at (20,9)</li>
+<li>light bar GND  40  +  trunk A GND  105 → stub at (8,2)</li>
+<li>light bar +5V  55 → stub at (5,9)</li>
+<li>light bar DIN  90 → stub at (20,9)</li>
 </ul></li>
 <li><strong>trunk A</strong><ul>
-<li>trunk A MOT−  60  (S8050 C leg) → stub at (15,1)</li>
-<li>trunk A 3V3 + MOT+  60 each  (3V3 point) → stub at (5,10)</li>
-<li>trunk A EMG2  60 → stub at (9,9)</li>
-<li>trunk A EMG1  60 → stub at (10,9)</li>
+<li>trunk A MOT−  85  (S8050 C leg) → stub at (15,1)</li>
+<li>trunk A 3V3 + MOT+  135 each  (3V3 point) → stub at (5,10)</li>
+<li>trunk A EMG2  125 → stub at (9,9)</li>
+<li>trunk A EMG1  120 → stub at (10,9)</li>
 </ul></li>
 <li><strong>trunk B</strong><ul>
-<li>trunk B SDA  60 → stub at (6,2)</li>
-<li>trunk B SCL  60 → stub at (7,2)</li>
-<li>trunk B INT  60 → stub at (9,2)</li>
-<li>trunk B BTN  60 → stub at (10,2)</li>
+<li>trunk B SDA  75 → stub at (6,2)</li>
+<li>trunk B SCL  75 → stub at (7,2)</li>
+<li>trunk B INT  70 → stub at (9,2)</li>
+<li>trunk B BTN  65 → stub at (10,2)</li>
 </ul></li>
 <li><strong>cord</strong><ul>
-<li>cord TX  60 → stub at (1,2)</li>
-<li>cord RX  60 → stub at (2,2)</li>
-<li>cord GND  60 → stub at (18,2)</li>
+<li>cord TX  95 → stub at (1,2)</li>
+<li>cord RX  90 → stub at (2,2)</li>
+<li>cord GND  50 → stub at (18,2)</li>
 </ul></li>
 <li><strong>VBUS</strong><ul>
-<li>VBUS → 1N5817 → charger IN+  60 → stub at (1,9)</li>
-<li>the 1N5817 sits in this wire, stripe toward the charger; heat-shrink over it</li>
+<li>VBUS → diode 3 → IN+   55 + diode + 15 → stub at (1,9)</li>
+<li>diode 3 sits in this wire at the CHARGER end, not the middle: 55 mm from the stub to its plain end, the diode lying in the channel beside the Qi board's middle-wall edge (stripe toward the charger, heat-shrink over it), 15 mm from the stripe end to IN+. Its body is 2.7 mm thick and does not fit under the strip or in the wall notch.</li>
 </ul></li>
 </ol><p class="sub">Stubs that take two wires: (5,9) 3V3 takes the LED supply and the light bar +5V; (8,2) GND takes the light bar GND and trunk A GND; (5,10) takes trunk A 3V3 and MOT+. Tin both ends together, then one joint.</p>
 <h3>5. Meter checks before it goes in the box</h3><ol>
@@ -1026,7 +1027,95 @@
 <li>No bridge (13,1)/(13,2) to (14,1): ohms B to GND reads open (not the 1 k).</li>
 <li>GND to 3V3 (any GND stub to (5,9)): must not beep.</li>
 </ol><p class="sub">Then Kapton over the solder side (standoff holes clear), and the bench script once more with everything dangling.</p>
-</section><section id="battery"><h2>2. Battery bay: cell, charger, switch, Qi</h2><p class="sub">Port to port. Nothing here touches the strip except three wires: the switch return into (22,5), ground into (3,2), and the VBUS lead out of (1,9).</p><figure><figcaption>Battery bay wiring (block diagram, not to scale)</figcaption><svg viewBox="0 0 960 470" role="img" aria-label="Battery bay wiring (block diagram, not to scale)"><rect x="20" y="150" width="130" height="80" rx="6" class="node"/>
+</section><section id="sockets"><h2>2. Band box: the wall sockets and their leads to the strip</h2><p class="sub">Three sockets lie on their backs in pockets behind the box's end walls: the PH6 in the battery bay's end wall, the PH4 and the PH3 side by side in the strip bay's. Their pins point into the bays; thirteen leads run from those pins to the strip's solder-side stubs. Everything here is soldered on the bench and dropped in as one harness; nothing is soldered inside the box.</p><figure><figcaption>Socket pins to strip stubs, with cut lengths (route in the box + 15 mm slack)</figcaption><svg viewBox="0 0 1000 660" role="img" aria-label="Socket pins to strip stubs, with cut lengths (route in the box + 15 mm slack)"><text x="20" y="22" class="note">Straight cables, pin 1 to pin 1. One pin-1 rule for every socket, here and in the module: lock side up, mouth toward you, pin 1 on the LEFT.</text>
+<rect x="20" y="44" width="200" height="236" rx="6" class="node"/>
+<text x="120.0" y="60" class="ntitle mid">PH6 trunk A</text>
+<text x="120.0" y="73" class="nsub mid">battery-bay end wall; leads cross the trunk-end notch</text>
+<circle cx="220" cy="67.6" r="3.2" class="port"/>
+<text x="214" y="71.6" class="pname end">1  3V3</text>
+<circle cx="220" cy="105.36" r="3.2" class="port"/>
+<text x="214" y="109.36" class="pname end">2  GND</text>
+<circle cx="220" cy="143.12" r="3.2" class="port"/>
+<text x="214" y="147.12" class="pname end">3  EMG1</text>
+<circle cx="220" cy="180.88" r="3.2" class="port"/>
+<text x="214" y="184.88" class="pname end">4  EMG2</text>
+<circle cx="220" cy="218.64" r="3.2" class="port"/>
+<text x="214" y="222.64" class="pname end">5  MOT+</text>
+<circle cx="220" cy="256.4" r="3.2" class="port"/>
+<text x="214" y="260.4" class="pname end">6  MOT−</text>
+<rect x="20" y="316" width="200" height="164" rx="6" class="node"/>
+<text x="120.0" y="332" class="ntitle mid">PH4 trunk B</text>
+<text x="120.0" y="345" class="nsub mid">strip-bay end wall, middle-wall side</text>
+<circle cx="220" cy="342.24" r="3.2" class="port"/>
+<text x="214" y="346.24" class="pname end">1  SDA</text>
+<circle cx="220" cy="379.96" r="3.2" class="port"/>
+<text x="214" y="383.96" class="pname end">2  SCL</text>
+<circle cx="220" cy="417.68" r="3.2" class="port"/>
+<text x="214" y="421.68" class="pname end">3  INT</text>
+<circle cx="220" cy="455.4" r="3.2" class="port"/>
+<text x="214" y="459.4" class="pname end">4  BTN</text>
+<rect x="20" y="516" width="200" height="128" rx="6" class="node"/>
+<text x="120.0" y="532" class="ntitle mid">PH3 hand cord</text>
+<text x="120.0" y="545" class="nsub mid">strip-bay end wall, chest side</text>
+<circle cx="220" cy="544.16" r="3.2" class="port"/>
+<text x="214" y="548.16" class="pname end">1  TX</text>
+<circle cx="220" cy="582.56" r="3.2" class="port"/>
+<text x="214" y="586.56" class="pname end">2  RX</text>
+<circle cx="220" cy="620.96" r="3.2" class="port"/>
+<text x="214" y="624.96" class="pname end">3  GND</text>
+<rect x="750" y="44" width="230" height="600" rx="6" class="node"/>
+<text x="865.0" y="60" class="ntitle mid">Strip, solder-side stubs</text>
+<text x="865.0" y="73" class="nsub mid">board upside down, USB end up</text>
+<circle cx="750" cy="80.0" r="3.2" class="port"/>
+<text x="756" y="84.0" class="pname">(5,10)  3V3 point</text>
+<circle cx="750" cy="128.0" r="3.2" class="port"/>
+<text x="756" y="132.0" class="pname">(8,2)  GND, pin 8</text>
+<circle cx="750" cy="176.0" r="3.2" class="port"/>
+<text x="756" y="180.0" class="pname">(10,9)  GP26 = EMG1</text>
+<circle cx="750" cy="224.0" r="3.2" class="port"/>
+<text x="756" y="228.0" class="pname">(9,9)  GP27 = EMG2</text>
+<circle cx="750" cy="272.0" r="3.2" class="port"/>
+<text x="756" y="276.0" class="pname">(15,1)  S8050 C</text>
+<circle cx="750" cy="344.0" r="3.2" class="port"/>
+<text x="756" y="348.0" class="pname">(6,2)  GP4 = SDA</text>
+<circle cx="750" cy="392.0" r="3.2" class="port"/>
+<text x="756" y="396.0" class="pname">(7,2)  GP5 = SCL</text>
+<circle cx="750" cy="440.0" r="3.2" class="port"/>
+<text x="756" y="444.0" class="pname">(9,2)  GP6 = INT</text>
+<circle cx="750" cy="488.0" r="3.2" class="port"/>
+<text x="756" y="492.0" class="pname">(10,2)  GP7 = BTN</text>
+<circle cx="750" cy="554.0" r="3.2" class="port"/>
+<text x="756" y="558.0" class="pname">(1,2)  GP0 = TX</text>
+<circle cx="750" cy="596.0" r="3.2" class="port"/>
+<text x="756" y="600.0" class="pname">(2,2)  GP1 = RX</text>
+<circle cx="750" cy="632.0" r="3.2" class="port"/>
+<text x="756" y="636.0" class="pname">(18,2)  GND, pin 18</text>
+<path d="M220,67.6 L262,67.6 L262,80.0 L750,80.0" class="swire" style="stroke:var(--pwr)"/>
+<text x="262" y="68.8" class="wlab mid" style="fill:var(--pwr)">135 mm</text>
+<path d="M220,218.64 L296,218.64 L296,80.0 L750,80.0" class="swire" style="stroke:var(--ta)"/>
+<text x="296" y="163.32" class="wlab mid" style="fill:var(--ta)">135 mm</text>
+<path d="M220,105.36 L330,105.36 L330,128.0 L750,128.0" class="swire" style="stroke:var(--gnd)"/>
+<text x="330" y="111.68" class="wlab mid" style="fill:var(--gnd)">105 mm</text>
+<path d="M220,143.12 L364,143.12 L364,176.0 L750,176.0" class="swire" style="stroke:var(--ta)"/>
+<text x="364" y="154.56" class="wlab mid" style="fill:var(--ta)">120 mm</text>
+<path d="M220,180.88 L398,180.88 L398,224.0 L750,224.0" class="swire" style="stroke:var(--ta)"/>
+<text x="398" y="197.44" class="wlab mid" style="fill:var(--ta)">125 mm</text>
+<path d="M220,256.4 L432,256.4 L432,272.0 L750,272.0" class="swire" style="stroke:var(--ta)"/>
+<text x="432" y="259.2" class="wlab mid" style="fill:var(--ta)">85 mm</text>
+<path d="M220,342.24 L480,342.24 L480,344.0 L750,344.0" class="swire" style="stroke:var(--tb)"/>
+<text x="480" y="338.12" class="wlab mid" style="fill:var(--tb)">75 mm</text>
+<path d="M220,379.96 L514,379.96 L514,392.0 L750,392.0" class="swire" style="stroke:var(--tb)"/>
+<text x="514" y="380.98" class="wlab mid" style="fill:var(--tb)">75 mm</text>
+<path d="M220,417.68 L548,417.68 L548,440.0 L750,440.0" class="swire" style="stroke:var(--tb)"/>
+<text x="548" y="423.84000000000003" class="wlab mid" style="fill:var(--tb)">70 mm</text>
+<path d="M220,455.4 L582,455.4 L582,488.0 L750,488.0" class="swire" style="stroke:var(--tb)"/>
+<text x="582" y="466.7" class="wlab mid" style="fill:var(--tb)">65 mm</text>
+<path d="M220,544.16 L630,544.16 L630,554.0 L750,554.0" class="swire" style="stroke:var(--cord)"/>
+<text x="630" y="544.0799999999999" class="wlab mid" style="fill:var(--cord)">95 mm</text>
+<path d="M220,582.56 L664,582.56 L664,596.0 L750,596.0" class="swire" style="stroke:var(--cord)"/>
+<text x="664" y="584.28" class="wlab mid" style="fill:var(--cord)">90 mm</text>
+<path d="M220,620.96 L698,620.96 L698,632.0 L750,632.0" class="swire" style="stroke:var(--gnd)"/>
+<text x="698" y="621.48" class="wlab mid" style="fill:var(--gnd)">50 mm</text></svg></figure><h3>Build order</h3><ol><li><strong>Pin 1</strong>: hold each socket with its lock side (the open side of the shroud that the plug's ramp faces) up and its mouth toward you; pin 1 is the left pin. Dot it with paint. Use the same rule on the module's two sockets and hold both housings of every cable the same way when crimping: then every cable is straight, pin 1 to pin 1, and can never put 3V3 on GND.</li><li><strong>Pins</strong>: clip all thirteen to 2 mm and tin them. They are 2 mm apart: small blobs, and a meter check between neighbours after soldering.</li><li><strong>Leads onto the pins</strong>, on the bench, cut to the lengths in the drawing (30 AWG, colour per net). Tug each one.</li><li><strong>Other ends onto the strip</strong>, board upside down: tin the lead, lay it along the stub, one joint. (5,10) takes two (3V3 and MOT+): tin them together first. (8,2) takes trunk A GND and the light bar GND the same way.</li><li><strong>Meter</strong>: every pin beeps to its own stub and to nothing else; PH6 pin 1 to pin 2 (3V3 to GND) must be open; PH6 pin 1 to pin 5 beeps (both are the 3V3 point, by design).</li><li><strong>Routes</strong> once in the box: the PH6 leads cross the middle wall through the notch beside its pocket and go under the strip's +X end; 3V3, MOT+, EMG1 and EMG2 continue under the Pico in the bare lanes to columns 9–10, GND and MOT− stay on the column-1 side. PH4 and PH3 leads go straight under the strip from its +X end along columns 1–2.</li><li><strong>Into the box</strong> (BENCH 7c order): PH6 into the battery-bay pocket first, before the charger and cell bury it, leads through the notch; charger, Qi, cell, coil; then PH4 (middle-wall side) and PH3 (chest side) into the strip-bay pockets; hot glue on top of each; then the strip onto its standoffs with the tails bunched at the ends.</li><li><strong>First plug-in</strong>: with the module wired by the same pin-1 rule, meter box PH6 pin 1 to module PH6 pin 1 through the trunk cable (beep) and box pin 1 to module pin 6 (open) before power.</li></ol></section><section id="battery"><h2>3. Battery bay: cell, charger, switch, Qi</h2><p class="sub">Port to port. Nothing here touches the strip except three wires: the switch return into (22,5), ground into (3,2), and the VBUS lead out of (1,9).</p><figure><figcaption>Battery bay wiring (block diagram, not to scale)</figcaption><svg viewBox="0 0 960 470" role="img" aria-label="Battery bay wiring (block diagram, not to scale)"><rect x="20" y="150" width="130" height="80" rx="6" class="node"/>
 <text x="85.0" y="166" class="ntitle mid">LiPo cell</text>
 <text x="85.0" y="179" class="nsub mid">EEMB 1200 mAh</text>
 <circle cx="150" cy="178.0" r="3.2" class="port"/>
@@ -1100,7 +1189,7 @@
 <path d="M770,84.5 L795,84.5 L795,90.0 L820,90.0" class="swire" style="stroke:var(--sw)"/>
 <text x="795" y="82.25" class="wlab mid" style="fill:var(--sw)">30 mm</text>
 <path d="M550,205.0 L700,205.0 L700,165.0 L820,165.0" class="swire" style="stroke:var(--gnd)"/>
-<text x="700" y="179.0" class="wlab mid" style="fill:var(--gnd)">60 mm, ground</text>
+<text x="700" y="179.0" class="wlab mid" style="fill:var(--gnd)">55 mm, ground</text>
 <path d="M260,400.0 L310.0,400.0 L310.0,400.0 L360,400.0" class="swire" style="stroke:var(--bar)"/>
 <path d="M550,388.0 L600,388.0 L600,243.0 L360,243.0" class="swire" style="stroke:var(--bar)"/>
 <rect x="593" y="306.5" width="14" height="18" class="diobody"/>
@@ -1112,8 +1201,8 @@
 <rect x="733" y="232.5" width="14" height="18" class="diobody"/>
 <rect x="733" y="246.5" width="14" height="4" class="stripe"/>
 <path d="M736,237.5 L744,237.5 L740,244.5 z" class="arrow"/>
-<text x="751" y="245.5" class="wlab" style="fill:var(--chg)">diode 3, 1N5817</text>
-<text x="20" y="30" class="note">Cell → charger → switch → strip.  IN+ has two diode feeds (pad and USB); the switch alone owns the battery.</text></svg></figure><h3>Build order</h3><ol><li><strong>Pigtail</strong>: 2-pin PH header, red 30 mm to B+, black 30 mm to B−, wires in from the top, soldered underneath. Meter the cell's plug to find plus before the first plug-in; red must land on B+.</li><li><strong>Charger leads</strong>, 60 mm, from the top, soldered underneath: OUT+, OUT−, IN+, IN−. Leave the board's own USB-C empty.</li><li><strong>Qi receiver</strong>: splice diode 2 into its + output wire, stripe toward the charger, heat-shrink; + → IN+, − → IN−. Coil: ferrite sheet on the side that faces the cell.</li><li><strong>Diode 3</strong> in the strip's VBUS lead (from stub (1,9)), stripe toward the charger, joins IN+ with diode 2's wire: twist, tin, one joint on the IN+ pad.</li><li><strong>Switch</strong>: OUT+ to its middle pin (110 mm: through the USB-end notch, along the strip's middle-wall edge, past row 22); its outer pin to the strip's diode 1 plain stub (22,5), 30 mm; the second outer pin stays empty.</li><li><strong>Bench proof before the box</strong> (BENCH stage 1 + 3): OUT+ to OUT− reads the cell; IN− ↔ OUT− beeps, B− ↔ OUT− does not; switch off + coil on the pad = red LED, Pico dark; switch on = Pico runs; USB in = Pico runs and red LED.</li><li><strong>Into the box, in this order</strong>: box onto the plate (2 × M2×6 from inside) → trunk A header into the battery-bay end-wall pocket, leads behind the ring → charger into its cradle, USB-C toward the triceps wall, pads toward the middle wall, cell leads back through the ring's notch → Kapton over it → Qi board on the four bracket tops → cell into the ring, lip toward the charger → ferrite + coil on the cell, Kapton band → strip-side headers → strip → switch onto its shelf → light bar → lid.</li></ol></section><section id="module"><h2>3. Forearm module: boards, IMU, button, motor, trunk headers</h2><p class="sub">Port to port. Everything inside the module ends on the two stacked headers; the trunk cables carry it to the box.</p><figure><figcaption>Forearm module wiring (block diagram, not to scale)</figcaption><svg viewBox="0 0 960 620" role="img" aria-label="Forearm module wiring (block diagram, not to scale)"><rect x="20" y="60" width="150" height="250" rx="6" class="node"/>
+<text x="751" y="245.5" class="wlab" style="fill:var(--chg)">diode 3  (55 | 15)</text>
+<text x="20" y="30" class="note">Cell → charger → switch → strip.  IN+ has two diode feeds (pad and USB); the switch alone owns the battery.</text></svg></figure><h3>Build order</h3><ol><li><strong>Pigtail</strong>: 2-pin PH header, red 30 mm to B+, black 30 mm to B−, wires in from the top, soldered underneath. Meter the cell's plug to find plus before the first plug-in; red must land on B+.</li><li><strong>Charger leads</strong>, from the top, soldered underneath: OUT− 55 mm to (3,2); OUT+ 110 mm to the switch; the VBUS lead (55 mm + diode 3 + 15 mm) and the Qi + lead (diode 2 in it the same way) both onto IN+; Qi − onto IN−. Leave the board's own USB-C empty.</li><li><strong>Qi receiver</strong>: splice diode 2 into its + output wire, stripe toward the charger, heat-shrink; + → IN+, − → IN−. Coil: ferrite sheet on the side that faces the cell.</li><li><strong>Diode 3</strong> in the strip's VBUS lead: 55 mm from stub (1,9) to diode 3's plain end; the diode lies in the channel beside the Qi board's middle-wall edge, stripe toward the charger, heat-shrink over it; 15 mm from the stripe end to IN+, twisted with diode 2's stripe end: tin, one joint on the IN+ pad.</li><li><strong>Switch</strong>: OUT+ to its middle pin (110 mm: through the USB-end notch, along the strip's middle-wall edge, past row 22); its outer pin to the strip's diode 1 plain stub (22,5), 30 mm; the second outer pin stays empty.</li><li><strong>Bench proof before the box</strong> (BENCH stage 1 + 3): OUT+ to OUT− reads the cell; IN− ↔ OUT− beeps, B− ↔ OUT− does not; switch off + coil on the pad = red LED, Pico dark; switch on = Pico runs; USB in = Pico runs and red LED.</li><li><strong>Into the box, in this order</strong>: box onto the plate (2 × M2×6 from inside) → trunk A header into the battery-bay end-wall pocket, leads behind the ring → charger into its cradle, USB-C toward the triceps wall, pads toward the middle wall, cell leads back through the ring's notch → Kapton over it → Qi board on the four bracket tops → cell into the ring, lip toward the charger → ferrite + coil on the cell, Kapton band → strip-side headers → strip → switch onto its shelf → light bar → lid.</li></ol></section><section id="module"><h2>4. Forearm module: boards, IMU, button, motor, trunk headers</h2><p class="sub">Port to port. Everything inside the module ends on the two stacked headers; the trunk cables carry it to the box.</p><figure><figcaption>Forearm module wiring (block diagram, not to scale)</figcaption><svg viewBox="0 0 960 620" role="img" aria-label="Forearm module wiring (block diagram, not to scale)"><rect x="20" y="60" width="150" height="250" rx="6" class="node"/>
 <text x="95.0" y="76" class="ntitle mid">PH6 trunk A</text>
 <text x="95.0" y="89" class="nsub mid">lower in the elbow pocket</text>
 <circle cx="170" cy="90.0" r="3.2" class="port"/>
@@ -1225,7 +1314,7 @@
 <path d="M630,225.0 L700,225.0 L700,225.0 L760,225.0" class="swire" style="stroke:var(--cord)"/>
 <text x="700" y="220.0" class="wlab mid" style="fill:var(--cord)">plate cable</text>
 <text x="200" y="582" class="note">All wires 60 mm: under the boards at the Gravity pins, onto the headers' clipped pins.</text>
-<text x="200" y="598" class="note">The motor has its own pair, MOT+ and MOT−, so its current never rides the boards' 3V3 or GND.</text></svg></figure><h3>Build order</h3><ol><li><strong>IMU</strong>: clip its header to ~2 mm; one short jumper joins PS0, PS1 and AD0 to the board's own GND pin (I²C mode, address 0x4A; the firmware probes both), another joins RST to VCC; leave CS open. Five 60 mm wires on VCC, GND, SDA, SCL, INT. Screw it to its two posts in bay B, header edge toward the rib, 2 × M2×4.</li><li><strong>Headers</strong>: clip the PH6's and PH4's pins to 2 mm, solder a 60 mm lead on every pin, drop both into the elbow-wall pocket, PH6 below (trunk A), PH4 above (trunk B), hot glue on top. Pin 1 is the end with the housing's ramp.</li><li><strong>Motor</strong>: solder the 1N4007 across its two tabs first, standing up along the tab slot, stripe on the tab that will be MOT+ (PH6 pin 5); the other tab is MOT− (PH6 pin 6). Leads up the tab slot into the rib tunnel and out the wall hole into bay B; peel the pad, press it onto the pocket floor, tab toward the button.</li><li><strong>Button</strong>: clip two legs flush and the other two to 1.5 mm; two wires soldered sideways (one leg → PH4 pin 4, the diagonal leg → PH6 pin 2); down the tunnel with the motor leads; drop it in its pocket cap up.</li><li><strong>Board A</strong> (flexor, EMG1): three wires on its Gravity pins under the board (− → PH6 2, + → PH6 1, S → PH6 3), pass them through the rib passage into bay B, screw the board to its posts, jack end to the wrist wall, 2 × M3×5.</li><li><strong>Board B</strong> (extensor, EMG2): same, − → PH6 2, + → PH6 1, S → PH6 4; it sits over the IMU on the tall posts, 2 × M3×6.</li><li><strong>Header pins with many wires</strong>: PH6 pin 1 takes three (board A +, board B +, IMU VCC), pin 2 takes four (board A −, board B −, IMU GND, button). Twist and tin each group, then one joint on the pin.</li><li><strong>Close</strong>: backer under the strap with the strap between its rails, module on top, 2 × M2×8 from the skin side into the inserts under the crest bosses (pan heads), lid on, 4 × M2×6 (crest and side ears). Bench: plug the trunk into the box, run the stage-4 script; IMU ok and both EMG columns move.</li><li><strong>Electrode frames</strong>: plate into the frame bars down, loop band down through one cover slot and up the other, cover on, 4 × M2×6; 3.5 mm cable to the matching jack (flexor → board A, extensor → board B).</li></ol></section><section id="system"><h2>4. The whole band and its cables</h2><p class="sub">Where each box sits and which plug joins them. The band never receives commands; the cables carry power and signals out to the forearm, and serial to the hand.</p><figure><figcaption>Band, forearm module, electrode frames, claw: connectors and cables</figcaption><svg viewBox="0 0 960 330" role="img" aria-label="Band, forearm module, electrode frames, claw: connectors and cables"><rect x="20" y="60" width="260" height="200" rx="6" class="node"/>
+<text x="200" y="598" class="note">The motor has its own pair, MOT+ and MOT−, so its current never rides the boards' 3V3 or GND.</text></svg></figure><h3>Build order</h3><ol><li><strong>IMU</strong>: clip its header to ~2 mm; one short jumper joins PS0, PS1 and AD0 to the board's own GND pin (I²C mode, address 0x4A; the firmware probes both), another joins RST to VCC; leave CS open. Five 60 mm wires on VCC, GND, SDA, SCL, INT. Screw it to its two posts in bay B, header edge toward the rib, 2 × M2×4.</li><li><strong>Headers</strong>: clip the PH6's and PH4's pins to 2 mm, solder a 60 mm lead on every pin, drop both into the elbow-wall pocket, PH6 below (trunk A), PH4 above (trunk B), hot glue on top. Pin 1 by the same rule as in the box (section 2): lock side up, mouth toward you, pin 1 on the left; then the trunk cables are straight, 1 to 1.</li><li><strong>Motor</strong>: solder the 1N4007 across its two tabs first, standing up along the tab slot, stripe on the tab that will be MOT+ (PH6 pin 5); the other tab is MOT− (PH6 pin 6). Leads up the tab slot into the rib tunnel and out the wall hole into bay B; peel the pad, press it onto the pocket floor, tab toward the button.</li><li><strong>Button</strong>: clip two legs flush and the other two to 1.5 mm; two wires soldered sideways (one leg → PH4 pin 4, the diagonal leg → PH6 pin 2); down the tunnel with the motor leads; drop it in its pocket cap up.</li><li><strong>Board A</strong> (flexor, EMG1): three wires on its Gravity pins under the board (− → PH6 2, + → PH6 1, S → PH6 3), pass them through the rib passage into bay B, screw the board to its posts, jack end to the wrist wall, 2 × M3×5.</li><li><strong>Board B</strong> (extensor, EMG2): same, − → PH6 2, + → PH6 1, S → PH6 4; it sits over the IMU on the tall posts, 2 × M3×6.</li><li><strong>Header pins with many wires</strong>: PH6 pin 1 takes three (board A +, board B +, IMU VCC), pin 2 takes four (board A −, board B −, IMU GND, button). Twist and tin each group, then one joint on the pin.</li><li><strong>Close</strong>: backer under the strap with the strap between its rails, module on top, 2 × M2×8 from the skin side into the inserts under the crest bosses (pan heads), lid on, 4 × M2×6 (crest and side ears). Bench: plug the trunk into the box, run the stage-4 script; IMU ok and both EMG columns move.</li><li><strong>Electrode frames</strong>: plate into the frame bars down, loop band down through one cover slot and up the other, cover on, 4 × M2×6; 3.5 mm cable to the matching jack (flexor → board A, extensor → board B).</li></ol></section><section id="system"><h2>5. The whole band and its cables</h2><p class="sub">Where each box sits and which plug joins them. The band never receives commands; the cables carry power and signals out to the forearm, and serial to the hand.</p><figure><figcaption>Band, forearm module, electrode frames, claw: connectors and cables</figcaption><svg viewBox="0 0 960 330" role="img" aria-label="Band, forearm module, electrode frames, claw: connectors and cables"><rect x="20" y="60" width="260" height="200" rx="6" class="node"/>
 <text x="150.0" y="76" class="ntitle mid">Band box  (upper arm)</text>
 <text x="150.0" y="89" class="nsub mid">Pico 2 W, cell, charger, switch</text>
 <circle cx="280" cy="110.0" r="3.2" class="port"/>
@@ -1329,7 +1418,7 @@
       lidParts: [],
     },
     build: {
-      sub: "soldering and assembly: the strip both sides, the battery bay, the forearm module, the whole band and its cables",
+      sub: "soldering and assembly: the strip both sides, the box's wall sockets, the battery bay, the forearm module, the whole band and its cables",
       note: "", files: [], lidParts: [],
     },
   };

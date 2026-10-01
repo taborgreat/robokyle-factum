@@ -141,11 +141,13 @@ the Build tab of [viewer/index.html](viewer/index.html) (open it in a browser; t
 1. Pico headers, then the star ground blob at row 22, outer columns.
 2. 470 Ω, then the LED (standing, 1 mm off the board).
 3. The 100 k pair (top end to the switch's output side, not to the cell), 1 k, S8050, diode 1, at the holes in PARTS.md.
-4. Flying leads off the strip: switch return off (22,5) 30 mm; charger OUT− 60; light bar GND / 3V3 / GP16 (3) 60 each;
-   VBUS (pin 40 stub) → diode 3 → charger IN+ 60. Charger OUT+ → switch middle is a 110 mm lead between those two
-   parts that never touches the strip. The Qi receiver's two wires never reach the strip: + → diode 2 → charger
+4. Flying leads off the strip, cut lengths (route + 15 slack): switch return off (22,5) 30; charger OUT− 55; light bar
+   GND 40 / 3V3 55 / GP16 90; VBUS (pin 40 stub) → diode 3 → charger IN+: 55, then the diode beside the Qi board, then 15. Charger OUT+ →
+   switch middle is a 110 mm lead between those two parts that never touches the strip. Every length is in PARTS.md's
+   wire table and on the Build tab. The Qi receiver's two wires never reach the strip: + → diode 2 → charger
    IN+, − → charger IN−.
-5. Wall sockets: clip each socket's pins to 2 mm, solder 60 mm leads on, and solder those leads to the strip:
+5. Wall sockets: clip each socket's pins to 2 mm, solder the leads on (PH6 trunk A 85–135, PH4 trunk B 65–75, PH3 cord
+   50–95, per pin in PARTS.md and on the Build tab's section 2), and solder those leads to the strip:
    PH6 = trunk A (3V3 GND EMG1 EMG2 MOT+ MOT−), PH4 = trunk B (SDA SCL INT BTN), PH3 = hand cord (TX RX GND).
 6. Charger board on its two leads plus the Qi pigtail (1N5817 in the + wire, stripe toward the board); switch on its
    two; light bar on its three (its −X pads: GND, +5V, DIN).
@@ -158,7 +160,7 @@ the Build tab of [viewer/index.html](viewer/index.html) (open it in a browser; t
    posts' inserts (the post sits inside the boss; the screw head pulls the boss's web onto the brass). Empty box, so
    the driver has room.
 2. **Trunk A socket (PH6)** into the battery-side end-wall pocket, opening out; its leads run behind the battery ring
-   and through the USB-end notch to the strip. Hot glue on top of the socket.
+   and through the trunk-end notch (the one beside its pocket) to the strip. Hot glue on top of the socket, never superglue.
 3. **Charger board** into its cradle: USB-C toward the triceps wall, pads toward the middle wall, cell leads already on
    B+/B− and coming back through the ring's lead notch. Kapton over it.
 4. **Qi board** flat on the cradle's four bracket tops, parts up; its two output wires go to the charger's IN+ (through

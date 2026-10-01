@@ -9,6 +9,7 @@ const DEFAULTS = {
   key: 'change-me-on-first-setup',
   band: { ip: '', port: 80, id: 'band1', lastSeen: 0 },
   hand: { ip: '', port: 80, id: 'claw1', lastSeen: 0 },
+  relay: 'virtual',                 // where the band's hand commands go: 'virtual' (the Brunel at /brunel), 'claw' (hand.ip), 'both'
 };
 
 export let devices = load();

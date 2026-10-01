@@ -6,7 +6,7 @@ const MODES = ['HAND-FACTUM', 'HAND-DIRECT', 'MOUSE', 'HAND-WIRED'];
 const INTENT = ['rest', 'close', 'open', 'co-contraction'];
 
 export default function Live({ frames, state }) {
-  const last = frames.at(-1); const bs = state.status?.band; const hs = state.status?.hand; const st = state.stats || {};
+  const last = frames.at(-1); const bs = state.status?.band; const hs = state.status?.hand; const v = state.status?.virtual; const st = state.stats || {};
   const [cfg, setCfg] = useState(null);
   useEffect(() => { get('/api/band/config').then(setCfg).catch(() => {}); }, [state.status?.bandAt && Math.floor(state.status.bandAt / 60000)]);
   const pct = v => v == null ? '–' : Math.round(v);
@@ -18,8 +18,8 @@ export default function Live({ frames, state }) {
         <div className="panel stat"><span className="k">battery</span><span className="v">{bs ? `${bs.pct} %` : last?.b ? `${last.b.toFixed(2)} V` : '–'}</span><span className="s">{bs ? `${bs.battery.toFixed(2)} V` : ''}</span></div>
         <div className="panel stat"><span className="k">intent</span><span className="v">{last ? INTENT[last.i] ?? '–' : '–'}</span><span className="s">{last ? `flex ${last.c[0].toFixed(3)} · ext ${last.c[1].toFixed(3)} V` : ''}</span></div>
         <div className="panel stat"><span className="k">orientation</span><span className="v mono" style={{ fontSize: '1.2rem' }}>{last?.o ? last.o.map(v => pct(v)).join(' / ') : '–'}</span><span className="s">yaw / pitch / roll · {bs?.imu ? 'IMU ok' : 'IMU missing'}</span></div>
-        <div className="panel stat"><span className="k">hand</span><span className="v">{hs ? hs.grip : '–'}</span><span className="s">{hs ? `pos ${hs.pos} · load ${hs.load} · ${hs.estop ? 'ESTOP' : hs.closing ? 'closing' : 'idle'}` : state.status?.handErr || 'no hand'}</span></div>
-        <div className="panel stat"><span className="k">band → hand</span><span className="v">{last?.h ? last.h.cmd : '–'}</span><span className="s">{last?.h ? `${JSON.stringify(last.h.a)} · relayed by Factum in HAND-FACTUM (adapter to come)` : 'no command in the frame'}</span></div>
+        <div className="panel stat"><span className="k">hand</span><span className="v">{hs ? hs.grip : v ? v.grip : '–'}</span><span className="s">{hs ? `claw: pos ${hs.pos} · load ${hs.load} · ${hs.estop ? 'ESTOP' : hs.closing ? 'closing' : 'idle'}` : v ? `virtual Brunel · ${v.motion}` : state.status?.handErr || 'no hand'}</span></div>
+        <div className="panel stat"><span className="k">band → hand</span><span className="v">{last?.h ? last.h.cmd : '–'}</span><span className="s">{last?.h ? `${JSON.stringify(last.h.a)} · relayed to ${v?.target === 'claw' ? 'the claw' : v?.target === 'both' ? 'virtual + claw' : 'the virtual Brunel'}` : 'no command in the frame'}</span></div>
       </div>
       <div className="panel wide">
         <h2>Effort, last 20 s</h2>

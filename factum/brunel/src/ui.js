@@ -4,8 +4,10 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PUBLIC_DIR = path.join(ROOT, 'public');
-// 'three' resolves to <package>/build/three.module.js.
-const THREE_DIR = path.dirname(path.dirname(fileURLToPath(import.meta.resolve('three'))));
+// 'three' resolves to <package>/build/three.module.js. A host that mounts this package (Factum) passes its own copy
+// in as `threeDir`; standalone, it comes from this package's node_modules.
+let OWN_THREE_DIR = null;
+try { OWN_THREE_DIR = path.dirname(path.dirname(fileURLToPath(import.meta.resolve('three')))); } catch { /* host-provided */ }
 
 const HISTORY_SIZE = 200;
 const PING_MS = 25_000;
@@ -18,7 +20,7 @@ const MIME = {
 
 // Serves the viewer under /ui (and / itself) and streams hand state plus the API
 // request log to it over server-sent events. Everything else is left to the hand API.
-export function createUi(hand) {
+export function createUi(hand, { threeDir = OWN_THREE_DIR } = {}) {
   const clients = new Set();
   const history = [];
 
@@ -71,7 +73,10 @@ export function createUi(hand) {
 
     if (pathname === '/') sendFile(res, PUBLIC_DIR, 'index.html');
     else if (pathname === '/ui/events') openStream(req, res);
-    else if (pathname.startsWith('/ui/three/')) sendFile(res, THREE_DIR, pathname.slice('/ui/three/'.length));
+    else if (pathname.startsWith('/ui/three/')) {
+      if (!threeDir) return void res.writeHead(503).end('three.js not installed');
+      sendFile(res, threeDir, pathname.slice('/ui/three/'.length));
+    }
     else sendFile(res, PUBLIC_DIR, pathname.slice('/ui/'.length));
     return true;
   }

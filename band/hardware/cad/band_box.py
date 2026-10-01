@@ -56,6 +56,13 @@ SW_X = s["l"] / 2 + 6.8        # switch centre 6.8 past the strip's +X end on th
                                # pin tops and its wires would have lain over the Pico)
 SW_W = 11.0                    # body bottom height above the arm
 SW_INSET = 1.0                 # nub base this far inside the wall's inner face
+# tall parts on the strip's middle-wall edge (the S8050 with the 1k leaning on it), MEASURED on the built box 2026-10-01:
+# 38-52 mm from the trunk-end outer face, the first 4.4 mm in from the middle wall, 0.8-1 mm above the lid's underside
+TALL_X = (38.0, 52.0)          # from the trunk-end OUTER face
+TALL_IN = 4.4                  # from the bay's middle-wall face toward the Pico
+TALL_UP = 1.0                  # above the lid's underside
+DOME_PAD, DOME_H, DOME_T = 1.5, 2.4, 1.2   # margin round the measured footprint; headroom inside; shell
+DOME_R_IN, DOME_R_OUT = 1.5, 3.0           # ceiling edge round (keeps 1.9 of headroom 0.4 from the wall); outer round (shell stays > 1.0)
 CHG_U = -3.5                   # charger toward the triceps wall: its -u end 2.5 off that wall (bay corner round), +u end clear of the -X plate post
 CHG_SHIFT = 0.0                # charger sits CLR off the -X end wall (its -u end is 2.9 off the outer wall, past the corner round)
 RING_GAP = 0.03                # the charger's +X edge meets the battery ring's outer wall (the cradle's wall merges into it)
@@ -363,7 +370,9 @@ def service_volumes(P):
     # strip: tall parts (transistor, diodes, resistors on end) up to 4.5 mm on the two outer rows beside the Pico.
     # Rib side: from 20 mm before the strip centre (the -X rows hold the charger wires' joints) to the free rows.
     # Chest side: same, minus the LED's shadow - keep that spot for low parts (the switch is off the strip now).
-    S["svc_strip_margin_rib"] = on_row(_box(43.0, 4.0, 6.5, 1.5, -12.7, s["t"]), "B", x_strip, 0, W_STRIP)   # 6.5: a standing TO-92 (S8050) lives here
+    S["svc_strip_margin_rib"] = on_row(_box(43.0, 4.0, 6.5, 1.5, -12.7, s["t"]), "B", x_strip, 0, W_STRIP)   # 6.5: standing parts on column 1
+    xa_, xb_ = OUT_L / 2 - TALL_X[1], OUT_L / 2 - TALL_X[0]
+    S["svc_to92"] = on_row(_box(xb_ - xa_, TALL_IN - 0.5, R_IN["B"] + TALL_UP - W_STRIP - s["t"], (xa_ + xb_) / 2, -ROW_W["B"] / 2 + 0.5 + (TALL_IN - 0.5) / 2, s["t"]), "B", 0, 0, W_STRIP)   # the S8050 + 1k as built: the lid's dome covers this
     chest = _box(43.0, 4.0, 4.5, 1.5, 12.7, s["t"])
     chest -= _box(8.0, 6.0, 6.0, LED_X, 12.7, s["t"] - 0.5)                            # the +X standoff screw head is here
     S["svc_strip_margin_chest"] = on_row(chest, "B", x_strip, 0, W_STRIP)
@@ -563,6 +572,23 @@ def lid():
     cap -= usb_cuts()
     cap -= nub_slot()
     cap -= nub_notch()
+    # dome over the tall parts on the strip's middle-wall edge (2026-10-01, measured on the built box: the S8050 and the
+    # 1k stand ~1 mm above the lid's underside, so the lid pressed on them). Inside: a stadium slot DOME_H deep with a
+    # flat ceiling, so the headroom reaches the wall where the parts are, its top edge rounded; it stops at the bay's
+    # middle-wall face, so the lid still seats on the wall beside the light bar. Outside: a fully rounded pill, 2 mm
+    # proud, the box's orientation mark. Nowhere else changes.
+    cx = OUT_L / 2 - (TALL_X[0] + TALL_X[1]) / 2
+    cav_l, cav_w = TALL_X[1] - TALL_X[0] + 2 * DOME_PAD, TALL_IN + DOME_PAD + 0.1
+    cu = -ROW_W["B"] / 2 + 0.1 + cav_w / 2                                   # wall-side edge 0.1 inside the bay
+    cav = extrude(RectangleRounded(cav_l, cav_w, cav_w / 2 - 0.05), amount=DOME_H + 1.0)
+    cav = fillet([e for e in cav.edges() if e.center().Z > DOME_H + 1.0 - 0.01], DOME_R_IN)
+    out_l, out_w, out_h = cav_l + 2 * DOME_T, cav_w + 2 * DOME_T, DOME_H + DOME_T
+    pill = extrude(RectangleRounded(out_l, out_w, out_w / 2 - 0.05), amount=out_h)
+    for r in (DOME_R_OUT, 2.5, 2.0):                                            # as round as the kernel allows
+        try: pill = fillet([e for e in pill.edges() if e.center().Z > out_h - 0.01], r); break
+        except Exception: continue
+    cap += on_row(pill, "B", cx, cu, R_IN["B"])
+    cap -= on_row(cav, "B", cx, cu, R_IN["B"] - 1.0)
     # LED window: the LED stands on the strip; its dome shows through a plain hole (tip ~0.9 below the surface)
     cap -= on_row(Cylinder(LED_D["dome_d"] / 2 + 0.3, 10.0, align=(Align.CENTER, Align.CENTER, Align.MIN)), "B",
                   x_strip + LED_X, LED_Y, R_IN["B"] - 1.0)

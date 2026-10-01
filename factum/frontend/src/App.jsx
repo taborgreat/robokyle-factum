@@ -2,10 +2,11 @@ import React, { useEffect, useState, useRef } from 'react';
 import { connect, get } from './api.js';
 import Live from './pages/Live.jsx';
 import Band from './pages/Band.jsx';
-import Hand from './pages/Hand.jsx';
+import Brunel from './pages/Brunel.jsx';
+import Claw from './pages/Claw.jsx';
 import Devices from './pages/Devices.jsx';
 
-const PAGES = { live: 'Live', band: 'Band', hand: 'Hand', devices: 'Devices' };
+const PAGES = { live: 'Live', band: 'Band', brunel: 'Brunel', claw: 'Claw', devices: 'Devices' };
 
 export default function App() {
   const [page, setPage] = useState(location.hash.slice(1) || 'live');
@@ -20,6 +21,7 @@ export default function App() {
       if (m.type === 'hello') { buf.current = m.recent || []; setFrames(buf.current.slice()); setState(s => ({ ...s, status: m.status, devices: m.devices })); }
       else if (m.type === 'frame') { buf.current.push(m.frame); if (buf.current.length > 1500) buf.current.shift(); }
       else if (m.type === 'status') setState(s => ({ ...s, status: m.status, stats: m.stats }));
+      else if (m.type === 'hand') setState(s => ({ ...s, status: { ...s.status, virtual: m.state } }));
     });
     const t = setInterval(() => setFrames(buf.current.slice()), 100);     // 10 Hz repaint is plenty
     return () => { stop(); clearInterval(t); };
@@ -29,19 +31,21 @@ export default function App() {
   const bandLive = last && Date.now() - last.rx < 1500;
   const bandUp = !!state.status?.band && !state.status?.bandErr;
   const handUp = !!state.status?.hand && !state.status?.handErr;
+  const virt = state.status?.virtual;
 
   return (
     <>
       <header className="topbar">
         <div className="brand"><i /><h1>Factum</h1></div>
         <span className="link"><i className={bandLive ? 'on' : bandUp ? 'on' : 'bad'} />band {bandLive ? 'streaming' : bandUp ? 'reachable' : 'offline'}</span>
-        <span className="link"><i className={handUp ? 'on' : 'bad'} />hand {handUp ? 'reachable' : 'offline'}</span>
+        <span className="link"><i className={handUp ? 'on' : virt ? 'on' : 'bad'} />hand {handUp ? 'claw reachable' : virt ? `virtual · ${virt.motion}` : 'offline'}</span>
         <nav>{Object.entries(PAGES).map(([k, v]) => <button key={k} className={page === k ? 'on' : ''} onClick={() => setPage(k)}>{v}</button>)}</nav>
       </header>
       <main>
         {page === 'live' && <Live frames={frames} state={state} />}
         {page === 'band' && <Band state={state} />}
-        {page === 'hand' && <Hand state={state} />}
+        {page === 'brunel' && <Brunel state={state} />}
+        {page === 'claw' && <Claw state={state} />}
         {page === 'devices' && <Devices state={state} onChange={d => setState(s => ({ ...s, devices: d }))} />}
       </main>
     </>

@@ -104,31 +104,31 @@ away: keep those joints small. Standing parts only on column 1 (6.5 mm of room);
 | R2 100 k (divider bottom) | (8,10) → (12,10), flat on top, right below R1 | underside bridge (7,10)↔(8,10) joins it to R1 (the midpoint) |
 | divider midpoint | underside bridge (7,10)↔(7,9) | (7,9) is GP28 |
 | divider ground | underside solder run (12,10)→(13,10)→(13,9) | (13,9) is a GND pin; no wire |
-| S8050 | E (13,1), B (14,1), C (15,1), standing | flat face away from the Pico (toward the board's edge); E is the leg nearest the USB end |
+| S8050 | E (13,1), B (14,1), C (15,1), standing | flat face away from the Pico (toward the board's edge); E is the leg nearest the USB end. As built it stands ~10 mm above the strip, measured on the built box: it and the 1 k stand ~1 mm above the lid's underside, 38–52 mm from the trunk end and within 4.4 mm of the middle wall, so the lid has a rounded pill there (2.4 mm of extra headroom inside, 2 mm proud, 19 × 8 mm; also the box's orientation mark) |
 | emitter to ground | underside bridge (13,1)↔(13,2) | (13,2) is a GND pin |
 | 1 kΩ | as built: soldered to the shortened base leg above the board and continuing down through (14,1); other lead in (18,1) | underside solder run (18,1)→(17,1)→(17,2): (17,2) is GP13, the motor pin. (18,1) must not touch (18,2), which is ground |
 | 3V3 point | underside bridge (5,9)↔(5,10) | (5,9) is 3V3; (5,10) sits under R1's body and is free underneath |
 
-| wire | from | to | length |
+| wire | from | to | cut length, mm (route in the box + 15 slack) |
 |---|---|---|---|
-| charger OUT− | charger | pin 3 stub (3,2) | 60 |
+| charger OUT− | charger | pin 3 stub (3,2) | 55 |
 | charger OUT+ | charger | switch middle | 110: up through the USB-end notch, along the strip's middle-wall edge (beside column 1, over bare board), past the strip's +X end and up to the switch. Never soldered to the strip, never over the Pico |
 | switch outer | switch | diode 1 plain-end stub (22,5) | 30 (the switch is 7 mm past row 22) |
 | VSYS | diode 1 stripe stub (22,2) | pin 39 stub (2,9) | 60, underside, diagonal under the Pico |
 | divider tap | diode 1 plain stub (22,5) | R1 top stub (4,10) | 50, underside |
 | LED supply | 470 Ω far stub (21,4) | pin 36 stub (5,9) | 45, underside |
 | LED ground | LED short-leg stub (21,8) | pin 23 stub (18,9) | 12, underside |
-| VBUS → charger | pin 40 stub (1,9) | 1N5817 (stripe toward the charger) → charger IN+, meeting the Qi diode there | 60 |
-| light bar GND | bar −X pad | pin 8 stub (8,2) | 60 |
-| light bar +5V | bar −X pad | pin 36 stub (5,9), with the LED supply | 60 |
-| light bar DIN | bar −X pad | pin 21 stub (20,9) = GP16 | 60 |
-| trunk A pin 1, 3V3 | PH6 header | (5,10), the 3V3 point | 60 |
-| trunk A pin 2, GND | PH6 header | pin 8 stub (8,2), with the bar GND | 60 |
-| trunk A pin 3, EMG1 | PH6 header | pin 31 stub (10,9) = GP26 | 60 |
-| trunk A pin 4, EMG2 | PH6 header | pin 32 stub (9,9) = GP27 | 60 |
-| trunk A pin 5, MOT+ | PH6 header | (5,10), the 3V3 point, with trunk A's 3V3 | 60 |
-| trunk A pin 6, MOT− | PH6 header | S8050 C stub (15,1) | 60 |
-| trunk B SDA / SCL / INT / BTN | PH4 header | pins 6, 7, 9, 10 stubs = (6,2) (7,2) (9,2) (10,2) | 60 |
-| cord TX / RX / GND | PH3 header | pins 1, 2, 18 stubs = (1,2) (2,2) (18,2) | 60 |
+| VBUS → charger | pin 40 stub (1,9) | 1N5817 (stripe toward the charger) → charger IN+, meeting the Qi diode there | 55 to the diode's plain end, diode 3 in the channel beside the Qi board, 15 from its stripe end to IN+ |
+| light bar GND | bar −X pad | pin 8 stub (8,2) | 40 |
+| light bar +5V | bar −X pad | pin 36 stub (5,9), with the LED supply | 55 |
+| light bar DIN | bar −X pad | pin 21 stub (20,9) = GP16 | 90 |
+| trunk A pin 1, 3V3 | PH6 header | (5,10), the 3V3 point | 135 |
+| trunk A pin 2, GND | PH6 header | pin 8 stub (8,2), with the bar GND | 105 |
+| trunk A pin 3, EMG1 | PH6 header | pin 31 stub (10,9) = GP26 | 120 |
+| trunk A pin 4, EMG2 | PH6 header | pin 32 stub (9,9) = GP27 | 125 |
+| trunk A pin 5, MOT+ | PH6 header | (5,10), the 3V3 point, with trunk A's 3V3 | 135 |
+| trunk A pin 6, MOT− | PH6 header | S8050 C stub (15,1) | 85 |
+| trunk B SDA / SCL / INT / BTN | PH4 header | pins 6, 7, 9, 10 stubs = (6,2) (7,2) (9,2) (10,2) | 75 / 75 / 70 / 65 |
+| cord TX / RX / GND | PH3 header | pins 1, 2, 18 stubs = (1,2) (2,2) (18,2) | 95 / 90 / 50 |
 
 Pins 36 and 8 and the 3V3 point (5,10) each take two wires: tin the two ends together, then one joint on the stub. Diagram of both sides: the Build tab of [viewer/index.html](viewer/index.html), rebuilt by python band/hardware/cad/strip_map_svg.py.

@@ -91,5 +91,5 @@ There is no "hand on the home network" address. `factum_host` (default `api.fact
 resolved by DNS as soon as Wi-Fi is up, retried every 10 s until it answers; plain HTTP and UDP only, the Pico build
 has no TLS, so the server must expose the band endpoints without HTTPS or a TLS step gets added later. All keys are
 settable from Factum through the config server; `factum_ip` is accepted and lands in `factum_host`. Config version 6.
-Factum's hand adapter (turning `"h"` into POSTs to the hand, plus the keepalive) is backend work still to do; until
-then HAND-FACTUM is streaming and the arcade, and the hand is driven in HAND-DIRECT or over the cord.
+Factum's relay (`factum/backend/src/relay.js`) turns `"h"` into motion: the virtual Brunel hand at `/brunel/` on the
+server (always), and the claw over the band's own protocol plus the keepalive when Factum's Devices page says so.

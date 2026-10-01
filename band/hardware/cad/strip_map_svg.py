@@ -4,7 +4,7 @@ battery bay, the forearm module and the whole band with its cables, each with a 
     python band/hardware/cad/strip_map_svg.py"""
 import io, os, math, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from band_sections import battery_section, module_section, system_section, EXTRA_CSS
+from band_sections import sockets_section, battery_section, module_section, system_section, EXTRA_CSS
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 OUT = os.path.join(ROOT, "band", "viewer", "index.html")
 
@@ -51,22 +51,22 @@ UWIRES = [
 ]
 # leads leaving the board: (stub hole, side 'L'/'R', text, colour)
 LEADS = [
-    ((3, 2), "L", "charger OUT−  60", C["chg"]),
-    ((8, 2), "L", "light bar GND  60  +  trunk A GND  60", C["gnd"]),
-    ((1, 2), "L", "cord TX  60", C["cord"]),
-    ((2, 2), "L", "cord RX  60", C["cord"]),
-    ((18, 2), "L", "cord GND  60", C["cord"]),
-    ((6, 2), "L", "trunk B SDA  60", C["tb"]),
-    ((7, 2), "L", "trunk B SCL  60", C["tb"]),
-    ((9, 2), "L", "trunk B INT  60", C["tb"]),
-    ((10, 2), "L", "trunk B BTN  60", C["tb"]),
-    ((15, 1), "L", "trunk A MOT−  60  (S8050 C leg)", C["ta"]),
-    ((1, 9), "R", "VBUS → 1N5817 → charger IN+  60", C["chg"]),
-    ((5, 9), "R", "light bar +5V  60", C["bar"]),
-    ((5, 10), "R", "trunk A 3V3 + MOT+  60 each  (3V3 point)", C["ta"]),
-    ((9, 9), "R", "trunk A EMG2  60", C["ta"]),
-    ((10, 9), "R", "trunk A EMG1  60", C["ta"]),
-    ((20, 9), "R", "light bar DIN  60", C["bar"]),
+    ((3, 2), "L", "charger OUT−  55", C["chg"]),
+    ((8, 2), "L", "light bar GND  40  +  trunk A GND  105", C["gnd"]),
+    ((1, 2), "L", "cord TX  95", C["cord"]),
+    ((2, 2), "L", "cord RX  90", C["cord"]),
+    ((18, 2), "L", "cord GND  50", C["cord"]),
+    ((6, 2), "L", "trunk B SDA  75", C["tb"]),
+    ((7, 2), "L", "trunk B SCL  75", C["tb"]),
+    ((9, 2), "L", "trunk B INT  70", C["tb"]),
+    ((10, 2), "L", "trunk B BTN  65", C["tb"]),
+    ((15, 1), "L", "trunk A MOT−  85  (S8050 C leg)", C["ta"]),
+    ((1, 9), "R", "VBUS → diode 3 → IN+   55 + diode + 15", C["chg"]),
+    ((5, 9), "R", "light bar +5V  55", C["bar"]),
+    ((5, 10), "R", "trunk A 3V3 + MOT+  135 each  (3V3 point)", C["ta"]),
+    ((9, 9), "R", "trunk A EMG2  125", C["ta"]),
+    ((10, 9), "R", "trunk A EMG1  120", C["ta"]),
+    ((20, 9), "R", "light bar DIN  90", C["bar"]),
     ((22, 5), "R", "switch outer  30", C["sw"]),
 ]
 
@@ -270,7 +270,7 @@ def build_list():
     o.append("</ol><h3>3. Wires that stay under the board</h3><ol>")
     for a, b, label, col in UWIRES:
         o.append(f"<li>{esc(label)}: from the stub at ({a[0]},{a[1]}) to the stub at ({b[0]},{b[1]}), routed in the bare lanes, never over another stub.</li>")
-    o.append("</ol><h3>4. Leads leaving the board (tin, lay along the stub, one joint)</h3><ol>")
+    o.append("</ol><h3>4. Leads leaving the board (tin, lay along the stub, one joint)</h3><p class=\"sub\">Lengths are cut lengths: the route inside the box plus 15 mm of handling slack. The long ones are long because the sockets sit at the far end of the box from the pins they feed; the trunk A leads also cross the middle wall. Section 2 draws the socket leads pin by pin.</p><ol>")
     groups = [("charger", C["chg"]), ("switch", C["sw"]), ("light bar", C["bar"]), ("trunk A", C["ta"]), ("trunk B", C["tb"]), ("cord", C["cord"]), ("VBUS", C["chg"])]
     for gname, gcol in groups:
         items = [(h, t) for h, side, t, col in LEADS if t.lower().startswith(gname.lower())]
@@ -279,7 +279,7 @@ def build_list():
         for (r, c), t in items:
             o.append(f"<li>{esc(t)} → stub at ({r},{c})</li>")
         if gname == "charger": o.append("<li>charger OUT+  110 → the switch's middle pin: through the USB-end notch, along the strip's column-1 edge, past row 22 to the switch (never soldered to the strip)</li>")
-        if gname == "VBUS": o.append("<li>the 1N5817 sits in this wire, stripe toward the charger; heat-shrink over it</li>")
+        if gname == "VBUS": o.append("<li>diode 3 sits in this wire at the CHARGER end, not the middle: 55 mm from the stub to its plain end, the diode lying in the channel beside the Qi board's middle-wall edge (stripe toward the charger, heat-shrink over it), 15 mm from the stripe end to IN+. Its body is 2.7 mm thick and does not fit under the strip or in the wall notch.</li>")
         o.append("</ul></li>")
     o.append("</ol><p class=\"sub\">Stubs that take two wires: (5,9) 3V3 takes the LED supply and the light bar +5V; (8,2) GND takes the light bar GND and trunk A GND; (5,10) takes trunk A 3V3 and MOT+. Tin both ends together, then one joint.</p>")
     o.append("<h3>5. Meter checks before it goes in the box</h3><ol>")
@@ -304,14 +304,14 @@ def fragment():
     ]
     tr = "".join(f"<tr><td>{esc(a)}</td><td>{esc(b)}</td><td>{esc(c)}</td></tr>" for a, b, c in rows)
     return f"""<style>{CSS}{EXTRA_CSS}</style>
-<header class="bhead"><h2>Band build maps</h2><p class="sub">Four separate sections: the strip (both sides), the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another. Generated from the tables in band/PARTS.md.</p></header>
+<header class="bhead"><h2>Band build maps</h2><p class="sub">Five separate sections: the strip (both sides), the band box's wall sockets and their leads, the battery bay, the forearm module, and the whole band with its cables. Each has its own diagram and its own build order; nothing in one section refers to holes in another. Generated from the tables in band/PARTS.md.</p></header>
 <section id="strip"><h2>1. The strip, both sides</h2>
 <p class="sub">Look down at the top with the USB end at the top: column 1 top-left, column 10 top-right, rows 1–22 from the USB end. Pin 1 (GP0) is at (1,2), pin 40 (VBUS) at (1,9). The bottom view is the board flipped left-to-right, USB still at the top, so column 1 appears on the right. Dark holes carry solder. Lengths in mm.</p>
 <div class="wrap">{svg(False, "TOP — components (nothing else is soldered here)")}{svg(True, "BOTTOM — solder side, board flipped over (bridges, underside wires, leads leaving)")}</div>
 <ul class="legend">{li}</ul>
 <table><thead><tr><th>part</th><th>holes</th><th>note</th></tr></thead><tbody>{tr}</tbody></table>
 {build_list()}
-</section>{battery_section()}{module_section()}{system_section()}<p class="sub" style="margin-top:18px">The slide switch is not on the strip: it sits on a shelf on the chest wall (right-hand side here) just past row 22, between the LED and the corner lid boss, and reaches the board only through its two wires, charger OUT+ into its middle pin and its outer pin down to diode 1 at (22,5). Every hole in columns 1 and 10 has a Pico pin 2.5 mm away: keep those joints small. Column 10 stays flat (the LED hole is over rows 17–20). Underside wires cross in the bare lanes under the Pico, never over a stub. Source of truth: band/PARTS.md, “Strip map”.</p>"""
+</section>{sockets_section()}{battery_section()}{module_section()}{system_section()}<p class="sub" style="margin-top:18px">The slide switch is not on the strip: it sits on a shelf on the chest wall (right-hand side here) just past row 22, between the LED and the corner lid boss, and reaches the board only through its two wires, charger OUT+ into its middle pin and its outer pin down to diode 1 at (22,5). Every hole in columns 1 and 10 has a Pico pin 2.5 mm away: keep those joints small. Column 10 stays flat (the LED hole is over rows 17–20). Underside wires cross in the bare lanes under the Pico, never over a stub. Source of truth: band/PARTS.md, “Strip map”.</p>"""
 
 def inject(html, frag):
     """Replace whatever sits between the BUILD markers in the viewer page with the fresh fragment."""
